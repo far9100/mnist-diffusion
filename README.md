@@ -92,11 +92,16 @@ uv run python inference.py --save-denoising --denoising-steps 15
 # 1. 先生成資料集（若尚未生成）
 uv run python inference.py --per-digit 100 --output-dir generated
 
-# 2. 訓練 CNN 並評估生成圖（含混淆矩陣）
-uv run python evaluate.py --save-cnn mnist_cnn.pt --confusion-matrix
+# 2. 訓練 CNN 並評估生成圖（含混淆矩陣，並產出 .txt 與 .json 報告）
+uv run python evaluate.py --save-cnn mnist_cnn.pt --confusion-matrix \
+    --report report.txt --report-json report.json
 
 # 3. 之後快速重複評估（用快取的 CNN）
-uv run python evaluate.py --checkpoint mnist_cnn.pt
+uv run python evaluate.py --checkpoint mnist_cnn.pt --report report.txt
+
+# 4. CI 整合：accuracy 低於警告門檻則 exit code 非 0
+uv run python evaluate.py --checkpoint mnist_cnn.pt \
+    --threshold 95 --threshold-warn 90 --strict
 ```
 
 ### 評估參數
@@ -112,8 +117,17 @@ uv run python evaluate.py --checkpoint mnist_cnn.pt
 | `--data-dir` | `./data` | MNIST 資料夾 |
 | `--num-workers` | `2` | DataLoader 工作程序數 |
 | `--confusion-matrix` | 關 | 列印混淆矩陣 |
+| `--report` | — | 將純文字報告寫入此路徑 |
+| `--report-json` | — | 將機器可讀 JSON 報告寫入此路徑 |
+| `--threshold` | `95.0` | 整體準確率達標門檻（%）|
+| `--threshold-warn` | `90.0` | 可接受門檻（%），低於此值視為未達標 |
+| `--strict` | 關 | 未達標時以非 0 exit code 結束（CI 用）|
 
-評估輸出包含：CNN 在真實測試集的準確率（baseline）、在生成圖上的整體準確率、每個數字 0–9 的 per-class 準確率，以及（選用）混淆矩陣。
+評估輸出包含：CNN 在真實測試集的準確率（baseline）、在生成圖上的整體準確率、每個數字 0–9 的 per-class 準確率、混淆矩陣、品質達標判定（PASS / FAIL）。
+
+報告格式：
+- **`.txt`**：給人閱讀，含 metadata（GPU、PyTorch 版本、git commit、checkpoint mtime、執行時間）、per-class 表格、混淆矩陣、達標結論
+- **`.json`**：給機器解析，方便比較不同 checkpoint 或在 CI 中追蹤指標
 
 ## 專案結構
 

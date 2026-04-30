@@ -25,3 +25,5 @@ generated/
 # Run logs / intermediate reports
 logs/
 evaluation_report.txt
+report.txt
+report.json
