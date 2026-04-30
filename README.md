@@ -84,12 +84,44 @@ uv run python inference.py --save-denoising --denoising-steps 15
 | `--denoising-steps` | `9` | 去噪視覺化的中間快照數量 |
 | `--save-pt` | 開 | 儲存為 `.pt` 張量資料集 |
 
+## 評估
+
+訓練一個 CNN 分類器在真實 MNIST 上學習辨識手寫數字（baseline ~99% 準確率），再用它評估擴散模型生成的圖片是否能被正確分類，作為品質指標。整體準確率越接近 baseline，代表生成圖越像真實的對應數字。
+
+```bash
+# 1. 先生成資料集（若尚未生成）
+uv run python inference.py --per-digit 100 --output-dir generated
+
+# 2. 訓練 CNN 並評估生成圖（含混淆矩陣）
+uv run python evaluate.py --save-cnn mnist_cnn.pt --confusion-matrix
+
+# 3. 之後快速重複評估（用快取的 CNN）
+uv run python evaluate.py --checkpoint mnist_cnn.pt
+```
+
+### 評估參數
+
+| 參數 | 預設值 | 說明 |
+|------|--------|------|
+| `--generated` | `generated/dataset.pt` | 生成資料集路徑 |
+| `--checkpoint` | — | CNN 權重路徑；提供時跳過訓練 |
+| `--save-cnn` | — | 訓練完將 CNN 權重存到此路徑 |
+| `--epochs` | `10` | CNN 訓練輪數 |
+| `--batch-size` | `256` | 訓練與評估批次大小 |
+| `--lr` | `1e-3` | 學習率 |
+| `--data-dir` | `./data` | MNIST 資料夾 |
+| `--num-workers` | `2` | DataLoader 工作程序數 |
+| `--confusion-matrix` | 關 | 列印混淆矩陣 |
+
+評估輸出包含：CNN 在真實測試集的準確率（baseline）、在生成圖上的整體準確率、每個數字 0–9 的 per-class 準確率，以及（選用）混淆矩陣。
+
 ## 專案結構
 
 ```
 ddpm.py       — 模型架構（UNet）與擴散排程（DiffusionSchedule）
 train.py      — 訓練迴圈與取樣邏輯
 inference.py  — 推論腳本，生成數字與去噪過程視覺化
+evaluate.py   — CNN 分類器，用於評估生成圖品質
 ```
 
 ## 架構概覽

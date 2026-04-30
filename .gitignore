@@ -14,3 +14,14 @@ wheels/
 
 # MNIST DATA
 data/*
+
+# Model weights
+*.pt
+
+# Diffusion outputs
+samples/
+generated/
+
+# Run logs / intermediate reports
+logs/
+evaluation_report.txt
