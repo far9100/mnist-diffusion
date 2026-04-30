@@ -55,7 +55,10 @@ def main():
     parser.add_argument("--output-dir", type=str, default="generated",
                         help="Output directory (default: generated/)")
     parser.add_argument("--save-grid", action="store_true",
-                        help="Also save a preview grid image per digit")
+                        help="Also save a preview grid image per digit (one row of 10 per 10 samples)")
+    parser.add_argument("--save-images", action="store_true",
+                        help="Save each generated image as an individual PNG under "
+                             "<output-dir>/images/digit_<d>/sample_<NNN>.png")
     parser.add_argument("--save-pt", action="store_true", default=True,
                         help="Save as .pt tensor dataset (default: True)")
     parser.add_argument("--save-denoising", action="store_true",
@@ -94,13 +97,25 @@ def main():
         all_images.append(digit_images)
         all_labels.append(digit_labels)
 
-        # Save preview grid
+        # Save preview grid (full set, square layout)
         if args.save_grid:
-            n_show = min(64, digit_images.shape[0])
-            grid = make_grid(digit_images[:n_show] * 0.5 + 0.5, nrow=8)
+            n_total = digit_images.shape[0]
+            nrow = max(1, int(round(n_total ** 0.5)))
+            grid = make_grid(digit_images * 0.5 + 0.5, nrow=nrow)
             grid_path = os.path.join(args.output_dir, f"grid_digit_{digit}.png")
             save_image(grid, grid_path)
-            print(f"  Grid saved to {grid_path}")
+            print(f"  Grid saved to {grid_path}  ({n_total} images, nrow={nrow})")
+
+        # Save each image as an individual PNG
+        if args.save_images:
+            img_dir = os.path.join(args.output_dir, "images", f"digit_{digit}")
+            os.makedirs(img_dir, exist_ok=True)
+            for idx in range(digit_images.shape[0]):
+                save_image(
+                    digit_images[idx] * 0.5 + 0.5,
+                    os.path.join(img_dir, f"sample_{idx:03d}.png"),
+                )
+            print(f"  Saved {digit_images.shape[0]} individual PNGs to {img_dir}")
 
     # Combine and save dataset
     all_images = torch.cat(all_images, dim=0)

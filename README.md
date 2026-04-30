@@ -59,8 +59,11 @@ uv run python inference.py --digits 3 7
 # 調整每個數字的生成數量
 uv run python inference.py --per-digit 500
 
-# 儲存預覽網格圖
+# 儲存預覽網格圖（每個數字一張，square layout 包含全部生成樣本）
 uv run python inference.py --save-grid
+
+# 將每張圖各自存成 PNG（generated/images/digit_X/sample_NNN.png）
+uv run python inference.py --save-images
 
 # 儲存去噪過程視覺化
 uv run python inference.py --save-denoising
@@ -79,7 +82,8 @@ uv run python inference.py --save-denoising --denoising-steps 15
 | `--batch-size` | `64` | 生成批次大小 |
 | `--guidance-scale` | `3.0` | Classifier-free guidance 強度 |
 | `--output-dir` | `generated/` | 輸出資料夾 |
-| `--save-grid` | 關 | 儲存每個數字的預覽網格圖 |
+| `--save-grid` | 關 | 儲存每個數字的預覽網格圖（square layout，包含全部生成樣本）|
+| `--save-images` | 關 | 將每張圖個別存成 PNG，置於 `generated/images/digit_X/sample_NNN.png` |
 | `--save-denoising` | 關 | 儲存去噪過程視覺化 |
 | `--denoising-steps` | `9` | 去噪視覺化的中間快照數量 |
 | `--save-pt` | 開 | 儲存為 `.pt` 張量資料集 |
