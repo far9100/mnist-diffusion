@@ -1,16 +1,15 @@
 """
-CNN classifier for validating MNIST diffusion model output.
+TSTR (Train on Synthetic, Test on Real) evaluator for the MNIST diffusion model.
 
-Trains a CNN on real MNIST data, then evaluates it on generated images
-to check whether the diffusion model produces realistic, classifiable digits.
+Trains a CNN purely on diffusion-generated images, then evaluates it on the
+real MNIST test set. The CNN's accuracy on real digits = how well the
+generations cover and match the real distribution. Recommended training set
+size is 10K images (inference.py --per-digit 1000).
 
 Usage:
     uv run python evaluate.py
-    uv run python evaluate.py --generated generated/dataset.pt
-    uv run python evaluate.py --save-cnn mnist_cnn.pt
-    uv run python evaluate.py --checkpoint mnist_cnn.pt
-    uv run python evaluate.py --epochs 5 --batch-size 512 --confusion-matrix
-    uv run python evaluate.py --report report.txt --report-json report.json
+    uv run python evaluate.py --checkpoint mnist_cnn_gen.pt
+    uv run python evaluate.py --confusion-matrix --report report.txt --report-json report.json
     uv run python evaluate.py --threshold 95 --threshold-warn 90 --strict
 """
 
@@ -197,29 +196,29 @@ def determine_verdict(gen_acc, threshold, threshold_warn):
     return f"FAIL (accuracy < {threshold_warn:.2f}%)", 1
 
 
-def build_report_text(*, args, device, real_metrics, gen_metrics, gen_matrix,
+def build_report_text(*, args, device, train_metrics, real_metrics, real_matrix,
                      source_path, elapsed_s, verdict):
-    gen_acc, gen_correct, gen_total = gen_metrics
-    real_acc = real_metrics[0] if real_metrics else None
-    total_samples = sum(gen_total.values())
+    real_acc, real_correct, real_total = real_metrics
+    train_acc = train_metrics[0] if train_metrics else None
+    real_total_samples = sum(real_total.values())
 
     lines = []
     lines.append("=" * 60)
-    lines.append("  MNIST DIFFUSION QUALITY EVALUATION REPORT")
+    lines.append("  MNIST DIFFUSION TSTR (Train-on-Synthetic, Test-on-Real) REPORT")
     lines.append("=" * 60)
     lines.append("")
     lines.append("Metadata")
     lines.append("-" * 60)
-    lines.append(f"  Generated at      : {datetime.datetime.now().isoformat(timespec='seconds')}")
-    lines.append(f"  Device            : {device}")
+    lines.append(f"  Generated at         : {datetime.datetime.now().isoformat(timespec='seconds')}")
+    lines.append(f"  Device               : {device}")
     if device.type == "cuda":
-        lines.append(f"  GPU               : {torch.cuda.get_device_name(0)}")
-    lines.append(f"  PyTorch           : {torch.__version__}")
+        lines.append(f"  GPU                  : {torch.cuda.get_device_name(0)}")
+    lines.append(f"  PyTorch              : {torch.__version__}")
     commit = get_git_commit()
     if commit:
-        lines.append(f"  Git commit        : {commit}")
-    lines.append(f"  Generated dataset : {source_path}")
-    lines.append(f"  Total samples     : {total_samples}")
+        lines.append(f"  Git commit           : {commit}")
+    lines.append(f"  Training source      : {source_path}")
+    lines.append(f"  Real eval samples    : {real_total_samples}")
     if args.checkpoint:
         ckpt_path = args.checkpoint
         try:
@@ -228,49 +227,50 @@ def build_report_text(*, args, device, real_metrics, gen_metrics, gen_matrix,
             ).isoformat(timespec="seconds")
         except OSError:
             ckpt_mtime = "n/a"
-        lines.append(f"  CNN checkpoint    : {ckpt_path} (mtime {ckpt_mtime})")
+        lines.append(f"  CNN checkpoint       : {ckpt_path} (mtime {ckpt_mtime})")
     else:
         lines.append(
-            f"  CNN trained       : {args.epochs} epochs, batch={args.batch_size}, lr={args.lr}"
+            f"  CNN trained          : {args.epochs} epochs, batch={args.batch_size}, lr={args.lr}"
         )
-    lines.append(f"  Elapsed           : {elapsed_s:.1f}s")
+    lines.append(f"  Elapsed              : {elapsed_s:.1f}s")
     lines.append("")
 
-    if real_metrics is not None:
-        real_acc, real_correct, real_total = real_metrics
+    if train_metrics is not None:
+        _, train_correct, train_total = train_metrics
         lines.append(format_metrics_block(
-            real_acc, real_correct, real_total,
-            "CNN Baseline on Real MNIST Test Set",
+            train_acc, train_correct, train_total,
+            "CNN Training-Set Accuracy on Generated Images",
         ))
+        lines.append(f"  Source: {source_path}")
         lines.append("")
 
     lines.append(format_metrics_block(
-        gen_acc, gen_correct, gen_total,
-        "CNN Evaluation on Generated Images",
+        real_acc, real_correct, real_total,
+        "CNN Evaluation on Real MNIST Test Set",
     ))
-    lines.append(f"  Source: {source_path}")
-    if real_acc is not None:
-        gap = gen_acc - real_acc
-        lines.append(f"  Gap vs baseline   : {gap:+.2f} pp")
+    if train_acc is not None:
+        gap = train_acc - real_acc
+        lines.append(f"  Generalization gap   : {gap:+.2f} pp"
+                     "  (training-set acc - real-MNIST acc; positive = worse generalization)")
     lines.append("")
 
-    lines.append(format_confusion_matrix(gen_matrix))
+    lines.append(format_confusion_matrix(real_matrix))
     lines.append("")
 
-    lines.append("Quality Verdict")
+    lines.append("Quality Verdict (TSTR)")
     lines.append("-" * 60)
-    lines.append(f"  Threshold (pass)        : {args.threshold:.2f}%")
-    lines.append(f"  Threshold (acceptable)  : {args.threshold_warn:.2f}%")
-    lines.append(f"  Generated accuracy      : {gen_acc:.2f}%")
-    lines.append(f"  Result                  : {verdict}")
+    lines.append(f"  Threshold (pass)            : {args.threshold:.2f}%")
+    lines.append(f"  Threshold (acceptable)      : {args.threshold_warn:.2f}%")
+    lines.append(f"  Real-MNIST eval accuracy    : {real_acc:.2f}%")
+    lines.append(f"  Result                      : {verdict}")
     lines.append("")
     lines.append("=" * 60)
     return "\n".join(lines)
 
 
-def build_report_json(*, args, device, real_metrics, gen_metrics, gen_matrix,
+def build_report_json(*, args, device, train_metrics, real_metrics, real_matrix,
                      source_path, elapsed_s, verdict, exit_code):
-    gen_acc, gen_correct, gen_total = gen_metrics
+    real_acc, real_correct, real_total = real_metrics
 
     def _per_class_dict(correct, total):
         return {
@@ -282,13 +282,14 @@ def build_report_json(*, args, device, real_metrics, gen_metrics, gen_matrix,
             for d in sorted(total.keys())
         }
 
-    real_block = None
-    real_acc = None
-    if real_metrics is not None:
-        real_acc, real_correct, real_total = real_metrics
-        real_block = {
-            "overall_accuracy": real_acc,
-            "per_class": _per_class_dict(real_correct, real_total),
+    train_block = None
+    train_acc = None
+    if train_metrics is not None:
+        train_acc, train_correct, train_total = train_metrics
+        train_block = {
+            "overall_accuracy": train_acc,
+            "per_class": _per_class_dict(train_correct, train_total),
+            "source": source_path,
         }
 
     ckpt_meta = None
@@ -310,22 +311,27 @@ def build_report_json(*, args, device, real_metrics, gen_metrics, gen_matrix,
             "gpu": torch.cuda.get_device_name(0) if device.type == "cuda" else None,
             "pytorch": torch.__version__,
             "git_commit": get_git_commit(),
-            "generated_dataset": source_path,
-            "total_samples": sum(gen_total.values()),
+            "training_dataset_generated": source_path,
+            "real_eval_total_samples": sum(real_total.values()),
             "cnn_checkpoint": ckpt_meta,
             "cnn_train_config": (
                 None if args.checkpoint
-                else {"epochs": args.epochs, "batch_size": args.batch_size, "lr": args.lr}
+                else {
+                    "epochs": args.epochs,
+                    "batch_size": args.batch_size,
+                    "lr": args.lr,
+                    "train_source": source_path,
+                }
             ),
             "elapsed_s": elapsed_s,
         },
-        "real_baseline": real_block,
-        "generated": {
-            "overall_accuracy": gen_acc,
-            "per_class": _per_class_dict(gen_correct, gen_total),
-            "gap_vs_baseline_pp": (gen_acc - real_acc) if real_acc is not None else None,
+        "train_set_accuracy": train_block,
+        "real_eval": {
+            "overall_accuracy": real_acc,
+            "per_class": _per_class_dict(real_correct, real_total),
+            "generalization_gap_pp": (train_acc - real_acc) if train_acc is not None else None,
         },
-        "confusion_matrix": gen_matrix.tolist(),
+        "confusion_matrix": real_matrix.tolist() if real_matrix is not None else None,
         "thresholds": {
             "pass": args.threshold,
             "acceptable": args.threshold_warn,
@@ -338,11 +344,8 @@ def build_report_json(*, args, device, real_metrics, gen_metrics, gen_matrix,
 def load_generated(path):
     if not os.path.exists(path):
         print(f"\nERROR: Generated dataset not found at '{path}'")
-        if os.path.exists("ex/dataset.pt"):
-            print("Tip: this repo ships a ready-to-use example you can evaluate immediately:")
-            print("  uv run python evaluate.py --generated ex/dataset.pt")
-        print("Or run inference to produce a fresh one:")
-        print(f"  uv run python inference.py --per-digit 100 --output-dir generated")
+        print("Run inference to produce one:")
+        print(f"  uv run python inference.py --per-digit 1000 --output-dir generated")
         print("Then re-run evaluate.py.")
         sys.exit(1)
 
@@ -362,34 +365,34 @@ def load_generated(path):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Train a CNN on real MNIST and evaluate on diffusion-generated images."
+        description="TSTR: train a CNN on diffusion-generated images and evaluate on the real MNIST test set."
     )
     parser.add_argument("--generated", default="generated/dataset.pt",
-                        help="Path to generated .pt file (default: generated/dataset.pt)")
+                        help="Path to generated .pt file used as training data (default: generated/dataset.pt)")
     parser.add_argument("--checkpoint", default=None,
-                        help="Pre-trained CNN checkpoint path; skips training if provided")
-    parser.add_argument("--save-cnn", default=None,
-                        help="Save trained CNN weights to this path")
-    parser.add_argument("--epochs", type=int, default=10,
-                        help="CNN training epochs (default: 10)")
-    parser.add_argument("--batch-size", type=int, default=256,
-                        help="Batch size for training and evaluation (default: 256)")
+                        help="Pre-trained-on-generated CNN checkpoint path; skips training if provided")
+    parser.add_argument("--save-cnn", default="mnist_cnn_gen.pt",
+                        help="Save trained CNN weights to this path (default: mnist_cnn_gen.pt)")
+    parser.add_argument("--epochs", type=int, default=20,
+                        help="CNN training epochs (default: 20)")
+    parser.add_argument("--batch-size", type=int, default=64,
+                        help="Batch size for training and evaluation (default: 64)")
     parser.add_argument("--lr", type=float, default=1e-3,
                         help="Learning rate (default: 1e-3)")
     parser.add_argument("--data-dir", default="./data",
                         help="MNIST data directory (default: ./data)")
     parser.add_argument("--num-workers", type=int, default=2,
-                        help="DataLoader workers for MNIST (default: 2)")
+                        help="DataLoader workers for the real MNIST test loader (default: 2)")
     parser.add_argument("--confusion-matrix", action="store_true",
-                        help="Print confusion matrix for generated images")
+                        help="Print confusion matrix for the real MNIST eval")
     parser.add_argument("--report", default=None,
                         help="Write a human-readable text report to this path")
     parser.add_argument("--report-json", default=None,
                         help="Write a machine-readable JSON report to this path")
     parser.add_argument("--threshold", type=float, default=95.0,
-                        help="Pass threshold for overall accuracy in %% (default: 95)")
+                        help="Pass threshold for real-MNIST eval accuracy in %% (default: 95)")
     parser.add_argument("--threshold-warn", type=float, default=90.0,
-                        help="Acceptable threshold for overall accuracy in %% (default: 90)")
+                        help="Acceptable threshold for real-MNIST eval accuracy in %% (default: 90)")
     parser.add_argument("--strict", action="store_true",
                         help="Exit with non-zero code if accuracy is below the warn threshold")
     return parser.parse_args()
@@ -403,7 +406,7 @@ def main():
 
     model = MNISTClassifier().to(device)
 
-    real_metrics = None
+    train_metrics = None
 
     if args.checkpoint:
         model.load_state_dict(
@@ -411,61 +414,65 @@ def main():
         )
         print(f"Loaded CNN checkpoint: {args.checkpoint}")
     else:
-        print("\nTraining CNN on real MNIST...")
-        train_loader, test_loader = build_dataloaders(
-            args.data_dir, args.batch_size, args.num_workers
-        )
-        train_classifier(model, train_loader, device, args.epochs, args.lr)
+        images, labels = load_generated(args.generated)
+        gen_train_dataset = TensorDataset(images, labels)
+        gen_train_loader = DataLoader(gen_train_dataset, batch_size=args.batch_size,
+                                      shuffle=True, num_workers=0)
 
-        overall_acc, per_class_correct, per_class_total = evaluate(model, test_loader, device)
-        real_metrics = (overall_acc, per_class_correct, per_class_total)
-        print_report(overall_acc, per_class_correct, per_class_total,
-                     "CNN Accuracy on Real MNIST Test Set")
+        print(f"\nTraining CNN on generated images "
+              f"({images.shape[0]} samples from {args.generated})...")
+        train_classifier(model, gen_train_loader, device, args.epochs, args.lr)
+
+        sanity_loader = DataLoader(gen_train_dataset, batch_size=args.batch_size,
+                                   shuffle=False, num_workers=0)
+        train_acc, train_correct, train_total = evaluate(model, sanity_loader, device)
+        train_metrics = (train_acc, train_correct, train_total)
+        print_report(train_acc, train_correct, train_total,
+                     "CNN Training-Set Accuracy on Generated Images")
 
         if args.save_cnn:
             torch.save(model.state_dict(), args.save_cnn)
             print(f"\nCNN saved to {args.save_cnn}")
 
-    images, labels = load_generated(args.generated)
-    gen_dataset = TensorDataset(images, labels)
-    gen_loader = DataLoader(gen_dataset, batch_size=args.batch_size, shuffle=False,
-                            num_workers=0)
+    _, real_test_loader = build_dataloaders(
+        args.data_dir, args.batch_size, args.num_workers
+    )
 
-    gen_overall, gen_correct, gen_total = evaluate(model, gen_loader, device)
-    gen_metrics = (gen_overall, gen_correct, gen_total)
-    print_report(gen_overall, gen_correct, gen_total,
-                 "CNN Evaluation on Generated Images")
-    print(f"  Source: {args.generated}")
+    real_overall, real_correct, real_total = evaluate(model, real_test_loader, device)
+    real_metrics = (real_overall, real_correct, real_total)
+    print_report(real_overall, real_correct, real_total,
+                 "CNN Evaluation on Real MNIST Test Set")
 
     need_matrix = args.confusion_matrix or args.report or args.report_json
-    gen_matrix = None
+    real_matrix = None
     if need_matrix:
-        matrix_loader = DataLoader(gen_dataset, batch_size=args.batch_size, shuffle=False,
-                                   num_workers=0)
-        gen_matrix = build_confusion_matrix(model, matrix_loader, device)
+        _, matrix_loader = build_dataloaders(
+            args.data_dir, args.batch_size, args.num_workers
+        )
+        real_matrix = build_confusion_matrix(model, matrix_loader, device)
         if args.confusion_matrix:
-            print_confusion_matrix(gen_matrix)
+            print_confusion_matrix(real_matrix)
 
     verdict, exit_code = determine_verdict(
-        gen_overall, args.threshold, args.threshold_warn
+        real_overall, args.threshold, args.threshold_warn
     )
     elapsed_s = time.monotonic() - start_time
 
     print()
     print("=" * 50)
-    print("  Quality Verdict")
+    print("  Quality Verdict (TSTR)")
     print("=" * 50)
-    print(f"  Threshold (pass)        : {args.threshold:.2f}%")
-    print(f"  Threshold (acceptable)  : {args.threshold_warn:.2f}%")
-    print(f"  Generated accuracy      : {gen_overall:.2f}%")
-    print(f"  Result                  : {verdict}")
+    print(f"  Threshold (pass)            : {args.threshold:.2f}%")
+    print(f"  Threshold (acceptable)      : {args.threshold_warn:.2f}%")
+    print(f"  Real-MNIST eval accuracy    : {real_overall:.2f}%")
+    print(f"  Result                      : {verdict}")
     print("=" * 50)
 
     if args.report:
         text = build_report_text(
             args=args, device=device,
-            real_metrics=real_metrics, gen_metrics=gen_metrics,
-            gen_matrix=gen_matrix,
+            train_metrics=train_metrics, real_metrics=real_metrics,
+            real_matrix=real_matrix,
             source_path=args.generated, elapsed_s=elapsed_s,
             verdict=verdict,
         )
@@ -476,8 +483,8 @@ def main():
     if args.report_json:
         data = build_report_json(
             args=args, device=device,
-            real_metrics=real_metrics, gen_metrics=gen_metrics,
-            gen_matrix=gen_matrix,
+            train_metrics=train_metrics, real_metrics=real_metrics,
+            real_matrix=real_matrix,
             source_path=args.generated, elapsed_s=elapsed_s,
             verdict=verdict, exit_code=exit_code,
         )
