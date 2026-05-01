@@ -93,7 +93,7 @@ uv run python inference.py --save-denoising --denoising-steps 15
 訓練一個 CNN 分類器在真實 MNIST 上學習辨識手寫數字（baseline ~99% 準確率），再用它評估擴散模型生成的圖片是否能被正確分類，作為品質指標。整體準確率越接近 baseline，代表生成圖越像真實的對應數字。
 
 ```bash
-# 1. 先生成資料集（若尚未生成）
+# 1. 先生成資料集（若尚未生成；輸出到 generated/，不會動到範例 ex/）
 uv run python inference.py --per-digit 100 --output-dir generated
 
 # 2. 訓練 CNN 並評估生成圖（含混淆矩陣，並產出 .txt 與 .json 報告）
@@ -103,7 +103,10 @@ uv run python evaluate.py --save-cnn mnist_cnn.pt --confusion-matrix \
 # 3. 之後快速重複評估（用快取的 CNN）
 uv run python evaluate.py --checkpoint mnist_cnn.pt --report report.txt
 
-# 4. CI 整合：accuracy 低於警告門檻則 exit code 非 0
+# 4. 直接評估 repo 內附的範例（無需先跑 inference.py）
+uv run python evaluate.py --checkpoint mnist_cnn.pt --generated ex/dataset.pt
+
+# 5. CI 整合：accuracy 低於警告門檻則 exit code 非 0
 uv run python evaluate.py --checkpoint mnist_cnn.pt \
     --threshold 95 --threshold-warn 90 --strict
 ```
@@ -133,9 +136,11 @@ uv run python evaluate.py --checkpoint mnist_cnn.pt \
 - **`.txt`**：給人閱讀，含 metadata（GPU、PyTorch 版本、git commit、checkpoint mtime、執行時間）、per-class 表格、混淆矩陣、達標結論
 - **`.json`**：給機器解析，方便比較不同 checkpoint 或在 CI 中追蹤指標
 
-## 最新評估結果
+## 範例與最新評估結果
 
-以預設超參數訓練 20 epochs、生成每數字 100 張圖（共 1000 張）後，CNN 評估器的判定如下：
+`ex/` 資料夾內附了一份預先生成好的 1000 張範例圖（每個數字 100 張），無需自己跑訓練 / 推論即可體驗評估流程。下次執行 `inference.py` 時新結果會輸出到 `generated/`（自動建立、不在 git 內），不會覆蓋這份範例。
+
+以預設超參數訓練 20 epochs、生成每數字 100 張圖（共 1000 張）後，CNN 評估器對 `ex/dataset.pt` 的判定如下：
 
 | 指標 | 值 |
 |---|---|
@@ -147,14 +152,14 @@ uv run python evaluate.py --checkpoint mnist_cnn.pt \
 
 可預覽的視覺化已隨 repo 提交，可直接在 GitHub 上瀏覽：
 
-- 每個數字 100 張的網格圖：[`generated/grid_digit_0.png`](generated/grid_digit_0.png) … [`generated/grid_digit_9.png`](generated/grid_digit_9.png)
-- 去噪過程：[`generated/denoising_process.png`](generated/denoising_process.png)
-- 個別樣本（全部 1000 張攤平於同一資料夾）：[`generated/images/`](generated/images/)，檔名格式為 `digit_X_sample_NNN.png`
-- 1000 張的 tensor 資料集：[`generated/dataset.pt`](generated/dataset.pt)（直接餵給 `evaluate.py`）
+- 每個數字 100 張的網格圖：[`ex/grid_digit_0.png`](ex/grid_digit_0.png) … [`ex/grid_digit_9.png`](ex/grid_digit_9.png)
+- 去噪過程：[`ex/denoising_process.png`](ex/denoising_process.png)
+- 個別樣本（全部 1000 張攤平於同一資料夾）：[`ex/images/`](ex/images/)，檔名格式為 `digit_X_sample_NNN.png`
+- 1000 張的 tensor 資料集：[`ex/dataset.pt`](ex/dataset.pt)（直接餵給 `evaluate.py --generated ex/dataset.pt`）
 
 要重新產生上面的數字，可執行：
 ```bash
-uv run python evaluate.py --checkpoint mnist_cnn.pt \
+uv run python evaluate.py --checkpoint mnist_cnn.pt --generated ex/dataset.pt \
     --confusion-matrix --report report.txt --report-json report.json
 ```
 
@@ -165,7 +170,8 @@ ddpm.py       — 模型架構（UNet）與擴散排程（DiffusionSchedule）
 train.py      — 訓練迴圈與取樣邏輯
 inference.py  — 推論腳本，生成數字與去噪過程視覺化
 evaluate.py   — CNN 分類器，用於評估生成圖品質
-generated/    — 已生成的 1000 張範例圖（dataset.pt + grids + 個別 PNG）
+ex/           — 內附的 1000 張範例圖（dataset.pt + grids + 個別 PNG），由 git 追蹤
+generated/    — `inference.py` 預設輸出位置（自動建立、不在 git 內，可隨意覆蓋）
 ```
 
 ## 架構概覽

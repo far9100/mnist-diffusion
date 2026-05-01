@@ -338,7 +338,10 @@ def build_report_json(*, args, device, real_metrics, gen_metrics, gen_matrix,
 def load_generated(path):
     if not os.path.exists(path):
         print(f"\nERROR: Generated dataset not found at '{path}'")
-        print("Run inference first to create it:")
+        if os.path.exists("ex/dataset.pt"):
+            print("Tip: this repo ships a ready-to-use example you can evaluate immediately:")
+            print("  uv run python evaluate.py --generated ex/dataset.pt")
+        print("Or run inference to produce a fresh one:")
         print(f"  uv run python inference.py --per-digit 100 --output-dir generated")
         print("Then re-run evaluate.py.")
         sys.exit(1)
