@@ -62,7 +62,7 @@ uv run python inference.py --per-digit 500
 # 儲存預覽網格圖（每個數字一張，square layout 包含全部生成樣本）
 uv run python inference.py --save-grid
 
-# 將每張圖各自存成 PNG（generated/images/digit_X/sample_NNN.png）
+# 將每張圖各自存成 PNG（全部攤平在 generated/images/，檔名 digit_X_sample_NNN.png）
 uv run python inference.py --save-images
 
 # 儲存去噪過程視覺化
@@ -83,7 +83,7 @@ uv run python inference.py --save-denoising --denoising-steps 15
 | `--guidance-scale` | `3.0` | Classifier-free guidance 強度 |
 | `--output-dir` | `generated/` | 輸出資料夾 |
 | `--save-grid` | 關 | 儲存每個數字的預覽網格圖（square layout，包含全部生成樣本）|
-| `--save-images` | 關 | 將每張圖個別存成 PNG，置於 `generated/images/digit_X/sample_NNN.png` |
+| `--save-images` | 關 | 將每張圖個別存成 PNG，置於 `generated/images/digit_X_sample_NNN.png`（全部攤平在單一資料夾）|
 | `--save-denoising` | 關 | 儲存去噪過程視覺化 |
 | `--denoising-steps` | `9` | 去噪視覺化的中間快照數量 |
 | `--save-pt` | 開 | 儲存為 `.pt` 張量資料集 |
@@ -149,7 +149,7 @@ uv run python evaluate.py --checkpoint mnist_cnn.pt \
 
 - 每個數字 100 張的網格圖：[`generated/grid_digit_0.png`](generated/grid_digit_0.png) … [`generated/grid_digit_9.png`](generated/grid_digit_9.png)
 - 去噪過程：[`generated/denoising_process.png`](generated/denoising_process.png)
-- 個別樣本：[`generated/images/digit_X/sample_NNN.png`](generated/images/)
+- 個別樣本（全部 1000 張攤平於同一資料夾）：[`generated/images/`](generated/images/)，檔名格式為 `digit_X_sample_NNN.png`
 - 1000 張的 tensor 資料集：[`generated/dataset.pt`](generated/dataset.pt)（直接餵給 `evaluate.py`）
 
 要重新產生上面的數字，可執行：
