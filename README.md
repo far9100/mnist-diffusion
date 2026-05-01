@@ -133,6 +133,31 @@ uv run python evaluate.py --checkpoint mnist_cnn.pt \
 - **`.txt`**：給人閱讀，含 metadata（GPU、PyTorch 版本、git commit、checkpoint mtime、執行時間）、per-class 表格、混淆矩陣、達標結論
 - **`.json`**：給機器解析，方便比較不同 checkpoint 或在 CI 中追蹤指標
 
+## 最新評估結果
+
+以預設超參數訓練 20 epochs、生成每數字 100 張圖（共 1000 張）後，CNN 評估器的判定如下：
+
+| 指標 | 值 |
+|---|---|
+| CNN baseline（真實 MNIST 測試集） | 99.28% (9928 / 10000) |
+| 生成圖整體準確率 | **100.00% (1000 / 1000)** |
+| 每個數字 per-class 準確率 | 全部 100% |
+| 混淆矩陣 | 完美對角，無誤認 |
+| 達標判定（門檻 95%）| **PASS（高品質）** |
+
+可預覽的視覺化已隨 repo 提交，可直接在 GitHub 上瀏覽：
+
+- 每個數字 100 張的網格圖：[`generated/grid_digit_0.png`](generated/grid_digit_0.png) … [`generated/grid_digit_9.png`](generated/grid_digit_9.png)
+- 去噪過程：[`generated/denoising_process.png`](generated/denoising_process.png)
+- 個別樣本：[`generated/images/digit_X/sample_NNN.png`](generated/images/)
+- 1000 張的 tensor 資料集：[`generated/dataset.pt`](generated/dataset.pt)（直接餵給 `evaluate.py`）
+
+要重新產生上面的數字，可執行：
+```bash
+uv run python evaluate.py --checkpoint mnist_cnn.pt \
+    --confusion-matrix --report report.txt --report-json report.json
+```
+
 ## 專案結構
 
 ```
@@ -140,6 +165,7 @@ ddpm.py       — 模型架構（UNet）與擴散排程（DiffusionSchedule）
 train.py      — 訓練迴圈與取樣邏輯
 inference.py  — 推論腳本，生成數字與去噪過程視覺化
 evaluate.py   — CNN 分類器，用於評估生成圖品質
+generated/    — 已生成的 1000 張範例圖（dataset.pt + grids + 個別 PNG）
 ```
 
 ## 架構概覽
