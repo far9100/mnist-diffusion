@@ -22,6 +22,15 @@ data/*
 samples/
 generated/
 
+# VAR experiment outputs
+samples_vqvae/
+samples_vqvae_smoke/
+samples_var/
+samples_var_smoke/
+generated_smoke/
+data/var_tokens.pt
+data/var_tokens_smoke.pt
+
 # Run logs / intermediate reports
 logs/
 evaluation_report.txt
