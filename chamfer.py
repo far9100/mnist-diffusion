@@ -168,7 +168,20 @@ def _self_check():
     print(f"  loop shape {tuple(x_guided.shape)}  cov plain={cov_plain:.3f} guided={cov_guided:.3f}")
     assert x_guided.shape == shp, "取樣輸出形狀應正確"
     assert not torch.allclose(x_plain, x_guided), "chamfer_weight>0 應改變輸出"
-    print("  OK（核心量、梯度方向、取樣迴圈整合皆通過；真實特徵抽取器與 CIFAR smoke 待 GPU 空出）")
+
+    # CIFAR feature_fn（可微）健全性：512 維且梯度能回傳到影像（guidance 前置）。
+    from cifar_classifier import ResNet18
+
+    clf = ResNet18(10).eval()
+    cff = cifar_penultimate_feature_fn(clf)
+    xc = torch.randn(4, 3, 32, 32, requires_grad=True)
+    fc = cff(xc)
+    assert fc.shape == (4, 512), "CIFAR feature_fn 形狀應為 (N, 512)"
+    fc.sum().backward()
+    assert xc.grad is not None and xc.grad.abs().sum() > 0, "guidance 需要梯度能回傳到影像"
+    print(f"  CIFAR feature_fn OK：形狀 {tuple(fc.shape)}、梯度可回傳")
+
+    print("  OK（核心量、梯度方向、取樣迴圈整合、CIFAR feature_fn 皆通過；CIFAR 真模型 smoke 待 GPU 空出）")
 
 
 def mnist_penultimate_feature_fn(cnn):
@@ -184,6 +197,20 @@ def mnist_penultimate_feature_fn(cnn):
 
     def feature_fn(x):
         return relu(fc1(flatten(cnn.features(x))))
+
+    return feature_fn
+
+
+def cifar_penultimate_feature_fn(classifier):
+    """回傳可微的 feature_fn：CIFAR ResNet-18 的 512 維 penultimate 特徵。
+
+    classifier 為 cifar_classifier.ResNet18（應為 eval 模式，讓 BatchNorm 用 running
+    stats）。ResNet18 已提供可微的 .features()，此處只是與 MNIST 版對稱的薄包裝，供
+    Chamfer guidance（第 3 項）與 CIFAR 的 coverage 量測（第 1/2 項）共用。輸入影像
+    預期為 [-1,1] 的 (N,3,32,32)，與擴散輸出一致。
+    """
+    def feature_fn(x):
+        return classifier.features(x)
 
     return feature_fn
 
