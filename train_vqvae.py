@@ -1,8 +1,8 @@
 """
-Stage 1 training: multi-scale residual VQ-VAE for VAR-mini.
+Stage 1 訓練：VAR-mini 的多尺度殘差 VQ-VAE。
 
-Trains the tokenizer on MNIST. Outputs a checkpoint that Stage 2 freezes and
-uses to build the token sequences fed to the scale-wise transformer.
+在 MNIST 上訓練 tokenizer。輸出一份 checkpoint，供 Stage 2 凍結後
+用來建立餵給 scale-wise transformer 的 token 序列。
 
 Usage:
     uv run python train_vqvae.py
@@ -88,7 +88,7 @@ def train():
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # Hold a fixed batch of validation images for visualisation across epochs
+    # 固定保留一個 batch 的驗證影像，用於跨 epoch 的視覺化
     vis_batch, _ = next(iter(dataloader))
     vis_batch = vis_batch[:16].to(device)
 
@@ -143,10 +143,10 @@ def train():
 
 @torch.no_grad()
 def save_reconstructions(model, batch, epoch, output_dir):
-    """Save side-by-side input vs reconstruction grid."""
+    """把輸入與重建並排成一張網格存檔。"""
     model.eval()
     x_hat, _, _, _ = model(batch)
-    # Stack: row 0 = inputs, row 1 = reconstructions
+    # 堆疊：第 0 列 = 輸入，第 1 列 = 重建
     pairs = torch.stack([batch, x_hat.clamp(-1, 1)], dim=1).flatten(0, 1)  # (32, 1, 28, 28)
     pairs = pairs * 0.5 + 0.5
     grid = make_grid(pairs, nrow=batch.shape[0])

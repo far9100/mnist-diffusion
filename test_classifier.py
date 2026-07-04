@@ -1,9 +1,8 @@
 """
-Verify that the CNN evaluator (evaluate.MNISTClassifier) is competent enough
-to be trusted as the "judge" of generated digit quality.
+驗證 CNN 評估器（evaluate.MNISTClassifier）夠準確，足以作為生成數字品質的判準。
 
-Loads a trained CNN checkpoint, runs it on the real MNIST test set, and checks
-that overall accuracy and every per-class accuracy clear the configured thresholds.
+載入訓練好的 CNN checkpoint，在真實的 MNIST 測試集上執行，並檢查整體準確率
+以及每個 per-class 準確率是否都達到設定的門檻。
 
 Usage:
     uv run python test_classifier.py

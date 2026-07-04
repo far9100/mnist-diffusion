@@ -1,8 +1,8 @@
-"""VAR-mini: Visual AutoRegressive modeling for MNIST.
+"""VAR-mini：MNIST 上的 Visual AutoRegressive 建模。
 
-Two-stage pipeline:
-  1. Multi-scale residual VQ-VAE (var.vqvae)
-  2. Scale-wise transformer with block-causal attention (var.transformer)
+兩階段 pipeline：
+  1. 多尺度殘差 VQ-VAE (var.vqvae)
+  2. 具 block-causal attention 的 scale-wise transformer (var.transformer)
 """
 
 from var.vqvae import VARVQVAE, MultiScaleRVQ, VectorQuantizerEMA, Encoder, Decoder

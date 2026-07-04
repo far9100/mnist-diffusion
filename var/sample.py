@@ -1,11 +1,10 @@
 """
-Autoregressive sampling for VAR-mini with classifier-free guidance.
+VAR-mini 的自迴歸取樣，含 classifier-free guidance。
 
-The generation loop iterates over scales; within a scale, all tokens are
-sampled in parallel (next-scale prediction). For CFG, the conditional and
-unconditional forward passes are batched together by doubling the batch
-dimension. Both passes share the same sampled tokens to keep the cumulative
-f_hat consistent.
+生成迴圈會逐一走過各個 scale；在同一個 scale 內，所有 token 會平行取樣
+（next-scale prediction）。為了做 CFG，會把條件與非條件的前向傳遞在 batch
+維度上加倍後一起批次計算。兩條路徑共用相同的取樣 token，以維持累積的
+f_hat 一致。
 """
 
 from __future__ import annotations
@@ -15,16 +14,16 @@ import torch.nn.functional as F
 
 
 def sample_top_k_top_p(logits, top_k: int = 0, top_p: float = 1.0):
-    """Filter logits with top-k and/or top-p, then sample one token per row.
+    """用 top-k 與／或 top-p 過濾 logits，然後每一列取樣一個 token。
 
     Args:
-        logits: (..., V) raw logits (already temperature-scaled).
-        top_k:  keep only the top-k logits (0 = disabled).
-        top_p:  keep the smallest set of tokens whose cumulative probability
-                exceeds top_p (1.0 = disabled).
+        logits: (..., V) 原始 logits（已經做過溫度縮放）。
+        top_k:  只保留前 top-k 個 logits（0 = 停用）。
+        top_p:  保留累積機率超過 top_p 的最小 token 集合
+                （1.0 = 停用）。
 
     Returns:
-        sampled token indices of shape (...,).
+        形狀為 (...,) 的取樣 token 索引。
     """
     orig_shape = logits.shape[:-1]
     V = logits.shape[-1]
@@ -39,8 +38,8 @@ def sample_top_k_top_p(logits, top_k: int = 0, top_p: float = 1.0):
         sorted_logits, sorted_idx = torch.sort(logits, descending=True, dim=-1)
         cum_probs = torch.softmax(sorted_logits, dim=-1).cumsum(dim=-1)
         sorted_remove = cum_probs > top_p
-        # Shift right by one so we always keep at least one token (the first
-        # token that crosses the threshold should remain).
+        # 向右位移一格，讓我們永遠至少保留一個 token（第一個
+        # 跨過門檻的 token 應該被保留）。
         sorted_remove[..., 1:] = sorted_remove[..., :-1].clone()
         sorted_remove[..., 0] = False
         remove = torch.zeros_like(logits, dtype=torch.bool)
@@ -63,18 +62,18 @@ def generate(
     top_p: float = 0.95,
     temperature: float = 1.0,
 ):
-    """Sample images by scale-wise AR over the multi-scale token grid.
+    """在多尺度 token 網格上，以 scale-wise AR 的方式取樣影像。
 
     Args:
-        transformer: trained VARTransformer.
-        vqvae:       trained VARVQVAE (provides codebook + decoder).
-        class_labels: (B,) target classes (0..num_classes-1).
-        cfg_scale:    classifier-free guidance scale. 1.0 disables CFG.
-        top_k, top_p, temperature: sampling controls.
+        transformer: 訓練好的 VARTransformer。
+        vqvae:       訓練好的 VARVQVAE（提供 codebook 與 decoder）。
+        class_labels: (B,) 目標類別（0..num_classes-1）。
+        cfg_scale:    classifier-free guidance 的強度。1.0 表示停用 CFG。
+        top_k, top_p, temperature: 取樣控制參數。
 
     Returns:
         images: (B, 1, 28, 28) ∈ [-1, 1]
-        all_indices: list of K (B, H_k, W_k) sampled token maps
+        all_indices: 由 K 個 (B, H_k, W_k) 取樣 token map 組成的 list
     """
     device = class_labels.device
     B = class_labels.shape[0]
@@ -90,12 +89,12 @@ def generate(
     null_labels = torch.full_like(class_labels, num_classes)
 
     f_hat = torch.zeros(B, D, finest, finest, device=device)
-    # cumulative[k] is the input context for scale k (k=0 => zeros).
+    # cumulative[k] 是 scale k 的輸入 context（k=0 => 全為零）。
     cumulative = [f_hat.clone()]
     all_indices = []
 
     for k in range(K):
-        # Pad to full K-length list (zeros for scales not yet sampled).
+        # 補齊成長度 K 的完整 list（尚未取樣的 scale 以零填補）。
         cum_full = cumulative + [torch.zeros_like(f_hat) for _ in range(K - len(cumulative))]
 
         if use_cfg:

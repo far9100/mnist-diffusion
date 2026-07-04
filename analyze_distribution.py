@@ -1,23 +1,22 @@
 """
-Compare a generated MNIST .pt dataset against real MNIST to check whether
-the distribution is reasonable and whether there are mode-collapse symptoms.
+比對生成的 MNIST .pt 資料集與真實 MNIST，檢查分佈是否合理、是否有 mode collapse 徵兆。
 
-Per-class metrics computed:
-  1. Pixel-space mean pairwise L2 — intra-class diversity at the raw pixel level.
-  2. CNN-feature-space mean pairwise L2 — intra-class diversity in the
-     classifier's penultimate (256-dim) feature space.
-  3. Pixel std averaged over all 784 pixels — does the spread match real?
-  4. Max-softmax confidence (mean ± std) — saturated near 1.0 with no spread
-     suggests the generator only produces "textbook" exemplars.
-  5. L2 distance between generated and real class centroids in feature space —
-     does the generated digit live near the real class manifold?
+計算的 per-class 指標：
+  1. 像素空間的平均成對 L2 —— 在原始像素層級的類別內多樣性。
+  2. CNN 特徵空間的平均成對 L2 —— 在分類器倒數第二層（256 維）特徵空間中的
+     類別內多樣性。
+  3. 對全部 784 個像素取平均的像素 std —— 分散程度是否與真實相符？
+  4. 最大 softmax confidence（mean ± std）—— 若飽和在接近 1.0 且沒有分散，
+     表示生成器只會產生「教科書式」的樣本。
+  5. 生成與真實類別 centroid 在特徵空間中的 L2 距離 —— 生成的數字是否落在
+     真實類別 manifold 附近？
 
-Mode-collapse heuristics (printed at the end):
-  - generated pairwise diversity << real (gen/real ratio < ~0.6) in pixel
-    or feature space => suspicious
-  - generated pixel std << real (ratio < ~0.6) => suspicious
-  - generated confidence ≈ 1.0 with std ≈ 0 while real has visible spread =>
-    generator avoids hard / ambiguous samples
+mode collapse 的判斷法則（在最後印出）：
+  - 生成的成對多樣性 << 真實（gen/real 比值 < ~0.6），無論是像素或特徵空間
+    都值得懷疑
+  - 生成的像素 std << 真實（比值 < ~0.6）值得懷疑
+  - 生成的 confidence ≈ 1.0 且 std ≈ 0，而真實有明顯分散 =>
+    生成器避開了困難／模稜兩可的樣本
 
 Usage:
     uv run python analyze_distribution.py

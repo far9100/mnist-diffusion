@@ -1,5 +1,5 @@
 """
-Training loop and sampling for DDPM on MNIST.
+MNIST 上 DDPM 的訓練迴圈與取樣。
 
 Usage:
     uv run python train.py
@@ -19,7 +19,7 @@ from ddpm import UNet, DiffusionSchedule
 
 
 def download_mnist(data_dir="./data"):
-    """Download MNIST with fallback mirrors if the default source fails."""
+    """下載 MNIST，若預設來源失敗則改用備援 mirror。"""
     raw_dir = os.path.join(data_dir, "MNIST", "raw")
     os.makedirs(raw_dir, exist_ok=True)
 
@@ -43,13 +43,13 @@ def download_mnist(data_dir="./data"):
 
     for filename, expected_md5 in files:
         dest = os.path.join(raw_dir, filename)
-        # Check if already downloaded and valid
+        # 檢查是否已下載且有效
         if os.path.exists(dest):
             md5 = hashlib.md5(open(dest, "rb").read()).hexdigest()
             if md5 == expected_md5:
                 continue
             os.remove(dest)
-        # Also remove any corrupt extracted file
+        # 一併移除任何損毀的已解壓檔案
         extracted_path = os.path.join(raw_dir, filename.replace(".gz", ""))
         if os.path.exists(extracted_path):
             os.remove(extracted_path)
@@ -72,7 +72,7 @@ def download_mnist(data_dir="./data"):
         if not downloaded:
             raise RuntimeError(f"Failed to download {filename} from all mirrors.")
 
-    # Extract .gz files
+    # 解壓 .gz 檔案
     for filename, _ in files:
         gz_path = os.path.join(raw_dir, filename)
         extracted_path = os.path.join(raw_dir, filename.replace(".gz", ""))
@@ -115,13 +115,13 @@ def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    # Data — normalize to [-1, 1]
+    # 資料——正規化到 [-1, 1]
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,)),
     ])
 
-    # Download MNIST with fallback mirrors, then load without re-downloading
+    # 下載 MNIST（含備援 mirror），再載入而不重新下載
     try:
         dataset = datasets.MNIST("./data", train=True, download=True, transform=transform)
     except RuntimeError:
@@ -131,13 +131,16 @@ def train():
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True,
                             num_workers=args.num_workers, pin_memory=True, drop_last=True)
 
-    # Model
+    # 模型
     model = UNet(in_channels=1, base_channels=args.base_channels).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     schedule = DiffusionSchedule(timesteps=args.timesteps, device=device)
 
     if args.resume:
-        model.load_state_dict(torch.load(args.resume, map_location=device, weights_only=True))
+        ckpt = torch.load(args.resume, map_location=device, weights_only=True)
+        if isinstance(ckpt, dict) and "model_state_dict" in ckpt:
+            ckpt = ckpt["model_state_dict"]
+        model.load_state_dict(ckpt)
         print(f"Resumed from checkpoint: {args.resume}")
 
     param_count = sum(p.numel() for p in model.parameters())
@@ -145,7 +148,7 @@ def train():
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # Training loop
+    # 訓練迴圈
     for epoch in range(1, args.epochs + 1):
         model.train()
         total_loss = 0.0
@@ -156,18 +159,18 @@ def train():
             labels = labels.to(device)
             bs = images.shape[0]
 
-            # Classifier-free guidance: 10% label dropout
+            # Classifier-free guidance：10% label dropout
             drop_mask = torch.rand(bs, device=device) < 0.1
             labels = torch.where(drop_mask, torch.full_like(labels, 10), labels)
 
-            # Random timesteps
+            # 隨機時間步
             t = torch.randint(0, args.timesteps, (bs,), device=device)
 
-            # Forward diffusion
+            # 前向擴散
             noise = torch.randn_like(images)
             x_t = schedule.q_sample(images, t, noise)
 
-            # Predict noise
+            # 預測噪音
             pred_noise = model(x_t, t, labels)
             loss = torch.nn.functional.mse_loss(pred_noise, noise)
 
@@ -181,24 +184,31 @@ def train():
         avg_loss = total_loss / len(dataloader)
         print(f"Epoch {epoch} — avg loss: {avg_loss:.4f}")
 
-        # Generate samples periodically
+        # 週期性生成樣本
         if epoch % args.sample_interval == 0 or epoch == 1:
             generate_samples(model, schedule, epoch, device,
                              args.output_dir, args.guidance_scale)
 
-    # Final samples
+    # 最後的樣本
     generate_samples(model, schedule, "final", device,
                      args.output_dir, args.guidance_scale)
-    torch.save(model.state_dict(), args.save_path)
+    torch.save(
+        {
+            "model_state_dict": model.state_dict(),
+            "hyperparams": vars(args),
+            "epoch": epoch,
+        },
+        args.save_path,
+    )
     print(f"Training complete. Model saved to {args.save_path}")
 
 
 @torch.no_grad()
 def generate_samples(model, schedule, label, device,
                      output_dir="samples", guidance_scale=3.0):
-    """Generate a 10x8 grid of samples (8 per digit) and save to disk."""
+    """生成 10x8 的樣本網格（每個數字 8 張）並存檔。"""
     model.eval()
-    # 8 samples per digit, 10 digits
+    # 每個數字 8 張，共 10 個數字
     class_labels = torch.arange(10, device=device).repeat_interleave(8)
     images = schedule.p_sample_loop(model, shape=(80, 1, 28, 28),
                                     class_labels=class_labels,
@@ -209,15 +219,15 @@ def generate_samples(model, schedule, label, device,
     save_image(grid, path)
     print(f"Saved samples to {path}")
 
-    # Denoising process visualization: one sample per digit, 10 snapshots
+    # 去噪過程視覺化：每個數字一張，共 10 個 snapshot
     denoise_labels = torch.arange(10, device=device)
     _, snapshots = schedule.p_sample_loop(
         model, shape=(10, 1, 28, 28),
         class_labels=denoise_labels, guidance_scale=guidance_scale,
         snapshot_steps=9,
     )
-    # snapshots: list of 10 tensors (9 intermediate + 1 final), each (10, 1, 28, 28)
-    # Build grid: rows = digits (0-9), columns = denoising steps (noise -> clean)
+    # snapshots：10 個 tensor 的 list（9 個中間 + 1 個最終），每個為 (10, 1, 28, 28)
+    # 建立網格：列 = 數字 (0-9)，欄 = 去噪步驟（noise -> clean）
     rows = torch.cat(snapshots, dim=0)  # (10*10, 1, 28, 28)
     rows = rows.clamp(-1, 1) * 0.5 + 0.5
     denoise_grid = make_grid(rows, nrow=len(snapshots))

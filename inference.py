@@ -1,9 +1,8 @@
 """
-Inference script for generating MNIST digits with a trained DDPM.
+以訓練好的 DDPM 生成 MNIST 數字的推論腳本。
 
-Outputs only the .pt tensor dataset (consumed by evaluate.py for the TSTR
-flow). Visualizations of the model's generation quality over time are
-produced during training by train.py and live in samples/.
+只輸出 .pt tensor 資料集（供 evaluate.py 在 TSTR 流程中使用）。模型隨時間
+變化的生成品質視覺化由 train.py 在訓練期間產生，並存放在 samples/ 中。
 
 Usage:
     # Generate 100 images per digit (0-9), saved as a dataset
@@ -25,16 +24,28 @@ from tqdm import tqdm
 from ddpm import UNet, DiffusionSchedule
 
 
-def generate(model, schedule, digit, count, batch_size, guidance_scale, device):
-    """Generate `count` images of a single digit, yielding in batches."""
+def generate(model, schedule, digit, count, batch_size, guidance_scale, device,
+             sampler="ddpm", steps=None, eta=0.0):
+    """生成單一數字的 `count` 張影像，以 batch 為單位逐次 yield。
+
+    sampler："ddpm"（ancestral，完整 T 個 steps）或 "ddim"（子序列 sampler，
+    重用同一個訓練好的模型）。steps：DDIM 子序列長度。eta：DDIM 的隨機性
+    （0=deterministic，配合完整 steps 時 1 ~ DDPM）。
+    """
     generated = 0
     while generated < count:
         n = min(batch_size, count - generated)
         labels = torch.full((n,), digit, device=device, dtype=torch.long)
-        images = schedule.p_sample_loop(
-            model, shape=(n, 1, 28, 28),
-            class_labels=labels, guidance_scale=guidance_scale,
-        )
+        if sampler == "ddim":
+            images = schedule.ddim_sample_loop(
+                model, shape=(n, 1, 28, 28), num_steps=steps, eta=eta,
+                class_labels=labels, guidance_scale=guidance_scale,
+            )
+        else:
+            images = schedule.p_sample_loop(
+                model, shape=(n, 1, 28, 28),
+                class_labels=labels, guidance_scale=guidance_scale,
+            )
         images = images.clamp(-1, 1)
         yield images
         generated += n
@@ -52,6 +63,12 @@ def main():
                         help="Batch size for generation (default: 64)")
     parser.add_argument("--guidance-scale", type=float, default=3.0,
                         help="Classifier-free guidance scale (default: 3.0)")
+    parser.add_argument("--sampler", choices=["ddpm", "ddim"], default="ddpm",
+                        help="Sampler: ddpm (ancestral, full T) or ddim (default: ddpm)")
+    parser.add_argument("--steps", type=int, default=50,
+                        help="DDIM sub-sequence length (only used for --sampler ddim, default: 50)")
+    parser.add_argument("--eta", type=float, default=0.0,
+                        help="DDIM stochasticity: 0=deterministic, 1 with full steps ~ DDPM (default: 0.0)")
     parser.add_argument("--output-dir", type=str, default="generated",
                         help="Output directory (default: generated/)")
     args = parser.parse_args()
@@ -60,11 +77,18 @@ def main():
     print(f"Using device: {device}")
 
     model = UNet(in_channels=1, base_channels=64, num_classes=10).to(device)
-    model.load_state_dict(torch.load(args.checkpoint, map_location=device, weights_only=True))
+    ckpt = torch.load(args.checkpoint, map_location=device, weights_only=True)
+    if isinstance(ckpt, dict) and "model_state_dict" in ckpt:
+        ckpt = ckpt["model_state_dict"]
+    model.load_state_dict(ckpt)
     model.eval()
     print(f"Loaded checkpoint: {args.checkpoint}")
 
     schedule = DiffusionSchedule(timesteps=1000, device=device)
+    if args.sampler == "ddim":
+        print(f"Sampler: DDIM (steps={args.steps}, eta={args.eta})")
+    else:
+        print("Sampler: DDPM ancestral (1000 steps)")
     os.makedirs(args.output_dir, exist_ok=True)
 
     all_images = []
@@ -75,7 +99,8 @@ def main():
         digit_images = []
 
         for batch in tqdm(generate(model, schedule, digit, args.per_digit,
-                                   args.batch_size, args.guidance_scale, device),
+                                   args.batch_size, args.guidance_scale, device,
+                                   sampler=args.sampler, steps=args.steps, eta=args.eta),
                           total=(args.per_digit + args.batch_size - 1) // args.batch_size):
             digit_images.append(batch.cpu())
 

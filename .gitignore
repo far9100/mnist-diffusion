@@ -20,7 +20,9 @@ data/*
 
 # Diffusion outputs
 samples/
+samples_cifar/
 generated/
+results/
 
 # VAR experiment outputs
 samples_vqvae/
@@ -36,3 +38,8 @@ logs/
 evaluation_report.txt
 report.txt
 report.json
+# Phase 1 EDM assets (large / vendored)
+checkpoints/
+third_party/
+results/*.png
+fid-tmp/

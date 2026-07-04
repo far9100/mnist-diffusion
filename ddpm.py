@@ -1,8 +1,7 @@
 """
-Denoising Diffusion Probabilistic Model (DDPM) — core components.
+Denoising Diffusion Probabilistic Model (DDPM) 的核心元件。
 
-Implements the UNet noise-prediction network and diffusion schedule
-for generating MNIST handwritten digits.
+實作 UNet 噪音預測網路與擴散排程，用於生成 MNIST 手寫數字。
 """
 
 import math
@@ -12,14 +11,14 @@ import torch.nn.functional as F
 
 
 def extract(tensor, t, shape):
-    """Index into `tensor` using timestep indices `t`, reshape for broadcasting."""
+    """以時間步索引 `t` 從 `tensor` 取值，並 reshape 以利 broadcasting。"""
     batch_size = t.shape[0]
     out = tensor.gather(-1, t)
     return out.reshape(batch_size, *((1,) * (len(shape) - 1)))
 
 
 class SinusoidalPositionEmbedding(nn.Module):
-    """Maps integer timestep to dense vector via sinusoidal encoding."""
+    """以正弦編碼把整數時間步映射成 dense 向量。"""
 
     def __init__(self, dim):
         super().__init__()
@@ -36,7 +35,7 @@ class SinusoidalPositionEmbedding(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    """Two convolutions with GroupNorm + SiLU, time embedding injection, residual connection."""
+    """兩層卷積，含 GroupNorm + SiLU、時間 embedding 注入與 residual 連接。"""
 
     def __init__(self, in_channels, out_channels, time_emb_dim):
         super().__init__()
@@ -59,7 +58,7 @@ class ResidualBlock(nn.Module):
         h = F.silu(h)
         h = self.conv1(h)
 
-        # Inject time embedding
+        # 注入時間 embedding
         t = self.time_mlp(t_emb)[:, :, None, None]
         h = h + t
 
@@ -71,7 +70,7 @@ class ResidualBlock(nn.Module):
 
 
 class AttentionBlock(nn.Module):
-    """Spatial self-attention with multi-head QKV projections."""
+    """空間自注意力，含 multi-head QKV 投影。"""
 
     def __init__(self, channels, num_heads=4):
         super().__init__()
@@ -100,7 +99,7 @@ class AttentionBlock(nn.Module):
 
 
 class Downsample(nn.Module):
-    """Spatial downsampling via strided convolution."""
+    """以 strided convolution 做空間下採樣。"""
 
     def __init__(self, channels):
         super().__init__()
@@ -111,7 +110,7 @@ class Downsample(nn.Module):
 
 
 class Upsample(nn.Module):
-    """Spatial upsampling via nearest interpolation + convolution."""
+    """以最近鄰插值 + 卷積做空間上採樣。"""
 
     def __init__(self, channels):
         super().__init__()
@@ -124,7 +123,7 @@ class Upsample(nn.Module):
 
 class UNet(nn.Module):
     """
-    Full noise prediction network.
+    完整的噪音預測網路。
 
     Input (1, 28, 28) -> Conv -> 64ch
     Encoder: [64, 28x28] -> down -> [128, 14x14, +attn] -> down -> [256, 7x7]
@@ -139,7 +138,7 @@ class UNet(nn.Module):
         self.num_classes = num_classes
         channels = [base_channels * m for m in channel_mults]  # [64, 128, 256]
 
-        # Time embedding
+        # 時間 embedding
         self.time_emb = nn.Sequential(
             SinusoidalPositionEmbedding(base_channels),
             nn.Linear(base_channels, time_emb_dim),
@@ -147,13 +146,13 @@ class UNet(nn.Module):
             nn.Linear(time_emb_dim, time_emb_dim),
         )
 
-        # Class embedding (index num_classes = unconditional / null class)
+        # 類別 embedding（索引 num_classes = 無條件 / null class）
         self.class_emb = nn.Embedding(num_classes + 1, time_emb_dim)
 
-        # Initial conv
+        # 初始 conv
         self.init_conv = nn.Conv2d(in_channels, channels[0], 3, padding=1)
 
-        # Encoder
+        # 編碼器
         self.enc_block1a = ResidualBlock(channels[0], channels[0], time_emb_dim)
         self.enc_block1b = ResidualBlock(channels[0], channels[0], time_emb_dim)
         self.down1 = Downsample(channels[0])
@@ -166,12 +165,12 @@ class UNet(nn.Module):
         self.enc_block3a = ResidualBlock(channels[1], channels[2], time_emb_dim)
         self.enc_block3b = ResidualBlock(channels[2], channels[2], time_emb_dim)
 
-        # Bottleneck
+        # 瓶頸層
         self.mid_block1 = ResidualBlock(channels[2], channels[2], time_emb_dim)
         self.mid_attn = AttentionBlock(channels[2])
         self.mid_block2 = ResidualBlock(channels[2], channels[2], time_emb_dim)
 
-        # Decoder
+        # 解碼器
         self.dec_block3a = ResidualBlock(channels[2] + channels[2], channels[2], time_emb_dim)
         self.dec_block3b = ResidualBlock(channels[2] + channels[2], channels[2], time_emb_dim)
         self.up2 = Upsample(channels[2])
@@ -184,7 +183,7 @@ class UNet(nn.Module):
         self.dec_block1a = ResidualBlock(channels[1] + channels[0], channels[0], time_emb_dim)
         self.dec_block1b = ResidualBlock(channels[0] + channels[0], channels[0], time_emb_dim)
 
-        # Output
+        # 輸出層
         self.out_norm = nn.GroupNorm(8, channels[0])
         self.out_conv = nn.Conv2d(channels[0], in_channels, 3, padding=1)
 
@@ -195,45 +194,45 @@ class UNet(nn.Module):
                                       device=x.device, dtype=torch.long)
         t_emb = t_emb + self.class_emb(class_labels)
 
-        # Initial conv
+        # 初始 conv
         x0 = self.init_conv(x)  # (B, 64, 28, 28)
 
-        # Encoder level 1 — 28x28
+        # Encoder 第 1 層 — 28x28
         h1a = self.enc_block1a(x0, t_emb)
         h1b = self.enc_block1b(h1a, t_emb)
         d1 = self.down1(h1b)  # (B, 64, 14, 14)
 
-        # Encoder level 2 — 14x14 with attention
+        # Encoder 第 2 層 — 14x14，含 attention
         h2a = self.enc_block2a(d1, t_emb)
         h2b = self.enc_block2b(h2a, t_emb)
         h2b = self.enc_attn2(h2b)
         d2 = self.down2(h2b)  # (B, 128, 7, 7)
 
-        # Encoder level 3 — 7x7
+        # Encoder 第 3 層 — 7x7
         h3a = self.enc_block3a(d2, t_emb)
         h3b = self.enc_block3b(h3a, t_emb)
 
-        # Bottleneck
+        # 瓶頸層
         mid = self.mid_block1(h3b, t_emb)
         mid = self.mid_attn(mid)
         mid = self.mid_block2(mid, t_emb)
 
-        # Decoder level 3 — 7x7
+        # Decoder 第 3 層 — 7x7
         x = self.dec_block3a(torch.cat([mid, h3b], dim=1), t_emb)
         x = self.dec_block3b(torch.cat([x, h3a], dim=1), t_emb)
         x = self.up2(x)  # (B, 256, 14, 14)
 
-        # Decoder level 2 — 14x14 with attention
+        # Decoder 第 2 層 — 14x14，含 attention
         x = self.dec_block2a(torch.cat([x, h2b], dim=1), t_emb)
         x = self.dec_block2b(torch.cat([x, h2a], dim=1), t_emb)
         x = self.dec_attn2(x)
         x = self.up1(x)  # (B, 128, 28, 28)
 
-        # Decoder level 1 — 28x28
+        # Decoder 第 1 層 — 28x28
         x = self.dec_block1a(torch.cat([x, h1b], dim=1), t_emb)
         x = self.dec_block1b(torch.cat([x, h1a], dim=1), t_emb)
 
-        # Output
+        # 輸出層
         x = self.out_norm(x)
         x = F.silu(x)
         x = self.out_conv(x)
@@ -242,9 +241,9 @@ class UNet(nn.Module):
 
 class DiffusionSchedule:
     """
-    Precomputes noise schedule tensors and implements forward/reverse diffusion.
+    預先計算噪音排程張量，並實作前向/反向擴散。
 
-    Linear beta schedule from Ho et al. (2020).
+    線性 beta 排程，出自 Ho et al. (2020)。
     """
 
     def __init__(self, timesteps=1000, beta_start=1e-4, beta_end=0.02, device="cpu"):
@@ -257,10 +256,11 @@ class DiffusionSchedule:
         alphas_bar_prev = F.pad(alphas_bar[:-1], (1, 0), value=1.0)
 
         self.betas = betas
+        self.alphas_bar = alphas_bar  # ᾱ_t，DDIM 在任意 sub-step 都需要
         self.sqrt_alphas = torch.sqrt(alphas)
         self.sqrt_alphas_bar = torch.sqrt(alphas_bar)
         self.sqrt_one_minus_alphas_bar = torch.sqrt(1.0 - alphas_bar)
-        # Coefficients for posterior mean
+        # posterior 平均的係數
         self.posterior_mean_coef1 = betas * torch.sqrt(alphas_bar_prev) / (1.0 - alphas_bar)
         self.posterior_mean_coef2 = (1.0 - alphas_bar_prev) * torch.sqrt(alphas) / (1.0 - alphas_bar)
         self.posterior_variance = betas * (1.0 - alphas_bar_prev) / (1.0 - alphas_bar)
@@ -268,7 +268,7 @@ class DiffusionSchedule:
     def to(self, device):
         self.device = device
         for attr in [
-            "betas", "sqrt_alphas", "sqrt_alphas_bar",
+            "betas", "alphas_bar", "sqrt_alphas", "sqrt_alphas_bar",
             "sqrt_one_minus_alphas_bar", "posterior_mean_coef1",
             "posterior_mean_coef2", "posterior_variance",
         ]:
@@ -276,7 +276,7 @@ class DiffusionSchedule:
         return self
 
     def q_sample(self, x_0, t, noise=None):
-        """Forward process: add noise to clean image x_0 at timestep t."""
+        """前向過程：在時間步 t 對乾淨影像 x_0 加噪。"""
         if noise is None:
             noise = torch.randn_like(x_0)
         return (
@@ -285,28 +285,36 @@ class DiffusionSchedule:
         )
 
     @torch.no_grad()
-    def p_sample(self, model, x_t, t, class_labels=None, guidance_scale=1.0):
-        """Single reverse step with optional classifier-free guidance."""
+    def predict_eps(self, model, x_t, t, class_labels=None, guidance_scale=1.0):
+        """含 classifier-free guidance 的噪音預測。
+
+        DDPM（`p_sample`）與 DDIM（`ddim_sample_loop`）的反向過程共用此函式，
+        讓 CFG 邏輯只存在於一個地方。
+        """
         if class_labels is not None and guidance_scale > 1.0:
-            # Classifier-free guidance: run conditional + unconditional together
+            # Classifier-free guidance：條件與無條件一起前傳
             null_labels = torch.full_like(class_labels, model.num_classes)
             x_double = torch.cat([x_t, x_t], dim=0)
             t_double = torch.cat([t, t], dim=0)
             labels_double = torch.cat([class_labels, null_labels], dim=0)
             pred_both = model(x_double, t_double, labels_double)
             pred_cond, pred_uncond = pred_both.chunk(2)
-            pred_noise = pred_uncond + guidance_scale * (pred_cond - pred_uncond)
-        else:
-            pred_noise = model(x_t, t, class_labels)
+            return pred_uncond + guidance_scale * (pred_cond - pred_uncond)
+        return model(x_t, t, class_labels)
 
-        # Compute mean using the simpler formulation from Ho et al.
+    @torch.no_grad()
+    def p_sample(self, model, x_t, t, class_labels=None, guidance_scale=1.0):
+        """單一反向步驟，可選用 classifier-free guidance。"""
+        pred_noise = self.predict_eps(model, x_t, t, class_labels, guidance_scale)
+
+        # 用 Ho et al. 較簡潔的式子計算平均
         alpha_t = extract(self.sqrt_alphas, t, x_t.shape)
         beta_t = extract(self.betas, t, x_t.shape)
         sqrt_one_minus_ab = extract(self.sqrt_one_minus_alphas_bar, t, x_t.shape)
 
         mean = (x_t - beta_t / sqrt_one_minus_ab * pred_noise) / alpha_t
 
-        # Add noise for t > 0
+        # t > 0 時加入噪音
         if (t == 0).all():
             return mean
         variance = extract(self.posterior_variance, t, x_t.shape)
@@ -316,17 +324,17 @@ class DiffusionSchedule:
     @torch.no_grad()
     def p_sample_loop(self, model, shape, class_labels=None, guidance_scale=1.0,
                       snapshot_steps=None):
-        """Full reverse process: generate images from pure noise.
+        """完整反向過程：從純噪音生成影像。
 
         Args:
-            snapshot_steps: If set, capture intermediate states at this many
-                evenly-spaced timesteps. Returns (final_images, snapshots) where
-                snapshots is a list of tensors, one per captured step.
+            snapshot_steps: 若設定，會在這麼多個等距時間步擷取中間狀態。
+                回傳 (final_images, snapshots)，其中 snapshots 是張量的 list，
+                每個擷取步驟一個。
         """
         device = self.device
         x = torch.randn(shape, device=device)
 
-        # Determine which timesteps to snapshot
+        # 決定要在哪些時間步做 snapshot
         capture = set()
         if snapshot_steps is not None and snapshot_steps > 0:
             indices = torch.linspace(self.timesteps - 1, 0, snapshot_steps).long().tolist()
@@ -341,7 +349,61 @@ class DiffusionSchedule:
             x = self.p_sample(model, x, t, class_labels, guidance_scale)
 
         if snapshot_steps is not None:
-            snapshots.append(x.clone())  # final result
+            snapshots.append(x.clone())  # 最終結果
             return x, snapshots
+
+        return x
+
+    def ddim_timesteps(self, num_steps):
+        """建立 DDIM 取樣用的遞減時間步子序列。
+
+        回傳 (t_cur, t_prev) 整數配對的 list。最後一組的 `t_prev == -1` 表示
+        前一個狀態就是乾淨影像，也就是 ᾱ_prev = 1.0。
+        """
+        num_steps = min(num_steps, self.timesteps)
+        steps = torch.linspace(0, self.timesteps - 1, num_steps).round().long()
+        steps = torch.unique(steps)                # 防止 num_steps 很小時出現重複
+        seq = list(reversed(steps.tolist()))       # 例如 [999, ..., 0]
+        seq_prev = seq[1:] + [-1]                   # t_prev；-1 => ᾱ_prev = 1.0
+        return list(zip(seq, seq_prev))
+
+    @torch.no_grad()
+    def ddim_sample_loop(self, model, shape, num_steps=50, eta=0.0,
+                         class_labels=None, guidance_scale=1.0, generator=None):
+        """DDIM 反向過程（Song, Meng & Ermon, 2021）。
+
+        原封不動重用訓練好的 ε-network——DDIM 是一個 sampler，不是另外
+        訓練的模型。透過 `predict_eps` 使用與 DDPM 相同的 classifier-free
+        guidance 路徑。
+
+        Args:
+            num_steps: DDIM 子序列的長度（越少越快）。
+            eta: 隨機性。eta=0 -> deterministic（probability-flow ODE）；
+                eta=1 且用完整 1000 步序列時會還原成 DDPM ancestral
+                sampling（sigma 等於 DDPM posterior std）。
+            generator: 可選的 torch.Generator，用於可重現的取樣。
+        """
+        device = self.device
+        x = torch.randn(shape, device=device, generator=generator)
+
+        for t_cur, t_prev in self.ddim_timesteps(num_steps):
+            t = torch.full((shape[0],), t_cur, device=device, dtype=torch.long)
+            eps = self.predict_eps(model, x, t, class_labels, guidance_scale)
+
+            ab_t = self.alphas_bar[t_cur]
+            ab_s = (self.alphas_bar[t_prev] if t_prev >= 0
+                    else torch.ones((), device=device))
+
+            # 由 x_t 與噪音估計得到的乾淨影像 x_0。
+            x0 = (x - (1.0 - ab_t).sqrt() * eps) / ab_t.sqrt()
+            # 隨機性排程；eta=0 => sigma=0（deterministic）。
+            sigma = (eta
+                     * ((1.0 - ab_s) / (1.0 - ab_t)).sqrt()
+                     * (1.0 - ab_t / ab_s).sqrt())
+            # 指回 x_t 的方向。
+            dir_xt = (1.0 - ab_s - sigma ** 2).clamp(min=0.0).sqrt() * eps
+            x = ab_s.sqrt() * x0 + dir_xt
+            if t_prev >= 0 and eta > 0:
+                x = x + sigma * torch.randn(shape, device=device, generator=generator)
 
         return x

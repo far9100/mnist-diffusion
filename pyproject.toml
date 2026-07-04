@@ -8,6 +8,7 @@ dependencies = [
     "torchvision>=0.22",
     "numpy",
     "tqdm",
+    "clean-fid>=0.1.35",
 ]
 
 [[tool.uv.index]]

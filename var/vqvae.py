@@ -1,15 +1,14 @@
 """
-Multi-scale Residual VQ-VAE for VAR-mini.
+VAR-mini 的多尺度殘差 VQ-VAE。
 
-Encodes a 28x28 MNIST image to a 7x7xD latent feature, then decomposes it
-into K=4 token maps at progressively finer resolutions [1, 2, 4, 7] via
-residual quantization with a shared codebook. The decoder reconstructs the
-image from the cumulative sum of all scales' contributions.
+把一張 28x28 的 MNIST 影像編碼成 7x7xD 的 latent 特徵，再透過共用 codebook 的
+residual quantize，將其分解成 K=4 張逐步變細的解析度 [1, 2, 4, 7] 的 token map。
+decoder 由所有尺度貢獻的累加總和重建出影像。
 
-References:
-  - VAR (Tian et al., NeurIPS 2024 best paper, arXiv:2404.02905) — multi-scale
-    residual quantization scheme.
-  - VQ-VAE-2 (Razavi et al., 2019) — EMA codebook update, dead-code reinit.
+參考文獻：
+  - VAR (Tian et al., NeurIPS 2024 best paper, arXiv:2404.02905) — 多尺度
+    residual quantize 的方案。
+  - VQ-VAE-2 (Razavi et al., 2019) — EMA codebook 更新、dead-code 重新初始化。
 """
 
 import torch
@@ -18,7 +17,7 @@ import torch.nn.functional as F
 
 
 class ResidualBlock(nn.Module):
-    """GroupNorm + SiLU + Conv twice with a skip connection."""
+    """GroupNorm + SiLU + Conv 做兩次，並帶一條 skip connection。"""
 
     def __init__(self, channels):
         super().__init__()
@@ -36,7 +35,7 @@ class ResidualBlock(nn.Module):
 
 
 class Encoder(nn.Module):
-    """28x28x1 -> 14x14x32 -> 7x7x64 -> 7x7xD (latent feature f)."""
+    """28x28x1 -> 14x14x32 -> 7x7x64 -> 7x7xD（latent 特徵 f）。"""
 
     def __init__(self, in_channels=1, embedding_dim=64):
         super().__init__()
@@ -61,7 +60,7 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    """7x7xD -> 14x14x32 -> 28x28x1."""
+    """7x7xD -> 14x14x32 -> 28x28x1。"""
 
     def __init__(self, out_channels=1, embedding_dim=64):
         super().__init__()
@@ -87,15 +86,15 @@ class Decoder(nn.Module):
 
 class VectorQuantizerEMA(nn.Module):
     """
-    Vector quantizer with EMA codebook update and dead-code reinitialisation.
+    帶 EMA codebook 更新與 dead-code 重新初始化的 vector quantizer。
 
-    Buffers (not parameters):
-      embedding   (V, D)  the codebook itself
-      cluster_size (V,)   running EMA of how many vectors are assigned to each entry
-      embed_avg   (V, D)  running EMA of the sum of input vectors per entry
+    Buffers（非參數）：
+      embedding   (V, D)  codebook 本身
+      cluster_size (V,)   每個 entry 被指派到多少向量的 running EMA
+      embed_avg   (V, D)  每個 entry 輸入向量總和的 running EMA
 
-    The EMA update replaces the standard codebook loss; only the commitment
-    loss is returned for the optimiser.
+    EMA 更新取代了標準的 codebook loss；只有 commitment loss 會回傳給
+    optimizer。
     """
 
     def __init__(self, num_embeddings, embedding_dim,
@@ -113,12 +112,12 @@ class VectorQuantizerEMA(nn.Module):
         self.register_buffer("embed_avg", embed.clone())
 
     def forward(self, z):
-        """z: (B, D, H, W). Returns (q_st, idx, commit_loss, perplexity)."""
+        """z: (B, D, H, W)。回傳 (q_st, idx, commit_loss, perplexity)。"""
         B, D, H, W = z.shape
         z_perm = z.permute(0, 2, 3, 1).contiguous()  # (B, H, W, D)
         flat = z_perm.reshape(-1, D)  # (N, D), N = B*H*W
 
-        # Squared distance to each codebook entry
+        # 到每個 codebook entry 的平方距離
         dist = (flat.pow(2).sum(1, keepdim=True)
                 - 2 * flat @ self.embedding.t()
                 + self.embedding.pow(2).sum(1))  # (N, V)
@@ -144,7 +143,7 @@ class VectorQuantizerEMA(nn.Module):
                 self.embedding.copy_(self.embed_avg / cluster_smooth.unsqueeze(1))
 
         commit_loss = self.commitment_cost * F.mse_loss(quantized.detach(), z)
-        # Straight-through: forward uses quantized, backward sees identity
+        # Straight-through：forward 使用 quantized，backward 則視為 identity
         q_st = z + (quantized - z).detach()
 
         avg_probs = onehot.mean(0)
@@ -154,14 +153,13 @@ class VectorQuantizerEMA(nn.Module):
         return q_st, idx_map, commit_loss, perplexity
 
     def lookup(self, idx_map):
-        """idx_map: (B, H, W) -> (B, D, H, W)."""
+        """idx_map: (B, H, W) -> (B, D, H, W)。"""
         return F.embedding(idx_map, self.embedding).permute(0, 3, 1, 2).contiguous()
 
     @torch.no_grad()
     def reinit_dead_codes(self, threshold=1.0):
-        """Resample codebook entries whose EMA cluster size has decayed below
-        `threshold` from the surviving entries (with small noise). Returns the
-        number of entries that were reinitialised."""
+        """把 EMA cluster size 已衰減到低於 `threshold` 的 codebook entry，從仍
+        存活的 entry 重新取樣（並加上小量雜訊）。回傳被重新初始化的 entry 數量。"""
         dead = self.cluster_size < threshold
         n_dead = int(dead.sum().item())
         if n_dead == 0:
@@ -175,7 +173,7 @@ class VectorQuantizerEMA(nn.Module):
             pick = torch.randint(0, alive.shape[0], (n_dead,), device=device)
             jitter = torch.randn(n_dead, self.embedding_dim, device=device) * 0.01
             self.embedding[dead] = alive[pick] + jitter
-        # Reset EMA stats so the new code gets a fair chance.
+        # 重設 EMA 統計量，讓新的 code 有公平的機會。
         self.cluster_size[dead] = 1.0
         self.embed_avg[dead] = self.embedding[dead]
         return n_dead
@@ -183,13 +181,12 @@ class VectorQuantizerEMA(nn.Module):
 
 class MultiScaleRVQ(nn.Module):
     """
-    Multi-scale Residual Vector Quantizer (VAR-style).
+    多尺度 Residual Vector Quantizer（VAR 風格）。
 
-    For each scale k in `scales`, downsample the running residual to that
-    spatial size, quantize with the shared codebook, upsample the quantized
-    map back to the finest resolution and pass through a per-scale post-quant
-    smoother phi[k]. Subtract the smoothed contribution from the residual
-    before moving to the next scale.
+    對 `scales` 中的每個尺度 k，把目前的 residual 下採樣到該空間大小，用共用
+    codebook quantize，再把 quantize 後的 map 上採樣回最細解析度，並通過該尺度
+    專屬的 post-quant 平滑器 phi[k]。在進入下一個尺度前，先從 residual 減去這個
+    平滑後的貢獻。
     """
 
     def __init__(self, scales=(1, 2, 4, 7), codebook_size=256, embedding_dim=64,
@@ -222,7 +219,7 @@ class MultiScaleRVQ(nn.Module):
                              mode="bicubic", align_corners=False)
 
     def forward(self, f):
-        """f: (B, D, finest, finest). Returns (f_hat, indices_list, commit, perplexities)."""
+        """f: (B, D, finest, finest)。回傳 (f_hat, indices_list, commit, perplexities)。"""
         B, D, H, W = f.shape
         assert H == self.finest and W == self.finest, \
             f"expected {self.finest}x{self.finest}, got {H}x{W}"
@@ -249,7 +246,7 @@ class MultiScaleRVQ(nn.Module):
 
     @torch.no_grad()
     def reconstruct_from_indices(self, indices_list):
-        """For inference: rebuild f_hat from token indices alone."""
+        """用於 inference：僅從 token indices 重建 f_hat。"""
         assert len(indices_list) == len(self.scales)
         device = indices_list[0].device
         B = indices_list[0].shape[0]
@@ -262,18 +259,18 @@ class MultiScaleRVQ(nn.Module):
 
     @torch.no_grad()
     def add_scale(self, f_hat, idx_k, scale_idx):
-        """For autoregressive sampling: incrementally add scale k's contribution."""
+        """用於 autoregressive 取樣：逐步加入尺度 k 的貢獻。"""
         q_k = self.quantizer.lookup(idx_k)
         q_k_up = self.phi[scale_idx](self._resize_to_finest(q_k))
         return f_hat + q_k_up
 
     @torch.no_grad()
     def cumulative_f_hat_per_scale(self, indices_list):
-        """For Stage-2 transformer teacher-forcing.
+        """用於 Stage-2 transformer 的 teacher-forcing。
 
-        Returns a list of K tensors where element k is the cumulative f_hat
-        AFTER scales 0..k-1 have been added (i.e. the context the transformer
-        should see when predicting scale k). Element [0] is zeros.
+        回傳一個含 K 個 tensor 的 list，其中第 k 個元素是「已加入尺度 0..k-1 之後」
+        的累積 f_hat（也就是 transformer 在預測尺度 k 時應該看到的 context）。
+        第 [0] 個元素為全零。
         """
         assert len(indices_list) == len(self.scales)
         device = indices_list[0].device
@@ -287,7 +284,7 @@ class MultiScaleRVQ(nn.Module):
 
 
 class VARVQVAE(nn.Module):
-    """End-to-end multi-scale residual VQ-VAE."""
+    """端到端的多尺度殘差 VQ-VAE。"""
 
     def __init__(self, in_channels=1, embedding_dim=64, codebook_size=256,
                  scales=(1, 2, 4, 7), commitment_cost=0.25, decay=0.99):
@@ -308,7 +305,7 @@ class VARVQVAE(nn.Module):
 
     @torch.no_grad()
     def encode_to_indices(self, x):
-        """Stage 2 helper: returns list of (B, H_k, W_k) index tensors."""
+        """Stage 2 的輔助函式：回傳一個由 (B, H_k, W_k) index tensor 組成的 list。"""
         was_training = self.training
         self.eval()
         f = self.encoder(x)

@@ -1,9 +1,9 @@
 """
-Stage 2 training: scale-wise transformer for VAR-mini.
+Stage 2 訓練：VAR-mini 的 scale-wise transformer。
 
-Loads a frozen VQ-VAE checkpoint, pre-encodes the MNIST training set into
-multi-scale token grids (cached to disk), then trains the transformer with
-classifier-free guidance via 10% class-label dropout.
+載入凍結的 VQ-VAE checkpoint，先把 MNIST 訓練集預先編碼成多尺度的
+token 網格（快取到磁碟），接著以 10% 的類別標籤 dropout 進行
+classifier-free guidance 來訓練 transformer。
 
 Usage:
     uv run python train_var.py
@@ -57,8 +57,8 @@ def parse_args():
 
 
 def build_token_cache(vqvae, mnist_dataset, cache_path, batch_size, num_workers, device):
-    """Encode every image in `mnist_dataset` into multi-scale token grids and
-    cache the result to disk. Subsequent training runs reuse the cache."""
+    """把 `mnist_dataset` 中的每張影像編碼成多尺度的 token 網格，
+    並將結果快取到磁碟。之後的訓練會重用這份快取。"""
     if os.path.exists(cache_path):
         print(f"Loading cached tokens from {cache_path}")
         return torch.load(cache_path, weights_only=True)
@@ -92,7 +92,7 @@ def build_token_cache(vqvae, mnist_dataset, cache_path, batch_size, num_workers,
 
 
 class TokenDataset(Dataset):
-    """In-RAM multi-scale token dataset."""
+    """常駐記憶體的多尺度 token 資料集。"""
 
     def __init__(self, cache):
         self.scales = cache["scales"]
@@ -103,15 +103,15 @@ class TokenDataset(Dataset):
         return self.labels.shape[0]
 
     def __getitem__(self, i):
-        # tuple: (label, scale0_idx, scale1_idx, ..., scaleK-1_idx)
+        # tuple：(label, scale0_idx, scale1_idx, ..., scaleK-1_idx)
         return (self.labels[i].clone(), *(t[i].clone() for t in self.scale_tensors))
 
 
 def collate_tokens(batch):
-    """Module-level collate (Windows multiprocessing requires no closures).
+    """模組層級的 collate（Windows 的 multiprocessing 不能用 closure）。
 
-    Each batch element is (label, idx_0, idx_1, ..., idx_{K-1}); we stack each
-    scale and the labels separately."""
+    每個 batch 元素是 (label, idx_0, idx_1, ..., idx_{K-1})；我們分別把每個
+    scale 與 labels 各自堆疊起來。"""
     K = len(batch[0]) - 1
     labels = torch.stack([b[0] for b in batch])
     scales = [torch.stack([b[k + 1] for b in batch]) for k in range(K)]
@@ -132,7 +132,7 @@ def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    # ---- Load frozen VQ-VAE -----------------------------------------------
+    # ---- 載入凍結的 VQ-VAE -----------------------------------------------
     vqvae = VARVQVAE().to(device)
     sd = torch.load(args.vqvae, map_location=device, weights_only=True)
     vqvae.load_state_dict(sd)
@@ -141,7 +141,7 @@ def train():
         p.requires_grad_(False)
     print(f"Loaded VQ-VAE from {args.vqvae}")
 
-    # ---- Build / load token cache -----------------------------------------
+    # ---- 建立／載入 token 快取 -----------------------------------------
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,)),
@@ -162,7 +162,7 @@ def train():
         collate_fn=collate_tokens, drop_last=True,
     )
 
-    # ---- Build transformer ------------------------------------------------
+    # ---- 建立 transformer ------------------------------------------------
     transformer = VARTransformer(
         scales=tuple(dataset.scales),
         embedding_dim=vqvae.embedding_dim,
@@ -190,7 +190,7 @@ def train():
           f"Total training steps: {total_steps}")
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # ---- Training loop ----------------------------------------------------
+    # ---- 訓練迴圈 ----------------------------------------------------
     global_step = 0
     for epoch in range(1, args.epochs + 1):
         transformer.train()
@@ -202,7 +202,7 @@ def train():
             labels = labels.to(device, non_blocking=True)
             scale_indices = [s.to(device, non_blocking=True) for s in scale_indices]
 
-            # Classifier-free guidance: 10% label dropout to null class.
+            # Classifier-free guidance：以 10% 的機率把標籤 dropout 成 null class。
             drop = torch.rand(labels.shape[0], device=device) < args.label_dropout
             labels = torch.where(drop, torch.full_like(labels, transformer.num_classes), labels)
 
@@ -239,11 +239,11 @@ def train():
 @torch.no_grad()
 def save_samples(vqvae, transformer, label, device, output_dir,
                  cfg_scale, top_k, top_p, per_class=8):
-    """Generate a per_class-by-10 grid (rows = digits) and save."""
+    """生成一張 per_class×10 的網格（每一列 = 一個數字）並存檔。"""
     class_labels = torch.arange(10, device=device).repeat_interleave(per_class)
     images, _ = generate(transformer, vqvae, class_labels,
                          cfg_scale=cfg_scale, top_k=top_k, top_p=top_p)
-    images = images * 0.5 + 0.5  # to [0,1]
+    images = images * 0.5 + 0.5  # 轉到 [0,1]
     grid = make_grid(images, nrow=per_class)
     path = os.path.join(output_dir, f"epoch_{label}.png")
     save_image(grid, path)

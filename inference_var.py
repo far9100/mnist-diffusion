@@ -1,17 +1,16 @@
 """
-Inference script for VAR-mini. Generates MNIST digits and writes a dataset
-file with the same format the existing TSTR pipeline (evaluate.py) consumes:
+VAR-mini 的推論腳本。生成 MNIST 數字，並輸出與現有 TSTR pipeline（evaluate.py）相同格式的資料集檔案：
 
     {"images": (N, 1, 28, 28) float32 in [-1, 1], "labels": (N,) int64}
 
 Usage:
-    # Default: 100 images per digit (0-9)
+    # 預設：每個數字（0-9）生成 100 張影像
     uv run python inference_var.py
 
-    # Canonical TSTR run (1000 per digit -> 10K total)
+    # 標準的 TSTR 執行（每個數字 1000 張 -> 共 10K 張）
     uv run python inference_var.py --per-digit 1000
 
-    # Override checkpoints / sampling controls
+    # 覆寫 checkpoint／取樣控制參數
     uv run python inference_var.py --vqvae var_vqvae.pt --transformer var_transformer.pt \
         --cfg-scale 2.0 --top-k 50 --top-p 0.95
 """
@@ -47,7 +46,7 @@ def parse_args():
 
 
 def generate_for_digit(transformer, vqvae, digit, count, batch_size, args, device):
-    """Yield batches of images for a single digit until `count` are produced."""
+    """為單一數字持續產生一批批影像，直到生成 `count` 張為止。"""
     generated = 0
     while generated < count:
         n = min(batch_size, count - generated)
