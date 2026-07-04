@@ -68,6 +68,47 @@ def chamfer_guidance_grad(x0, feature_fn, exemplar_feats, weight=1.0, term="cove
     return -weight * grad
 
 
+def chamfer_guided_ddim_sample(model, schedule, feature_fn, exemplar_feats, shape,
+                               num_steps=18, eta=0.0, class_labels=None,
+                               guidance_scale=1.0, chamfer_weight=1.0,
+                               term="coverage", generator=None):
+    """把 Chamfer guidance 接進 DDIM 取樣迴圈：每一步對預測的乾淨影像 x0 施加覆蓋位移。
+
+    重用 ddpm.DiffusionSchedule 的公開介面（ddim_timesteps、alphas_bar、predict_eps），
+    不修改 ddpm。與 ddim_sample_loop 的唯一差別是：算出每步的 x0 後加上 chamfer 位移，
+    再組回下一步的 x_s。chamfer_weight=0 時等同一般 DDIM，因此同一支程式可同時當
+    「有 Chamfer」與「無 Chamfer」兩個對照。
+
+    參數多數同 ddim_sample_loop；另加 feature_fn（可微特徵抽取器）、exemplar_feats
+    （真實 exemplar 在該特徵空間的特徵）、chamfer_weight（guidance 強度）、term
+    （coverage 覆蓋項或 chamfer 對稱距離）。
+    """
+    device = schedule.device
+    x = torch.randn(shape, device=device, generator=generator)
+    for t_cur, t_prev in schedule.ddim_timesteps(num_steps):
+        t = torch.full((shape[0],), t_cur, device=device, dtype=torch.long)
+        eps = schedule.predict_eps(model, x, t, class_labels, guidance_scale)
+        ab_t = schedule.alphas_bar[t_cur]
+        ab_s = (schedule.alphas_bar[t_prev] if t_prev >= 0
+                else torch.ones((), device=device))
+        # 由 x_t 與噪音估計推得的乾淨影像 x0
+        x0 = (x - (1.0 - ab_t).sqrt() * eps) / ab_t.sqrt()
+        # Chamfer guidance：把 x0 往覆蓋 exemplar 的方向推（梯度穿過 feature_fn）
+        if chamfer_weight > 0:
+            with torch.enable_grad():
+                disp = chamfer_guidance_grad(x0, feature_fn, exemplar_feats,
+                                             weight=chamfer_weight, term=term)
+            x0 = x0 + disp
+        # 組回下一步（與 DDIM 相同）
+        sigma = (eta * ((1.0 - ab_s) / (1.0 - ab_t)).sqrt()
+                 * (1.0 - ab_t / ab_s).sqrt())
+        dir_xt = (1.0 - ab_s - sigma ** 2).clamp(min=0.0).sqrt() * eps
+        x = ab_s.sqrt() * x0 + dir_xt
+        if t_prev >= 0 and eta > 0:
+            x = x + sigma * torch.randn(shape, device=device, generator=generator)
+    return x
+
+
 def _self_check():
     """以合成資料與線性特徵驗證核心量與梯度方向正確（不需模型/資料檔）。"""
     torch.manual_seed(0)
@@ -98,7 +139,36 @@ def _self_check():
     after = chamfer_coverage_term(feature_fn(x0_moved), exemplars).item()
     print(f"  coverage term  before={before:.4f}  after={after:.4f}")
     assert after < before, "沿 guidance 位移一步後覆蓋項應下降"
-    print("  OK（僅驗證核心量與梯度方向；取樣整合與真實特徵抽取器待下一增量）")
+
+    # 取樣迴圈整合：用 mock 模型 + DiffusionSchedule 驗證 plumbing（不需真實模型/GPU）。
+    from ddpm import DiffusionSchedule
+
+    class _MockModel(torch.nn.Module):
+        num_classes = 10
+
+        def forward(self, xt, t, labels=None):
+            return torch.zeros_like(xt)   # eps=0，僅測取樣流程串接
+
+    schedule = DiffusionSchedule(timesteps=50, device=device)
+    mock = _MockModel().to(device)
+    flat = lambda img: img.flatten(1)     # 恆等特徵，便於檢查
+    shp = (4, 1, 8, 8)
+    exemplars2 = torch.randn(8, 8 * 8, device=device)
+
+    def run(weight):
+        torch.manual_seed(0)              # 同 seed -> 相同初始噪音，兩次可比
+        return chamfer_guided_ddim_sample(mock, schedule, flat, exemplars2, shp,
+                                          num_steps=5, eta=0.0, guidance_scale=1.0,
+                                          chamfer_weight=weight, term="coverage")
+
+    x_plain = run(0.0)
+    x_guided = run(5.0)
+    cov_plain = chamfer_coverage_term(flat(x_plain), exemplars2).item()
+    cov_guided = chamfer_coverage_term(flat(x_guided), exemplars2).item()
+    print(f"  loop shape {tuple(x_guided.shape)}  cov plain={cov_plain:.3f} guided={cov_guided:.3f}")
+    assert x_guided.shape == shp, "取樣輸出形狀應正確"
+    assert not torch.allclose(x_plain, x_guided), "chamfer_weight>0 應改變輸出"
+    print("  OK（核心量、梯度方向、取樣迴圈整合皆通過；真實特徵抽取器與 CIFAR smoke 待 GPU 空出）")
 
 
 if __name__ == "__main__":
