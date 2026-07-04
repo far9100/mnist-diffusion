@@ -171,5 +171,107 @@ def _self_check():
     print("  OK（核心量、梯度方向、取樣迴圈整合皆通過；真實特徵抽取器與 CIFAR smoke 待 GPU 空出）")
 
 
+def mnist_penultimate_feature_fn(cnn):
+    """回傳可微的 feature_fn：MNIST 裁判 CNN 的 penultimate 256 維特徵。
+
+    等同 analyze_distribution.extract_features 的抽取路徑，但不包 no_grad，讓 guidance
+    的梯度能穿過 CNN 回傳到影像。cnn 應為 eval 模式（BatchNorm 用 running stats、
+    不觸發 Dropout，因為我們停在 Dropout 之前）。輸入影像預期為 [-1,1]，與擴散輸出一致。
+    """
+    flatten = torch.nn.Flatten()
+    fc1 = cnn.classifier[1]
+    relu = cnn.classifier[2]
+
+    def feature_fn(x):
+        return relu(fc1(flatten(cnn.features(x))))
+
+    return feature_fn
+
+
+def _mnist_smoke(ckpt="ddpm_mnist.pt", cnn_ckpt="mnist_cnn.pt", data_dir="./data",
+                 batch=16, steps=10, weight=5.0, seed=0):
+    """端到端 smoke：真實 MNIST UNet + 可微 CNN 特徵 + Chamfer 取樣迴圈（固定 CPU）。
+
+    比較無 Chamfer（weight=0）與有 Chamfer 的生成，回報 chamfer 覆蓋項與 PRDC coverage，
+    確認整條管線在真實模型上跑得通、且 guidance 把生成推向覆蓋 exemplar。weight 的正式
+    數值需在實驗中調校，此處只驗證管線。"""
+    import os
+
+    from ddpm import UNet, DiffusionSchedule
+    from fid import load_cnn
+    from analyze_distribution import load_real_per_class
+    from metrics_prdc import compute_prdc
+
+    for path in (ckpt, cnn_ckpt):
+        if not os.path.exists(path):
+            print(f"ERROR: 找不到檔案 {path}")
+            return
+
+    device = torch.device("cpu")  # smoke 固定 CPU，不佔用訓練中的 GPU
+    print(f"MNIST Chamfer 取樣 smoke（CPU；batch={batch} steps={steps} weight={weight}）...")
+
+    ck = torch.load(ckpt, map_location=device, weights_only=True)
+    state = ck["model_state_dict"] if isinstance(ck, dict) and "model_state_dict" in ck else ck
+    model = UNet(in_channels=1, base_channels=64, num_classes=10).to(device)
+    model.load_state_dict(state)
+    model.eval()
+    schedule = DiffusionSchedule(timesteps=1000, device=device)
+
+    cnn = load_cnn(cnn_ckpt, device)
+    feature_fn = mnist_penultimate_feature_fn(cnn)
+
+    # 少量真實 exemplar（Chamfer 的導引來源）與一份較大的真實參考（算 PRDC coverage）
+    exemplars, _ = load_real_per_class(data_dir, 2, seed)
+    real_ref, _ = load_real_per_class(data_dir, 50, seed + 1)
+    with torch.no_grad():
+        exemplar_feats = feature_fn(exemplars.to(device))
+        real_ref_feats = feature_fn(real_ref.to(device))
+
+    labels = torch.arange(10, device=device).repeat(batch // 10 + 1)[:batch]
+
+    def sample(w):
+        torch.manual_seed(seed)  # 同 seed -> 相同初始噪音，兩次可比
+        imgs = chamfer_guided_ddim_sample(model, schedule, feature_fn, exemplar_feats,
+                                          shape=(batch, 1, 28, 28), num_steps=steps,
+                                          eta=0.0, class_labels=labels,
+                                          guidance_scale=1.0, chamfer_weight=w)
+        return imgs.clamp(-1, 1)
+
+    plain = sample(0.0)
+    guided = sample(weight)
+    with torch.no_grad():
+        f_plain = feature_fn(plain)
+        f_guided = feature_fn(guided)
+        cov_term_plain = chamfer_coverage_term(f_plain, exemplar_feats).item()
+        cov_term_guided = chamfer_coverage_term(f_guided, exemplar_feats).item()
+        prdc_plain = compute_prdc(real_ref_feats, f_plain, nearest_k=3)["coverage"]
+        prdc_guided = compute_prdc(real_ref_feats, f_guided, nearest_k=3)["coverage"]
+
+    print(f"  chamfer 覆蓋項   plain={cov_term_plain:.3f}   guided={cov_term_guided:.3f}")
+    print(f"  PRDC coverage    plain={prdc_plain:.3f}   guided={prdc_guided:.3f}")
+    print("  端到端管線跑通（真實 UNet + 可微 CNN 特徵 + Chamfer 取樣迴圈）；weight 的正式數值待實驗調校。")
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Simplified Chamfer guidance baseline: synthetic self-check or MNIST end-to-end smoke.")
+    parser.add_argument("--mnist-smoke", action="store_true",
+                        help="Run the end-to-end MNIST smoke on CPU (needs ddpm_mnist.pt and mnist_cnn.pt).")
+    parser.add_argument("--ckpt", default="ddpm_mnist.pt")
+    parser.add_argument("--cnn", default="mnist_cnn.pt")
+    parser.add_argument("--data-dir", default="./data")
+    parser.add_argument("--batch", type=int, default=16)
+    parser.add_argument("--steps", type=int, default=10)
+    parser.add_argument("--weight", type=float, default=5.0)
+    args = parser.parse_args()
+
+    if args.mnist_smoke:
+        _mnist_smoke(args.ckpt, args.cnn, args.data_dir, args.batch, args.steps, args.weight)
+    else:
+        _self_check()
+
+
 if __name__ == "__main__":
-    _self_check()
+    main()
