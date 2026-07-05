@@ -3,7 +3,11 @@
 # 實驗結果分析
 
 本文件彙整目前已產出的實驗數據與其解讀。逐次執行的原始記錄見 `records/`；此處只保留可作結論或
-待確認的結果分析。CIFAR 全品質結果尚未定案，不列為結論。
+待確認的結果分析。CIFAR confirmatory 結果尚未產生，不列為結論。
+
+範圍註記（依 `records/2026-07-05-12` 定位 v2）：CIFAR 尺度的主張收緊到 CFG guidance 軸。取樣步數 steps
+與 DDIM 隨機性 η 的效用結論只保留在 MNIST sandbox 尺度，不在 CIFAR 尺度宣稱聯合曲面。下方 MNIST 表
+為 sandbox 動機證據，CIFAR 自訓 CFG 的 pilot 與 scout 為 exploratory，confirmatory 主結果待跑。
 
 ## 量測堆疊正確性（backbone 已驗證）
 
@@ -69,9 +73,37 @@
 
 原始記錄見 `records/2026-07-03-06_test_cifar-preview.md`。
 
-## 待確認
+## 自訓 CFG CIFAR-10（exploratory pilot 與上緣 scout）
 
-- CIFAR-10 全品質（18 步、每類 1000、多 seed）：內部最優是否持續，CaF regret 是否維持小。
+以下為自訓 CFG 主軸的 exploratory 結果（pilot 用 seeds 0/1/2，grid 於看過 scout 後才鎖定，故只能定位為
+exploratory；confirmatory 以 fresh seeds 10/11/12、10 點 grid 另跑）。
+
+Stage 4 多 seed pilot（steps=50、η=0，grid {1,2,3,4,5,8}，3 seed 均值 ± std）：
+
+| w | precision | coverage(DINOv2) | TSTR% | label_noise | near_bnd |
+|---|---|---|---|---|---|
+| 1 | 0.827±0.009 | 0.710±0.006 | 41.18±1.15 | 0.112±0.004 | 0.252±0.008 |
+| 2 | 0.884±0.004 | 0.834±0.009 | 46.01±1.85 | 0.013±0.003 | 0.063±0.005 |
+| 3 | 0.903±0.004 | 0.834±0.002 | 43.88±1.49 | 0.005±0.002 | 0.037±0.004 |
+| 4 | 0.903±0.003 | 0.806±0.005 | 40.59±0.91 | 0.003±0.002 | 0.032±0.001 |
+| 5 | 0.897±0.001 | 0.758±0.008 | 37.43±2.39 | 0.003±0.001 | 0.031±0.002 |
+| 8 | 0.871±0.003 | 0.622±0.012 | 28.43±0.70 | 0.008±0.002 | 0.055±0.004 |
+
+pilot 判讀（exploratory，敘事描述，不承擔裁決功能）：TSTR 峰在 w=2、三 seed oracle 一致，內部最優在
+自訓主軸成立；CaF 每 seed 選 [w2,w3,w2]、regret 0.28pp、top-3 100%。三段結構——低段（w1→2）precision/
+coverage 同升而 label-noise 降（三力同向、混淆）、中段（w2→3）coverage 平坦而 TSTR 微降、高段（w3→8）
+coverage 崩且 precision 高原（兩者分離）——只作敘事，不作 C2 裁決。C2 的 confirmatory 裁決改以全網格偏
+相關進行，納入全部 10 點含混淆段，不分段（見 `records/2026-07-05-13`）。
+
+上緣 coverage-only scout（1 seed、coverage-only、DINOv2 特徵）：coverage 於 w∈[8,20] 由 0.533 單調降至
+0.259，依判準 X=0.02 未觸底。此為描述性觀察，緊貼其條件標注；依封頂 amendment（`records/2026-07-05-11`）
+以先驗 CFG 實用範圍封頂 w=8，confirmatory 不重跑 w>8 區段。併入雙力敘事：低段 fidelity 上升、高段
+coverage 單調下降，兩力交會產生內部最優。
+
+## 待確認（confirmatory）
+
+- CIFAR-10 confirmatory（steps=50、η=0、10 點 grid、fresh seeds 10/11/12）：內部最優是否持續，CaF regret
+  是否維持小；C2 全網格偏相關是否 C2a 顯著正、C2b 不顯著。
 - CIFAR-100：coverage 主導是否複製（難集不翻轉），near-boundary 機制是否可量測（不飽和）。
-- 第二特徵表徵交叉驗證，破除 DINOv2 雙重使用。
+- 第二特徵表徵交叉驗證（Inception/CLIP），破除 DINOv2 雙重使用。
 - CaF 與簡化 Chamfer 在 matched-budget 下的對決與可組合性展示。

@@ -2,9 +2,15 @@
 
 # Sampling for Utility, not Fidelity
 
-擴散模型生成的合成影像越來越常被當成下游分類器的訓練資料。本專案研究擴散取樣的組態（取樣步數
-steps、DDIM 隨機性 η、guidance 強度）應為**下游訓練效用（TSTR）**而非視覺保真度（FID）最佳化，
-並提出一個免訓練、可遷移、有機制解釋的組態選擇器 **CaF（Coverage-at-Fidelity）**。
+擴散模型生成的合成影像越來越常被當成下游分類器的訓練資料。本專案的主張收緊到 **CFG guidance 軸**：
+在此軸上，下游訓練效用（TSTR）的最優點偏離視覺保真度（FID）的最優點；效用對 guidance **非單調、存在
+內部最優**，因此任何固定的 guidance 值跨資料集與任務必然次優。由此導出貢獻本體——一個免訓練、可遷移、
+有機制解釋的組態選擇器 **CaF（Coverage-at-Fidelity）**，以零頭成本定位該效用最優組態。
+
+範圍與護城河（誠實聲明）：取樣步數 steps 與 DDIM 隨機性 η 的效用行為只在 MNIST sandbox 尺度得證（η
+對效用為 null、steps 次要），CIFAR 尺度只掃 guidance 軸，不宣稱聯合曲面。此收緊使 CIFAR 尺度的差異化
+剩「非單調性、CaF、機制」三項；相對 Chamfer / Fan / DP 擴散文獻是否充分，由 CIFAR-100 機制 gate 與
+Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位依據見 `records/2026-07-05-12`。
 
 實驗結果與數據分析見 `docs/results_analysis.md`；研究計畫與進度記錄見 `records/`。
 
@@ -84,18 +90,19 @@ uv sync
 ## 目前進度
 
 - Phase 0（MNIST sandbox）：完成，機制方向正確、CaF 可行。
-- Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 重現通過。
-- Phase 1-2（CFG backbone）：CIFAR-10 訓練進行中；CIFAR-100 模型尚未開始。
-- Phase 1-3（CIFAR-10 複製 C1）：僅有快速預覽，尚未定案。
-- Phase 1-4（CIFAR-100 機制）：未開始，是全案科學承重牆。
-- Phase 1-5（CaF vs Chamfer 對決）：未開始。
+- Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 1.848 重現通過。
+- Phase 1-2（自訓 CFG backbone）：CIFAR-10 完成（base model 50k clean-fid 8.95 過 gate）；CIFAR-100 未開始。
+- Phase 1-3（CIFAR-10 guidance 軸）：exploratory pilot 完成（TSTR 峰在 w=2、CaF regret 0.28pp、top-3 100%）；
+  confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）已凍結待跑。
+- Phase 1-4（CIFAR-100 機制與翻轉檢查）：未開始，是全案科學承重牆。
+- Phase 1-5（CaF vs Chamfer matched-budget 對決）：未開始，是護城河承重牆。
 
 各階段的實際數據與分析見 `docs/results_analysis.md`。
 
 ## 實驗設計：完整實驗要確立的事
 
-- CIFAR-10 全品質（18 步）：guidance 的內部最優是否持續，CaF 是否跨 3 個以上 seed 近最優選中
-  （regret 小）。
+- CIFAR-10 confirmatory（steps=50、η=0、10 點 guidance grid、fresh seeds 10/11/12）：guidance 的內部最優
+  是否持續，CaF 是否跨 3 seed 近最優選中（regret 小）；C2 以全網格偏相關裁決（見 records/2026-07-05-13）。
 - CIFAR-100（更難、非可分）：coverage 主導是否複製，near-boundary 機制是否可量測（不飽和）。這是
   真正的 go/no-go 硬門檻。
 - 第二特徵表徵（CLIP / Inception）交叉驗證 coverage，破除 DINOv2 的雙重使用循環。
