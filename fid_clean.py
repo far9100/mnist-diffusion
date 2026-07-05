@@ -17,6 +17,28 @@ import torch
 from torchvision.utils import save_image
 
 
+def _patch_scipy_sqrtm():
+    """相容修補：新版 scipy 的 linalg.sqrtm 已移除 disp 參數，而 vendored 的 cleanfid
+    仍以 sqrtm(A, disp=False) 呼叫並解包 (covmean, _)。此處包一層，使 disp=False 時
+    回傳 (sqrtm, 0.0)，讓 cleanfid 在新 scipy 下不致崩潰。只修補一次。"""
+    import scipy.linalg as sla
+    if getattr(sla.sqrtm, "_patched_for_cleanfid", False):
+        return
+    orig = sla.sqrtm
+
+    def _sqrtm(a, disp=True, blocksize=64):
+        try:
+            res = orig(a, blocksize=blocksize)
+        except TypeError:
+            res = orig(a)
+        if isinstance(res, tuple):
+            res = res[0]
+        return res if disp else (res, 0.0)
+
+    _sqrtm._patched_for_cleanfid = True
+    sla.sqrtm = _sqrtm
+
+
 def _dump_pngs(images, out_dir):
     os.makedirs(out_dir, exist_ok=True)
     for i in range(images.size(0)):
@@ -27,6 +49,7 @@ def clean_fid_vs_dataset(images, dataset_name="cifar10", dataset_split="train",
                          dataset_res=32, mode="clean", tmp_dir=None):
     """generated `images`（[0,1] 張量）相對於 clean-fid 預先計算 stats 的 FID。"""
     from cleanfid import fid as cfid
+    _patch_scipy_sqrtm()
     cleanup = tmp_dir is None
     tmp_dir = tmp_dir or tempfile.mkdtemp(prefix="cleanfid_gen_")
     try:
@@ -46,6 +69,7 @@ def clean_fid_vs_dataset(images, dataset_name="cifar10", dataset_split="train",
 def clean_fid_two_sets(images_a, images_b, mode="clean", tmp_root=None):
     """兩組張量影像之間的 FID（例如 real-vs-real 檢查應該很小）。"""
     from cleanfid import fid as cfid
+    _patch_scipy_sqrtm()
     root = tmp_root or tempfile.mkdtemp(prefix="cleanfid_pair_")
     dir_a, dir_b = os.path.join(root, "a"), os.path.join(root, "b")
     try:
