@@ -27,24 +27,28 @@ from metrics_features import dinov2_features
 from datasets.cifar import load_real_per_class, build_test_loader
 
 
-def _inception_crosscheck(real_imgs, real_labels, gen_imgs, gen_labels, nearest_k, device):
-    """以 Inception 特徵重算 per-class coverage 作交叉檢查（失敗則回傳 None，不中斷 scout）。"""
+def load_inception_detector(device):
+    """載入一次 Inception FID detector（供 coverage 的第二表徵交叉檢查）；失敗回傳 None。"""
     try:
         import pickle
-        from run_cifar_selector import inception_feats
         from phase1_edm_repro import DETECTOR_URL
         import dnnlib
         with dnnlib.util.open_url(DETECTOR_URL, verbose=False) as f:
-            detector = pickle.load(f).to(device)
-        rf = inception_feats(real_imgs, detector, device)
-        gf = inception_feats(gen_imgs, detector, device)
-        prdc, _ = compute_prdc_per_class(rf.to(device), real_labels.to(device),
-                                         gf.to(device), gen_labels.to(device),
-                                         nearest_k=nearest_k, num_classes=10)
-        return prdc["coverage"], prdc["precision"]
+            return pickle.load(f).to(device)
     except Exception as e:
-        print(f"  [warn] Inception 交叉檢查略過：{e}", flush=True)
-        return None, None
+        print(f"  [warn] 無法載入 Inception detector，交叉檢查略過：{e}", flush=True)
+        return None
+
+
+def inception_crosscheck(detector, real_imgs, real_labels, gen_imgs, gen_labels, nearest_k, device):
+    """以已載入的 Inception detector 重算 per-class precision/coverage 作交叉檢查。"""
+    from run_cifar_selector import inception_feats
+    rf = inception_feats(real_imgs, detector, device)
+    gf = inception_feats(gen_imgs, detector, device)
+    prdc, _ = compute_prdc_per_class(rf.to(device), real_labels.to(device),
+                                     gf.to(device), gen_labels.to(device),
+                                     nearest_k=nearest_k, num_classes=10)
+    return prdc["coverage"], prdc["precision"]
 
 
 def verdict(rows):
@@ -53,7 +57,6 @@ def verdict(rows):
     tstr = [r["tstr"] for r in rows]
     sweet = gs[max(range(len(tstr)), key=lambda i: tstr[i])]
     cov_max = max(cov)
-    # coverage 崩點：第一個 coverage 掉到峰值 90% 以下的 guidance
     collapse = next((gs[i] for i in range(len(cov)) if cov[i] < 0.9 * cov_max), None)
     return {"sweet_spot_guidance": sweet, "coverage_peak": cov_max,
             "coverage_collapse_guidance": collapse,
@@ -84,7 +87,6 @@ def main():
         args.per_class = 32
         args.real_per_class = 64
         args.tstr_epochs = 2
-        args.no_inception = True
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}", flush=True)
@@ -100,8 +102,11 @@ def main():
 
     real_imgs, real_labels = load_real_per_class("cifar10", args.real_per_class, seed=0)
     real_dino = dinov2_features((real_imgs + 1) / 2, device)
-    test_loader = build_test_loader("cifar10", batch_size=256)
-    print(f"Real ref: {real_imgs.size(0)} imgs", flush=True)
+    # num_workers=0：Windows 下多 worker 在記憶體壓力時會崩，且 TensorDataset 無需多 worker。
+    test_loader = build_test_loader("cifar10", batch_size=256, num_workers=0)
+    detector = None if args.no_inception else load_inception_detector(device)
+    print(f"Real ref: {real_imgs.size(0)} imgs; inception 交叉檢查={'關' if detector is None else '開'}",
+          flush=True)
 
     rows = []
     for w in args.guidance:
@@ -119,9 +124,9 @@ def main():
         label_noise = (preds != gen_labels).float().mean().item()
 
         incep_cov, incep_prec = (None, None)
-        if not args.no_inception:
-            incep_cov, incep_prec = _inception_crosscheck(real_imgs, real_labels, gen, gen_labels,
-                                                          args.nearest_k, device)
+        if detector is not None:
+            incep_cov, incep_prec = inception_crosscheck(detector, real_imgs, real_labels,
+                                                         gen, gen_labels, args.nearest_k, device)
 
         row = {"guidance": w, "precision_dino": dino_prdc["precision"],
                "coverage_dino": dino_prdc["coverage"], "coverage_inception": incep_cov,
@@ -130,6 +135,9 @@ def main():
         rows.append(row)
         print(f"  w={w:<4g} prec={dino_prdc['precision']:.3f} cov={dino_prdc['coverage']:.3f} "
               f"tstr={tstr_overall:.2f} label_noise={label_noise:.3f} near_boundary={nb:.3f}", flush=True)
+        del gen, gen_dino, margins, preds
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
 
     v = verdict(rows)
     print("\n" + "=" * 84)
