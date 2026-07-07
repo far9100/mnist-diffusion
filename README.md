@@ -95,7 +95,7 @@ uv sync
 - Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 1.848 重現通過。
 - Phase 1-2（自訓 CFG backbone）：CIFAR-10 完成（base model 50k clean-fid 8.95 過 gate）；CIFAR-100 未開始。
 - Phase 1-3（CIFAR-10 guidance 軸）：exploratory pilot 完成（TSTR 峰在 w=2、CaF regret 0.28pp、top-3 100%）；
-  confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）已凍結待跑。
+  confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）已完成（2026-07-06），裁決與文件同步進行中。
 - Phase 1-4（CIFAR-100 機制與翻轉檢查）：未開始，是全案科學承重牆。
 - Phase 1-5（CaF vs Chamfer matched-budget 對決）：未開始，是護城河承重牆。
 

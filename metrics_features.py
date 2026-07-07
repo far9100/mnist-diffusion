@@ -12,9 +12,13 @@
 預先計算的 CIFAR statistics 一致（正確性錨點）。
 
 護欄（brief 第 3 節，DINOv2 雙重使用）：CaF selector 的 coverage 與
-回報的 FD 必須在*不同的*表徵中交叉檢查。因此本模組
-提供 `backbone` 參數，讓 coverage 可在 CLIP 或
-Inception 空間中重新計算，作為穩健性檢查。
+回報的 FD 必須在*不同的*表徵中交叉檢查。本模組的 Fréchet 與
+PRDC 包裝（fd_from_features、prdc_from_features、
+prdc_per_class_from_features）與表徵無關，接受任何特徵陣列；交叉
+檢查即以另一表徵（Inception）的特徵餵入同一組函式達成——Inception
+特徵抽取見 run_cifar_cfg_scout.inception_crosscheck 與
+run_cifar_selector.inception_feats。本模組本身只實作 DINOv2 抽取，
+未提供 CLIP 路徑。
 """
 
 import torch
