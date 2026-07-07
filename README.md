@@ -14,6 +14,8 @@ Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位
 
 實驗結果與數據分析見 `docs/results_analysis.md`；研究計畫與進度記錄見 `records/`。
 
+進度：Phase 1-3 CIFAR-10 confirmatory 已完成（2026-07-06，`results/cifar10_cfg_confirmatory.json`，30 configs）；H-C2 裁決與文件同步進行中，詳見 `records/`。
+
 ## 前言
 
 控制擴散 sampler 的旋鈕（去噪步數、隨機性、guidance 強度）幾乎總是為了最佳化影像保真度（FID）
