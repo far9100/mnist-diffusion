@@ -12,7 +12,7 @@
 剩「非單調性、CaF、機制」三項；相對 Chamfer / Fan / DP 擴散文獻是否充分，由 CIFAR-100 機制 gate 與
 Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位依據見 `records/2026-07-05-12`。
 
-實驗結果與數據分析見 `docs/results_analysis.md`；研究計畫與進度記錄見 `records/`。
+實驗結果與數據分析見 `docs/results_analysis.md`；論文 intro 草稿見 `docs/paper_intro_draft.md`；研究計畫與進度記錄見 `records/`。
 
 進度：Phase 1-3 CIFAR-10 confirmatory 已完成（2026-07-06，`results/cifar10_cfg_confirmatory.json`，30 configs）；H-C2 裁決與文件同步進行中，詳見 `records/`。
 
@@ -127,9 +127,17 @@ cifar_data.py            — CIFAR-10/100 載入
 cifar_classifier.py      — 從零實作 CIFAR 分類器與 TSTR 測試框架
 datasets/                — CIFAR-10/100 資料集載入器
 phase1_edm_repro.py      — 正確性 gate：重現 EDM CIFAR-10 FID
-run_comparison.py        — (steps × η × guidance) 聯合掃描，產出效用曲面與選擇器輸入
+cifar_judge.py           — 真實 CIFAR-10 judge 分類器，校準 near-boundary threshold，供機制與 label-noise 量測
+cifar_cfg_sample.py      — 自訓 CFG 模型的平衡生成與 FID gate
+run_comparison.py        — (steps × η × guidance) 聯合掃描，產出效用曲面與選擇器輸入（MNIST sandbox 尺度）
 run_selector_signal.py   — MNIST 上 CaF 的多 seed go/no-go 訊號
 run_cifar_selector.py    — CIFAR-10 上 CaF 選擇器訊號
+run_cifar_cfg_scout.py   — 1-seed 寬 grid scout，定位 coverage 崩點以凍結 confirmatory grid
+run_cifar_cfg_upper_scout.py — 上緣 coverage-only scout（w>8 區段）
+run_cifar_cfg_multiseed.py — confirmatory 主 driver：凍結 10 點 grid、fresh seeds，量 precision/coverage/TSTR/near-boundary/label-noise
+run_c2_partial.py        — C2 全網格偏相關裁決（partial Spearman + permutation + bootstrap CI）
+run_flip_earlywarning.py — CIFAR-10 難子集 coverage 主導鬆動的早期預警
+chamfer.py               — 簡化 Chamfer guidance 基線，供 matched-budget 對決
 run_guidance_study.py    — guidance 對 FID/TSTR/多樣性的取捨研究
 validate_metrics.py      — 量測堆疊在真實 CIFAR-10 上的數值驗證
 ```
