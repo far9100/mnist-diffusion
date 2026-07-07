@@ -28,12 +28,15 @@ restricted 空間 = ∏ (塊大小!) = (1!)⁴·(2!)⁴·(3!)⁶ = 1·16·46656 
 > N=100,000 < 746,496，抽樣不窮舉；空間離散下界 ≈1/746496 ≈1.3e-6，抽樣 p 下界 =1/(N+1) ≈9.9e-6。
 > 對 p≈.02–.05 之解析度足夠——**非「幾百種」之失敗情形，基數本身夠大**。
 
-### 4. 三態判定（凍結，對號入座、不臨時解釋）
+### 4. 三態判定（修訂 2026-07-06：cell-level free-vs-restricted；原 main-vs-block 跨 n 框架作廢）
 
-- 兩者皆 <0.05 = 穩健顯著。
-- 主 <0.05 但 block ≥0.05 = 碰撞在撐；B 判決二據實報「顯著依賴共享噪聲、restricted 下不穩」。
-- 皆 ≥0.05 = 主檢驗顯著本身是方案 artifact。
-- 註：主檢驗已出 p=0.0188，state 3「皆 ≥.05」現不可達；規則仍事前全列，為完整性與制度對稱。
+原「config-level 主檢驗(n=10) vs cell-level block(n=30)」跨 n 不對等，作廢。改為 cell-level(n=30) 同一統計量下兩置換方案比：
+- p_free = cell 層 partial ρ 之標準（全域）置換 p；p_restricted = 同統計量僅塊內置換 p。
+- config-level 主檢驗（0.0188）獨立保留為 -13 裁決（constraint 2 不動）。
+- 兩者皆 <0.05 = 噪聲結構不改結論（穩健）。
+- p_free <0.05 但 p_restricted ≥0.05 = 尊重塊結構後顯著消失（碰撞在撐），B 判決二報之。
+- 皆 ≥0.05 = cell 層本無此效應。
+- null 定義（直接置換 cell 殘差秩 vs 先 per-w 中心化再置換之方案 b）待 §7 per-w 穩定性評估後定。
 
 ### 5. 約束：敏感度非替代裁決
 
@@ -46,6 +49,16 @@ restricted 空間 = ∏ (塊大小!) = (1!)⁴·(2!)⁴·(3!)⁶ = 1·16·46656 
 - **測試單位 cell-level(n=30) vs 主檢驗 config-level(n=10)**：塊結構在 cell 層（30 cells）；-13 主檢驗在 per-config 均值（n=10）。block-perm 只能在 cell 層重算 partial ρ，與主檢驗非同 n，§4 三態之「主 vs block」跨 n 比較不對等。建議 apples-to-apples：cell 層同一統計量下跑 free-perm 與 restricted-perm 兩 p 相比（config 層主檢驗 0.0188 獨立保留為裁決）。測試單位待作者定。
 - **within-block 不同 w**：同塊 cell 共享初始噪聲但 w 相異、期望值不同；殘差化控 precision＋excess，w 效應經 coverage 流入；within-block 置換打亂不同 w 之 cell，null 定義須確認。
 
+### 7. per-w 中心化穩定性評估（2026-07-06，不寫檢驗碼）
+
+方案 b（per-w 中心化殘差）之前提=per-w 3-seed 中心夠穩。confirmatory 實測 per-w TSTR 之 3-seed SE：
+
+- 低段最不穩：w1 SE=2.20pp、w1.5 SE=2.65pp（中位數 1.1pp）。coverage per-w SE 中位數 0.003（穩）。
+- 致命比較：上升肢 w1→w1.5 之 TSTR 均值差僅 0.80pp，被 w1.5 中心 SE(2.65pp)整個蓋過——欲扣之 w 效應，其估計誤差在關鍵區為所欲保留訊號的三倍。
+- 結論：方案 b 於殘差注入之中心化噪聲（2.2–2.65pp）與所欲移除之塊內 w 混淆同量級或更大；且不穩者為被解釋端 TSTR、恰在低段。**方案 b 不可行。**
+- 疊加 §6 兩結構問題（cell/config 錯配、塊內 w 異質），CIFAR-10 內部無乾淨 restricted 補救。
+
 ## 後續
 
-作者裁測試單位（cell-level free-vs-restricted，或維持 §4 主-vs-block 框架）後，方實作＋跑；結果對號入座 §4 三態、STOP 呈報。若作者判此敏感度結構上不站得住 → 不硬跑，B 判決二直接寫「碰撞使可交換性受損、restricted permutation 因結構問題無法提供有效敏感度、顯著性穩健性待 CIFAR-100 獨立複製」——誠實承認驗不了，勝於一個粗顆粒假 p。不滾進 A2。
+方案 b 經 §7 評估不可行。待作者於 (b)殘差路徑（已評不可行）／(c)誠實收 CIFAR-100 間裁定；建議 (c)。
+若裁 (c)：不寫檢驗碼、不硬跑；B 判決二直接寫「gseed 碰撞損害可交換性；塊結構 cell/config 錯配加塊內 w 異質，使任何 CIFAR-10 內部 restricted 補救帶不可分離混淆；C2a 顯著性（p=0.0188、偏 ρ=0.658、但 bootstrap CI [−0.601,+0.675] 跨零）之穩健性無法內部驗證，須由 CIFAR-100 獨立複製回答」。不滾進 A2。
