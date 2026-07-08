@@ -3,11 +3,13 @@
 # 實驗結果分析
 
 本文件彙整目前已產出的實驗數據與其解讀。逐次執行的原始記錄見 `records/`；此處只保留可作結論或
-待確認的結果分析。CIFAR confirmatory 結果尚未產生，不列為結論。
+待確認的結果分析。CIFAR-10 confirmatory 已於 2026-07-06 完成（`results/cifar10_cfg_confirmatory.json`），
+其結果分析與三判決依定稿計畫 `records/2026-07-06-05` 工作包 B 定稿後補入本檔（E3），此處先不列結論。
 
 範圍註記（依 `records/2026-07-05-12` 定位 v2）：CIFAR 尺度的主張收緊到 CFG guidance 軸。取樣步數 steps
 與 DDIM 隨機性 η 的效用結論只保留在 MNIST sandbox 尺度，不在 CIFAR 尺度宣稱聯合曲面。下方 MNIST 表
-為 sandbox 動機證據，CIFAR 自訓 CFG 的 pilot 與 scout 為 exploratory，confirmatory 主結果待跑。
+為 sandbox 動機證據，CIFAR 自訓 CFG 的 pilot 與 scout 為 exploratory，confirmatory 主結果已完成（見上），
+其分析待工作包 B 定稿後補入。
 
 ## 量測堆疊正確性（backbone 已驗證）
 

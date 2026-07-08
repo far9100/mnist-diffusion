@@ -1,7 +1,8 @@
 """Phase 1 效用研究用的 CIFAR-10 / CIFAR-100 載入。
 
-命名為 cifar_data.py（而非 `datasets/` 套件），以避免遮蔽
-diffusers / hub 程式碼可能引入的 HuggingFace `datasets` import。
+本檔為 Phase 1 早期量測驗證（見 validate_metrics.py）使用的載入器，
+回傳 [0,1] 值域影像。主線 CIFAR 腳本改用 `datasets/cifar.py`，該檔回傳
+[-1,1] 值域。兩者值域不同，勿混用同一路徑的資料，以免無聲縮放。
 
 慣例：
   - 原始影像以 [0,1] float (N,3,32,32) 回傳；生成式評估的

@@ -25,6 +25,8 @@ Usage:
 import argparse
 import json
 import os
+import sys
+import time
 
 import torch
 
@@ -134,6 +136,7 @@ def main():
     p.add_argument("--output", default="results/cifar10_cfg_multiseed.json")
     p.add_argument("--quick", action="store_true")
     args = p.parse_args()
+    start_timestamp = time.strftime("%Y-%m-%d %H:%M:%S")  # F1（流程債）：記錄開跑時刻，供事後時序對賬
 
     if args.quick:
         args.guidance = [1.0, 3.0]
@@ -240,7 +243,11 @@ def main():
                         "char_clean_fid_enabled": not args.no_fid,
                         "coverage_feature": "DINOv2 primary + Inception cross-check",
                         "prereg": {"grid_cap": "2026-07-05-11", "repositioning": "2026-07-05-12",
-                                   "c2_stats": "2026-07-05-13", "label_noise_spec": "2026-07-05-08 規格2"}},
+                                   "c2_stats": "2026-07-05-13", "label_noise_spec": "2026-07-05-08 規格2"},
+                        "start_timestamp": start_timestamp,      # F1：開跑時刻
+                        "argv": " ".join(sys.argv),              # F1：完整命令留痕（含 --nearest-k / --batch 實傳值）
+                        "nearest_k": args.nearest_k, "batch": args.batch,
+                        "tau_fraction": args.tau_fraction},
            "aggregate": agg, "per_seed": seed_results}
     with open(args.output, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
