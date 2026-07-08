@@ -290,6 +290,8 @@ source = { virtual = "." }
 dependencies = [
     { name = "clean-fid" },
     { name = "numpy" },
+    { name = "pillow" },
+    { name = "scipy" },
     { name = "torch" },
     { name = "torchvision" },
     { name = "tqdm" },
@@ -299,6 +301,8 @@ dependencies = [
 requires-dist = [
     { name = "clean-fid", specifier = ">=0.1.35" },
     { name = "numpy" },
+    { name = "pillow" },
+    { name = "scipy" },
     { name = "torch", specifier = ">=2.7", index = "https://download.pytorch.org/whl/cu128" },
     { name = "torchvision", specifier = ">=0.22", index = "https://download.pytorch.org/whl/cu128" },
     { name = "tqdm" },
