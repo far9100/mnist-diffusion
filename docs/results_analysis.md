@@ -152,10 +152,23 @@ P0（單 cell）與 P1（全 30 config）對帳（`records/2026-07-08-04`、`rec
 label_noise_excess_mean）逐位重現凍結 JSON；k=5 獲 P0 探針反證支持。TSTR 依協定含未種子化 shuffle、非決定性、
 不在對帳集、不宣稱逐位重現。
 
-## 待確認
+## C 批補遺（exploratory，非判決輸入，禁因果）
 
-- **C 批補遺（pending exploratory，非判決輸入）**：C2（near-boundary 剪枝）、C3（coverage-matched 剪枝）、
-  C5（純度過濾）之介入式證據，C7（small-probe FID 穩定性，餵 D5）；皆自落盤影像計算、標 exploratory、禁因果。
+以 P1 落盤資產計算，標 exploratory；不改三判決（`records/2026-07-09-03` 不回改）。觀察性描述、禁因果句。
+噪聲脈絡：C4 測得 σ_cls=2.963pp，下列單 seed／少重訓之差異多在 1–2 σ_cls 內。
+
+- **C4 變異分解**（`records/2026-07-09-07`）：σ_cls=2.963pp（分類器訓練變異，主導）對 σ_gen=1.182pp（生成
+  變異）；上升肢 w1→w1.5（+2.52pp）小於 σ_cls、維持 unresolved。餵 D4 功效規劃。
+- **C7 small-probe FID 穩定性**（`records/2026-07-09-06`）：Kendall τ 最小 0.911（100/class）→ 1.000
+  （500/class），FID-argmin 於 15/15 個 probe draw 全落 w1.5。依凍結判定 FID-min baseline 於小 probe 可靠，
+  餵 D5。
+- **C2/C3/C5 介入式證據**（`records/2026-07-09-08`）：C2 near-boundary 移除之 TSTR 掉幅未大於等數隨機移除；
+  C5 TSTR 未隨 near-boundary 純度單調上升；C3 降 w2.5 coverage 至 w1 水準之 TSTR 代價略大於隨機剪枝，但
+  w2.5≈w1 之等 TSTR 使橋接複雜。三項未對 near-boundary 機制提供強支持，與 C1 反證方向一致；機制之
+  confirmatory 回答移 CIFAR-100（D3）。
+- **C8 Pareto 失明引理**（`docs/c8_pareto_blindness.md`）：w2.5 嚴格支配三 oracle → CaF 結構性選不到 oracle。
+
+## 待確認
 - **CIFAR-100（主線）**：coverage 主導是否複製（難集不翻轉），near-boundary 機制是否可量測（不飽和）；
   which-FID 是否於更難資料集才分離。
 - CaF 與簡化 Chamfer 在 matched-budget 下的對決與可組合性展示（D5/D7 三臂：FID-min／CaF／Chamfer）。
