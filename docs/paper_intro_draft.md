@@ -1,5 +1,9 @@
 <!-- 用途:論文 intro 草稿。主張順序依 records/2026-07-05-12 §5;範圍聲明與護城河變薄依 §3;related work 差異化依 §3 後果。confirmatory 資料出來前為草稿。 -->
 
+> **2026-07-09 狀態（E4，本文依 -12 §9 第 5 項不回改）**：主張 2 之頭條版本（效用最優偏離保真最優）已於兩表徵空間被 CIFAR-10 confirmatory 反證（FID/TSTR 重合於 w1.5、C1 不分離）；主張 3 全稱句撤下；主張 5 之 CaF 於 confirmatory 敗於 FID-min（per-seed regret 3.69 對 0.91，2 勝 1 負）且具結構性 Pareto 失明；主張 1 在 CIFAR-10 上因 FID-min 近最優而失去操作區辨力。三判決見 records/2026-07-09-03；CIFAR-100 分支裁決前本文僅供決策軌跡參考。
+
+（E4 banner 依 CLAUDE.md §3.3「不以符號作狀態標記」去除原文案之警告圖示，文字內容照載。）
+
 # Intro 草稿（Sampling for Utility, not Fidelity）
 
 ## 主張順序（依定位 v2 §5）

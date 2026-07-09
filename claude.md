@@ -32,3 +32,10 @@ Every file in the project must begin with a short comment describing the file's 
 2. **STOP after each stage.** Present that stage's charts and data to the author, and proceed to the next stage only after the author confirms. Do not run through all stages in one pass.
 3. **For features outside the spec, ask first; do not add them on your own.** Any extension not listed in this document (a new encoding, a new channel model, a new visualization) must be confirmed with the author before implementation.
 4. **Code must be readable and commented to explain the signal-processing rationale.** Assume the reader is a first-year undergraduate learning the topic: for each key step, explain what the step does and why.
+
+## 5. Freeze and Metadata Conventions
+
+Added 2026-07-09 (E5, execution directive `records/2026-07-08-02`/`records/2026-07-09-04`). Convention-level only; does not touch the pre-registration protocol.
+
+1. **Freeze definition.** A "frozen" specification is not frozen by a record header alone. It is frozen when all four hold: (a) the rule is written in prose in the record body, (b) it is expressed in committed code where a computation is involved, (c) it passes a dry-run on the already-unblinded data before the real run, and (d) the run's output carries a hash or byte-level reconcile against the frozen target. Persistence-pass (P) assets are the basis for (d).
+2. **Driver metadata completeness.** Every measurement driver must record, in its output metadata, all parameters needed to reproduce the numbers: `start_timestamp`, full `argv`, every analysis parameter (e.g. `nearest_k` and the effective `k = min(k, n-1)`, `tau_fraction`, `batch`), and the environment versions (torch / cuda / cudnn). Rationale: the P0 source-tracing incident arose because `nearest_k` was not stored; a scalar that cannot be traced to its parameters cannot be reconciled.

@@ -4,8 +4,8 @@
 
 擴散模型生成的合成影像越來越常被當成下游分類器的訓練資料。本專案的主張收緊到 **CFG guidance 軸**：
 在此軸上，下游訓練效用（TSTR）的最優點偏離視覺保真度（FID）的最優點；效用對 guidance **非單調、存在
-內部最優**，因此任何固定的 guidance 值跨資料集與任務必然次優。由此導出貢獻本體——一個免訓練、可遷移、
-有機制解釋的組態選擇器 **CaF（Coverage-at-Fidelity）**，以零頭成本定位該效用最優組態。
+內部最優**。由此導出貢獻本體——一個免訓練、可遷移、有機制解釋的組態選擇器 **CaF（Coverage-at-Fidelity）**，
+以零頭成本定位該效用最優組態。
 
 範圍與護城河（誠實聲明）：取樣步數 steps 與 DDIM 隨機性 η 的效用行為只在 MNIST sandbox 尺度得證（η
 對效用為 null、steps 次要），CIFAR 尺度只掃 guidance 軸，不宣稱聯合曲面。此收緊使 CIFAR 尺度的差異化
@@ -14,7 +14,9 @@ Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位
 
 實驗結果與數據分析見 `docs/results_analysis.md`；論文 intro 草稿見 `docs/paper_intro_draft.md`；研究計畫與進度記錄見 `records/`。
 
-進度：Phase 1-3 CIFAR-10 confirmatory 已完成（2026-07-06，`results/cifar10_cfg_confirmatory.json`，30 configs）；H-C2 裁決與文件同步進行中，詳見 `records/`。
+進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 `records/2026-07-09-03`）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。詳見 `records/`。
+
+> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 records/2026-07-09-03（工作包 D commit 後補其編號於此）。
 
 ## 前言
 
@@ -94,8 +96,10 @@ uv sync
 - Phase 0（MNIST sandbox）：完成，機制方向正確、CaF 可行。
 - Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 1.848 重現通過。
 - Phase 1-2（自訓 CFG backbone）：CIFAR-10 完成（base model 50k clean-fid 8.95 過 gate）；CIFAR-100 未開始。
-- Phase 1-3（CIFAR-10 guidance 軸）：exploratory pilot 完成（TSTR 峰在 w=2、CaF regret 0.28pp、top-3 100%）；
-  confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）已完成（2026-07-06），裁決與文件同步進行中。
+- Phase 1-3（CIFAR-10 guidance 軸）：完成。confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）
+  三判決定稿（`records/2026-07-09-03`）：頭條「FID-opt 偏離 TSTR-opt」被反證（C1 於 Inception 與 DINOv2 兩空間
+  皆不分離）；判決三 FID-min per-seed regret 0.91pp 勝 CaF 3.69pp（2 勝 1 負）＋結構性 Pareto 失明；P0/P1 對帳
+  全 30 config 量測 scalar 逐位重現、k=5 獲探針反證。exploratory pilot 為前導觀察。
 - Phase 1-4（CIFAR-100 機制與翻轉檢查）：未開始，是全案科學承重牆。
 - Phase 1-5（CaF vs Chamfer matched-budget 對決）：未開始，是護城河承重牆。
 

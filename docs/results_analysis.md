@@ -4,12 +4,12 @@
 
 本文件彙整目前已產出的實驗數據與其解讀。逐次執行的原始記錄見 `records/`；此處只保留可作結論或
 待確認的結果分析。CIFAR-10 confirmatory 已於 2026-07-06 完成（`results/cifar10_cfg_confirmatory.json`），
-其結果分析與三判決依定稿計畫 `records/2026-07-06-05` 工作包 B 定稿後補入本檔（E3），此處先不列結論。
+其三判決分析見下方「CIFAR-10 confirmatory（三判決定稿，E3）」段，鏡像 B 定稿 `records/2026-07-09-03`。
 
 範圍註記（依 `records/2026-07-05-12` 定位 v2）：CIFAR 尺度的主張收緊到 CFG guidance 軸。取樣步數 steps
 與 DDIM 隨機性 η 的效用結論只保留在 MNIST sandbox 尺度，不在 CIFAR 尺度宣稱聯合曲面。下方 MNIST 表
-為 sandbox 動機證據，CIFAR 自訓 CFG 的 pilot 與 scout 為 exploratory，confirmatory 主結果已完成（見上），
-其分析待工作包 B 定稿後補入。
+為 sandbox 動機證據，CIFAR 自訓 CFG 的 pilot 與 scout 為 exploratory，confirmatory 三判決已定稿（見下方
+E3 段）。
 
 ## 量測堆疊正確性（backbone 已驗證）
 
@@ -102,10 +102,60 @@ coverage 崩且 precision 高原（兩者分離）——只作敘事，不作 C2
 以先驗 CFG 實用範圍封頂 w=8，confirmatory 不重跑 w>8 區段。併入雙力敘事：低段 fidelity 上升、高段
 coverage 單調下降，兩力交會產生內部最優。
 
-## 待確認（confirmatory）
+## CIFAR-10 confirmatory（三判決定稿，E3）
 
-- CIFAR-10 confirmatory（steps=50、η=0、10 點 grid、fresh seeds 10/11/12）：內部最優是否持續，CaF regret
-  是否維持小；C2 全網格偏相關是否 C2a 顯著正、C2b 不顯著。
-- CIFAR-100：coverage 主導是否複製（難集不翻轉），near-boundary 機制是否可量測（不飽和）。
-- 第二特徵表徵交叉驗證（Inception/CLIP），破除 DINOv2 雙重使用。
-- CaF 與簡化 Chamfer 在 matched-budget 下的對決與可組合性展示。
+鏡像 B 定稿 `records/2026-07-09-03`。三判決互不裁決；本段為觀察性描述，禁因果措辭。
+設定：steps=50、η=0、grid {1,1.5,2,2.5,3,4,5,6,7,8}、fresh seeds {10,11,12}、per_class 1000。
+
+### 判決一（thesis）
+
+FID-opt 與 TSTR-opt 重合於 w1.5（clean-fid 均值 8.82／TSTR 均值 63.96）。排序（n=10 均值曲線 Spearman）：
+ρ(−char_clean_fid, TSTR)=0.964、ρ(coverage, TSTR)=0.624。README 頭條「FID-opt 偏離 TSTR-opt」在本資料上被
+反證。which-FID 交叉裁決（C1，`records/2026-07-09-02`）：FD-DINOv2 均值 argmin=w2、TSTR argmax=w1.5，格步 1、
+依凍結口徑（>1 才算分離）判不分離；疊加 Inception／clean-fid 側 0 格步不分離——兩表徵空間皆不分離。「內部
+最優」為未登記 exploratory 觀察（上升肢 w1→w1.5 +0.80pp、SE 1.88，3 gen seeds 下不可判定）；「必然次優」
+全稱句撤下。災難性非單調（w≥3 TSTR 崩 11–30pp）為存活觀察。
+
+### 判決二（H-C2）
+
+A 批（`records/2026-07-06-09`）：DINOv2 側 C2a ρ=+0.658 p=0.0188、Inception 側 ρ=+0.859 p=0.0008（跨表徵
+一致），機械通過；但穩健性沿種子軸（bootstrap CI 跨零）與可交換性軸（gseed 碰撞）無法內部驗證，最終須
+CIFAR-100 獨立複製回答。H-C2a 顯著亦不寫「coverage 驅動效用」等因果措辭。
+
+### 判決三（selector，描述性）
+
+協定未凍門檻，不作過／敗判定。FID-min per-seed regret 0.91（2.45/0.28/0.00）對 CaF 3.69（0.54/5.03/5.49）；
+FID-min 為 3 seed 2 勝 1 負（seed10 上 CaF 0.54 反勝 FID-min 2.45）。regret 主 3.69（per-seed 均值）、並列
+2.77（mean-curve 口徑：均值 oracle w1.5 之 63.96 減均值 CaF w2.5 之 61.19）。CaF 於本網格結構性 Pareto 失明
+（w2.5 (.873,.792) 嚴格支配三 oracle，C8 引理 `docs/c8_pareto_blindness.md`）。可辯護措辭：CaF 為可靠避崖器、
+糟糕平台優化器——FID-min 同樣避崖且成本結構相同。
+
+### 雙段機制（觀察性，禁因果；均值曲線）
+
+| w | 1 | 1.5 | 2 | 2.5 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| TSTR | 63.16 | 63.96 | 61.16 | 61.19 | 53.08 | 47.20 | 44.10 | 39.10 | 36.06 | 33.46 |
+| coverage(DINOv2) | .645 | .751 | .777 | .792 | .778 | .745 | .698 | .648 | .604 | .559 |
+| precision | .806 | .841 | .858 | .873 | .876 | .879 | .869 | .859 | .848 | .836 |
+| near-boundary | .256 | .114 | .063 | .046 | .037 | .032 | .037 | .039 | .048 | .059 |
+| ln_excess | +.044 | −.038 | −.057 | −.062 | −.065 | −.065 | −.065 | −.064 | −.063 | −.062 |
+| FD-DINOv2 | 282.4 | 195.2 | 175.4 | 176.7 | 188.7 | 223.9 | 261.1 | 302.6 | 341.9 | 379.4 |
+
+觀察（禁因果）：低中段（w1→w2.5）near-boundary 比例 .256→.046 下降、coverage .645→.792 上升（coverage 峰
+落 w2.5）；w1 之 ln_excess +.044 為全網格唯一正值。高段（w2.5→w8）coverage 與 TSTR 同降、near-boundary 由
+.032 回升至 .059、precision 同降。全網格 ρ 將雙段抹平（C2 裁決照跑之凍結義務，見判決二）。
+
+### P 對帳
+
+P0（單 cell）與 P1（全 30 config）對帳（`records/2026-07-08-04`、`records/2026-07-09-01`）：全 30 config 之
+量測對帳 scalar（precision、coverage 之 DINOv2 與 Inception 兩側、char_clean_fid、near_boundary_frac、
+label_noise_excess_mean）逐位重現凍結 JSON；k=5 獲 P0 探針反證支持。TSTR 依協定含未種子化 shuffle、非決定性、
+不在對帳集、不宣稱逐位重現。
+
+## 待確認
+
+- **C 批補遺（pending exploratory，非判決輸入）**：C2（near-boundary 剪枝）、C3（coverage-matched 剪枝）、
+  C5（純度過濾）之介入式證據，C7（small-probe FID 穩定性，餵 D5）；皆自落盤影像計算、標 exploratory、禁因果。
+- **CIFAR-100（主線）**：coverage 主導是否複製（難集不翻轉），near-boundary 機制是否可量測（不飽和）；
+  which-FID 是否於更難資料集才分離。
+- CaF 與簡化 Chamfer 在 matched-budget 下的對決與可組合性展示（D5/D7 三臂：FID-min／CaF／Chamfer）。
