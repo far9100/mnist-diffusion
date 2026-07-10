@@ -16,7 +16,7 @@ Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位
 
 進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 `records/2026-07-09-03`）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。詳見 `records/`。
 
-> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 records/2026-07-09-03（工作包 D commit 後補其編號於此）。
+> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 records/2026-07-09-03，CIFAR-100 預註冊（D 包）見 records/2026-07-09-13。
 
 ## 前言
 
