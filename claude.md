@@ -11,7 +11,7 @@ The project root contains a `records` folder for logging every plan and update.
 1. For each plan or update, create a new `.md` file in the `records` folder.
 2. Filename format: `time_action_content`.
    - `time` uses the `YYYY-MM-DD-NN` format, where `NN` is a two-digit sequence number starting from `01` that indicates which change of that day it is (there may be several on the same day).
-   - `action` is one of: `plan`, `add`, `debug`, `refactor`, `proofread`, `test`.
+   - `action` is one of: `plan`, `add`, `debug`, `refactor`, `proofread`, `test`, `audit`.
    - `content` briefly states what is being done. Create the file with the plan when the work begins, and fill in the implementation and results once it is finished.
 3. The body must cover three parts: Goal, Result, and Follow-up.
 
@@ -28,10 +28,10 @@ Every file in the project must begin with a short comment describing the file's 
 
 ## 4. Minimal Change Principle
 
-1. **MVP first, build up incrementally.** Make the minimal working version fully correct before adding anything on top. It is better to support one fewer encoding than to leave the whole project half-finished.
+1. **MVP first, build up incrementally.** Make the minimal working version fully correct before adding anything on top. It is better to support one fewer sampling configuration than to leave the whole project half-finished.
 2. **STOP after each stage.** Present that stage's charts and data to the author, and proceed to the next stage only after the author confirms. Do not run through all stages in one pass.
-3. **For features outside the spec, ask first; do not add them on your own.** Any extension not listed in this document (a new encoding, a new channel model, a new visualization) must be confirmed with the author before implementation.
-4. **Code must be readable and commented to explain the signal-processing rationale.** Assume the reader is a first-year undergraduate learning the topic: for each key step, explain what the step does and why.
+3. **For features outside the spec, ask first; do not add them on your own.** Any extension not listed in this document (a new sampler, a new metric, a new dataset scale, or a new visualization) must be confirmed with the author before implementation.
+4. **Code must be readable and commented to explain the modeling and measurement rationale.** Assume the reader is a first-year graduate student new to diffusion models: for each key step, explain what the step does and why.
 
 ## 5. Freeze and Metadata Conventions
 
