@@ -18,7 +18,7 @@ import argparse
 
 import torch
 
-from cifar_data import load_cifar_tensors
+from datasets.cifar import load_cifar_01
 from metrics_features import dinov2_features, fd_from_features, prdc_from_features
 
 
@@ -32,8 +32,8 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    train_imgs, _ = load_cifar_tensors("cifar10", train=True)
-    test_imgs, _ = load_cifar_tensors("cifar10", train=False)
+    train_imgs, _ = load_cifar_01("cifar10", train=True)   # feature 抽取器預期 [0,1]
+    test_imgs, _ = load_cifar_01("cifar10", train=False)
     n = min(args.n, train_imgs.size(0), test_imgs.size(0))
     real_a = train_imgs[:n]           # 不相交的真實切分
     real_b = test_imgs[:n]

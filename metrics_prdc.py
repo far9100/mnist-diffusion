@@ -61,7 +61,12 @@ def compute_prdc(real_features, fake_features, nearest_k=5):
     # 若 d[i,j] < real_nn[i]，則 fake j 落在 real i 的球內
     inside_real = d < real_nn.unsqueeze(1)                   # (R, F) bool
     precision = inside_real.any(dim=0).float().mean().item()
-    density = (inside_real.sum(dim=0).float() / nearest_k).mean().item()
+    # density 的分母必須與 real_nn 半徑所用的 k 一致。kth_nn_distance 內部會把 k 夾成
+    # min(nearest_k, R-1)；若此處改用未夾限的 nearest_k，當 R-1 < nearest_k 時半徑與分母
+    # 會取自不同的 k，density 被系統性低估。呼叫端的 min_per_class 護欄目前保證 R >= k+1，
+    # 故此修正在現有量測路徑上數值不變（有效 k 的記錄要求見 claude.md §5.2）。
+    k_eff = min(nearest_k, real_features.size(0) - 1)
+    density = (inside_real.sum(dim=0).float() / k_eff).mean().item()
 
     inside_fake = d < fake_nn.unsqueeze(0)                   # (R, F) bool
     recall = inside_fake.any(dim=1).float().mean().item()

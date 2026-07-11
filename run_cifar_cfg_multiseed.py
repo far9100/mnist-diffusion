@@ -16,11 +16,19 @@ go/no-go 主指標（協定 §6、§8）。
     才能分離「難類本難判」與「guidance 製造污染」。
   - per-config characterization clean-fid（規格1）：重用生成集算 clean-fid，只報告不 gate，呈現 FID 隨
     guidance 的軌跡。
-  - per_class 依協定 2026-07-05-02 §3 用 1000（消 coverage 樣本數假影），非 pilot 的 500。
+  - per_class：CIFAR-10 confirmatory 依協定 2026-07-05-02 §3 用 1000（消 coverage 樣本數假影）。
+    CIFAR-100 無法沿用此口徑——其訓練集每類僅 500 張，real_per_class 硬上限即 500——故另發
+    per-class 凍結 amendment（R-2026-07-11-08）定為 gen=real=500 的匹配口徑。
   - C2 裁決（全網格偏相關）由生成後腳本 run_c2_partial.py 讀本檔輸出另算（R-2026-07-05-13）。
+
+CIFAR-100 的凍結規格寫在 FROZEN_CIFAR100 常數，未明示參數即取該值；偏離須帶 --off-protocol。
 
 Usage:
     uv run python run_cifar_cfg_multiseed.py --quick
+    # CIFAR-100 confirmatory（全部參數取凍結值，不必逐一手打）
+    uv run python run_cifar_cfg_multiseed.py --dataset cifar100 \
+        --output results/cifar100_cfg_confirmatory.json
+    # CIFAR-10 confirmatory（已定稿，指令留存供重現）
     uv run python run_cifar_cfg_multiseed.py --guidance 1 1.5 2 2.5 3 4 5 6 7 8 \
         --seeds 10 11 12 --per-class 1000 --real-per-class 1000 \
         --output results/cifar10_cfg_confirmatory.json
@@ -46,6 +54,60 @@ from run_cifar_selector import summarize
 from selector import select_and_report
 from fid_clean import clean_fid_vs_dataset
 from cifar100_base_gate import clean_fid_gen_vs_ref
+
+
+# CIFAR-100 confirmatory 的凍結規格（grid 凍結 amendment R-2026-07-11-05；per-class 凍結
+# amendment R-2026-07-11-08）。寫成常數而非只寫在文件裡，是凍結四要件的 (b)：涉及計算的規則
+# 必須落在版控程式碼中，否則用預設值誤跑就會靜默違反預先登記。任何偏離都要 --off-protocol
+# 明示，且該旗標會寫進輸出 metadata 留痕。
+FROZEN_CIFAR100 = {
+    "guidance": [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+    "seeds": [10, 11, 12, 13, 14, 15, 16, 17],
+    "reps": 5,
+    "per_class": 500,
+    "real_per_class": 500,   # CIFAR-100 訓練集每類上限即 500，無法沿用 CIFAR-10 的 1000
+    "steps": 50,
+    "eta": 0.0,
+}
+
+# CIFAR-10 的既有預設（pilot/smoke 用；confirmatory 已定稿，不由預設值驅動）。
+DEFAULT_CIFAR10 = {
+    "guidance": [1.0, 2.0, 3.0, 4.0, 5.0, 8.0],
+    "seeds": [0, 1, 2],
+    "reps": 1,
+    "per_class": 500,
+    "real_per_class": 500,
+    "steps": 50,
+    "eta": 0.0,
+}
+
+
+def resolve_protocol(args):
+    """把未明示的參數填成該 dataset 的預設/凍結值，並對 CIFAR-100 檢查是否偏離預先登記。
+
+    argparse 的預設一律設 None，才分得出「使用者沒給」與「使用者給了剛好等於預設的值」。
+    CIFAR-100 未帶 --off-protocol 而偏離凍結規格時直接拒跑：confirmatory 是預先登記的揭盲
+    步，用錯 grid 跑掉數天 GPU 之後才發現，已無法回頭。
+    """
+    frozen = FROZEN_CIFAR100 if args.dataset == "cifar100" else DEFAULT_CIFAR10
+    for key in ("guidance", "seeds", "reps", "per_class", "real_per_class", "steps", "eta"):
+        if getattr(args, key) is None:
+            setattr(args, key, frozen[key])
+
+    if args.dataset != "cifar100" or args.off_protocol:
+        return []
+    deviations = []
+    for key in ("guidance", "seeds", "reps", "per_class", "real_per_class", "steps", "eta"):
+        if getattr(args, key) != frozen[key]:
+            deviations.append(f"{key}: {getattr(args, key)} != 凍結值 {frozen[key]}")
+    if args.no_fid:
+        deviations.append("no_fid: characterization clean-fid 被關閉，confirmatory 須開")
+    if deviations:
+        raise SystemExit(
+            "CIFAR-100 confirmatory 偏離預先登記凍結規格，拒絕執行：\n  "
+            + "\n  ".join(deviations)
+            + "\n（若確為 smoke/dry-run，請明示 --off-protocol；其輸出不得作為 confirmatory 結果）")
+    return []
 
 
 def gen_seed(dataset, seed, w):
@@ -144,13 +206,16 @@ def main():
     p.add_argument("--dataset", default="cifar10", choices=["cifar10", "cifar100"])
     p.add_argument("--ckpt", default=None, help="預設 checkpoints/<dataset>_cfg.pt")
     p.add_argument("--judge", default=None, help="預設 checkpoints/<dataset>_judge.pt")
-    p.add_argument("--guidance", type=float, nargs="+", default=[1.0, 2.0, 3.0, 4.0, 5.0, 8.0])
-    p.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
-    p.add_argument("--reps", type=int, default=1, help="每 (seed,w) 之 TSTR 重訓次數（D4 CIFAR-100=5）")
-    p.add_argument("--per-class", type=int, default=500)
-    p.add_argument("--real-per-class", type=int, default=500)
-    p.add_argument("--steps", type=int, default=50)
-    p.add_argument("--eta", type=float, default=0.0)
+    # 預設一律 None，由 resolve_protocol() 依 dataset 填入 FROZEN_CIFAR100 / DEFAULT_CIFAR10。
+    p.add_argument("--guidance", type=float, nargs="+", default=None)
+    p.add_argument("--seeds", type=int, nargs="+", default=None)
+    p.add_argument("--reps", type=int, default=None, help="每 (seed,w) 之 TSTR 重訓次數（D4 CIFAR-100=5）")
+    p.add_argument("--per-class", type=int, default=None)
+    p.add_argument("--real-per-class", type=int, default=None)
+    p.add_argument("--steps", type=int, default=None)
+    p.add_argument("--eta", type=float, default=None)
+    p.add_argument("--off-protocol", action="store_true",
+                   help="允許 CIFAR-100 偏離凍結規格（僅 smoke/dry-run；輸出不得當 confirmatory）")
     p.add_argument("--batch", type=int, default=250)
     p.add_argument("--nearest-k", type=int, default=5)
     p.add_argument("--threshold", type=float, default=None,
@@ -185,6 +250,10 @@ def main():
         args.real_per_class = 64
         args.tstr_epochs = 2
         args.no_fid = True  # 32/class 太少，cleanfid 不穩；smoke 不量 FID
+        args.off_protocol = True  # quick 依定義偏離凍結規格，其輸出不是 confirmatory
+
+    # 未明示的參數填成凍結/預設值；CIFAR-100 偏離凍結規格且未帶 --off-protocol 時在此拒跑。
+    resolve_protocol(args)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}  dataset={args.dataset} num_classes={args.num_classes} "
@@ -297,10 +366,15 @@ def main():
                         "prereg": {"grid_cap": "2026-07-05-11", "repositioning": "2026-07-05-12",
                                    "c2_stats": "2026-07-05-13", "label_noise_spec": "2026-07-05-08 規格2",
                                    "cifar100_d_package": "2026-07-09-13",
-                                   "cifar100_grid_freeze": "2026-07-11-05"},
+                                   "cifar100_grid_freeze": "2026-07-11-05",
+                                   "cifar100_per_class_freeze": "2026-07-11-08"},
+                        "off_protocol": args.off_protocol,       # True 表示本輸出不是 confirmatory
                         "start_timestamp": start_timestamp,      # F1：開跑時刻
                         "argv": " ".join(sys.argv),              # F1：完整命令留痕（含 --nearest-k / --batch 實傳值）
                         "nearest_k": args.nearest_k, "batch": args.batch,
+                        # 有效 k = min(nearest_k, 該類真實樣本數-1)。claude.md §5.2 要求記錄：
+                        # P0 source-tracing 事件就是因為 nearest_k 沒存而無法對帳。
+                        "effective_nearest_k": min(args.nearest_k, args.real_per_class - 1),
                         "tau_fraction": args.tau_fraction,
                         "env": {"torch": torch.__version__, "cuda": torch.version.cuda,
                                 "cudnn": torch.backends.cudnn.version()}},
