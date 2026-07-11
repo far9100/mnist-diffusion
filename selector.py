@@ -23,16 +23,17 @@
 """
 
 
-def select_caf(configs, tau):
+def select_caf(configs, tau, signal_key="coverage"):
     """回傳 (selected_config, passed_floor)。
 
-    在 precision >= tau 的組態中，回傳 coverage 最大的那個。若沒有任何組態通過
-    下限，則退回整體 coverage 最大的組態並加以標記。
+    在 precision >= tau 的組態中，回傳 signal_key 最大的那個（CaF 用 "coverage"；
+    CaF-v2 用 "recall"，見 D8 records/2026-07-09-13）。若沒有任何組態通過下限，則
+    退回整體 signal_key 最大的組態並加以標記。
     """
     eligible = [c for c in configs if c["precision"] >= tau]
     passed = bool(eligible)
     pool = eligible if eligible else configs
-    selected = max(pool, key=lambda c: c["coverage"])
+    selected = max(pool, key=lambda c: c[signal_key])
     return selected, passed
 
 
@@ -46,7 +47,7 @@ def auto_tau(real_ref_precision, fraction=0.9):
     return fraction * real_ref_precision
 
 
-def tau_robustness(configs, tau_grid):
+def tau_robustness(configs, tau_grid, signal_key="coverage"):
     """對網格中每個 tau，記錄所選組態的名稱。
 
     回傳 dict：{tau: name}，另加一份穩定度摘要：眾數的選擇，以及 tau 網格中與其
@@ -54,7 +55,7 @@ def tau_robustness(configs, tau_grid):
     """
     picks = {}
     for tau in tau_grid:
-        sel, _ = select_caf(configs, tau)
+        sel, _ = select_caf(configs, tau, signal_key=signal_key)
         picks[float(tau)] = sel["name"]
     names = list(picks.values())
     modal = max(set(names), key=names.count)
@@ -82,18 +83,19 @@ def rank_of_selected(configs, selected, utility_key="tstr"):
 
 def select_and_report(configs, real_ref_precision=None, tau=None,
                       tau_fraction=0.9, utility_key="tstr", topk=3,
-                      tau_grid=None):
+                      tau_grid=None, signal_key="coverage"):
     """執行 CaF 並對照 oracle utility 為其評分。
 
-    提供明確的 `tau`，或提供 `real_ref_precision`（走 auto_tau）二擇一。回傳一份
-    report dict，含所選組態、regret、rank、top-k 命中與 tau robustness。
+    提供明確的 `tau`，或提供 `real_ref_precision`（走 auto_tau）二擇一。`signal_key`
+    決定選擇訊號：CaF 用 "coverage"、CaF-v2 用 "recall"（D8）。回傳一份 report dict，
+    含所選組態、regret、rank、top-k 命中與 tau robustness。
     """
     if tau is None:
         if real_ref_precision is None:
             raise ValueError("Provide tau or real_ref_precision.")
         tau = auto_tau(real_ref_precision, tau_fraction)
 
-    selected, passed = select_caf(configs, tau)
+    selected, passed = select_caf(configs, tau, signal_key=signal_key)
     regret = regret_at_selected(configs, selected, utility_key)
     rank, n = rank_of_selected(configs, selected, utility_key)
 
@@ -102,7 +104,7 @@ def select_and_report(configs, real_ref_precision=None, tau=None,
         precs = sorted(c["precision"] for c in configs)
         lo, hi = precs[0], precs[-1]
         tau_grid = [lo + (hi - lo) * i / 10 for i in range(11)]
-    robustness = tau_robustness(configs, tau_grid)
+    robustness = tau_robustness(configs, tau_grid, signal_key=signal_key)
 
     oracle = None
     if any(utility_key in c for c in configs):
@@ -112,6 +114,7 @@ def select_and_report(configs, real_ref_precision=None, tau=None,
     return {
         "tau": tau,
         "tau_passed_floor": passed,
+        "signal_key": signal_key,
         "selected": selected["name"],
         "oracle_best": oracle,
         "regret_at_selected": regret,
