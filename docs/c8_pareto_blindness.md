@@ -1,4 +1,4 @@
-<!-- 用途：C8 Pareto 失明引理之一頁版（非治理文件）。形式化 CaF 於 (precision, coverage) 平面被支配組態存在時結構性選不到 oracle，附證明、CIFAR-10 實例與兩補強（空可行集 fallback、單調 selector 不可能性推廣）。exploratory（C0）。依 records/2026-07-06-16、2026-07-08-02 §4.2。 -->
+<!-- 用途：C8 Pareto 失明引理之一頁版（非治理文件）。形式化 CaF 於 (precision, coverage) 平面被支配組態存在時結構性選不到 oracle，附證明、CIFAR-10 實例與兩補強（空可行集 fallback、單調 selector 不可能性推廣）。exploratory（C0）。依 R-2026-07-06-16、2026-07-08-02 §4.2。 -->
 
 # C8：Pareto 失明引理
 
@@ -28,7 +28,7 @@ confirmatory（`results/cifar10_cfg_confirmatory.json`，均值）中：
 - 三個 oracle（per-seed TSTR 最佳 [w2, w1, w1.5]）：w2 (.858, .777)、w1.5 (.841, .751)、w1 (.806, .645)。
 
 w2.5 的 precision 與 coverage 皆高於三個 oracle，構成嚴格支配。故 CaF 結構性選不到 oracle：
-`tau_robustness.picks` 實證此點——τ 全段皆選 w2.5 或更高（dossier `records/2026-07-06-06` 乙-5），
+`tau_robustness.picks` 實證此點——τ 全段皆選 w2.5 或更高（dossier [CHANGELOG 2026-07-06-06](../CHANGELOG.md#2026-07-06) 乙-5），
 非 w1 刀鋒。這是「內部最優」在 selector 層失效的結構根因。
 
 ## 補強一：空可行集與 coverage 平手（fallback 行為明文化）

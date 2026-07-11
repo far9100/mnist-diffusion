@@ -10,7 +10,7 @@
 （metrics_prdc.py）。coverage 是驅動 utility 的類別內多樣性；precision 下限 tau
 會拒絕那些樣本已偏離真實流形的組態。
 
-內建的護欄（見 records/2026-07-03-07_plan_research-revision-brief.md 第 3 節）：
+內建的護欄（見 R-2026-07-03-07_plan_research-revision-brief.md 第 3 節）：
   - tau 不可在 TSTR 上調整（那會破壞「training-free」的宣稱）。
     `auto_tau` 僅由真對真的參考 precision 得出 tau。
   - 我們回報 tau-robustness（在一次 tau 掃描中選出哪個組態）以及所選組態對 tau
@@ -27,7 +27,7 @@ def select_caf(configs, tau, signal_key="coverage"):
     """回傳 (selected_config, passed_floor)。
 
     在 precision >= tau 的組態中，回傳 signal_key 最大的那個（CaF 用 "coverage"；
-    CaF-v2 用 "recall"，見 D8 records/2026-07-09-13）。若沒有任何組態通過下限，則
+    CaF-v2 用 "recall"，見 D8 R-2026-07-09-13）。若沒有任何組態通過下限，則
     退回整體 signal_key 最大的組態並加以標記。
     """
     eligible = [c for c in configs if c["precision"] >= tau]

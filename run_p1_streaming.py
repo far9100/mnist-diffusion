@@ -1,10 +1,10 @@
 """P1×C1：streaming 持久化與逐 config 對帳，並隨算 per-config FD-DINOv2（C1 揭盲之數字產出）。
 
-依 records/2026-07-08-02 §3 與 records/2026-07-06-05 §4 之 P1×C1 規格：
+依 R-2026-07-08-02 §3 與 R-2026-07-06-05 §4 之 P1×C1 規格：
 
 - seed-major：seed 10 全 10 config → 11 → 12；grid 與 config 順序沿凍結 JSON。
 - 生成路徑與 gseed 公式原樣（run_cifar_cfg_multiseed.py measure() 之 generate_balanced 呼叫，
-  gseed = seed*10_000_000 + int(w*1000)*10_000）；P0（records/2026-07-08-04）已證此路徑逐位決定性。
+  gseed = seed*10_000_000 + int(w*1000)*10_000）；P0（R-2026-07-08-04）已證此路徑逐位決定性。
 - 每 config：重生成 → 落盤 uint8 影像＋DINOv2 per-sample 特徵 → 即時以 k=5（P0 實證）對帳凍結 JSON
   之 7 個確定性 scalar → 隨算該 config FD-DINOv2（C1，接 metrics_features.fd_from_features）。
 - 任一 config 任一 scalar 超容忍（相對 >1e-4）即 STOP：寫出已完成部分＋標記失敗 config，退出。
@@ -43,8 +43,8 @@ from fid_clean import clean_fid_vs_dataset
 CONF = "results/cifar10_cfg_confirmatory.json"
 ASSET = "results/p1_assets"
 OUT = "results/cifar10_p1_streaming.json"
-TOL = 1e-4                    # 相對容忍，與 records/2026-07-06-05 §4 決定性三態一致
-NEAREST_K = 5                 # P0（records/2026-07-08-04）實證：k=5 逐位重現凍結 JSON
+TOL = 1e-4                    # 相對容忍，與 R-2026-07-06-05 §4 決定性三態一致
+NEAREST_K = 5                 # P0（R-2026-07-08-04）實證：k=5 逐位重現凍結 JSON
 NUM_CLASSES = 10
 REAL_REF_SEED = 0             # load_real_per_class 常數 seed（driver:56,89）
 

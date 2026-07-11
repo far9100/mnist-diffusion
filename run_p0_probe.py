@@ -14,7 +14,7 @@
   注：路 A 證「本環境自我決定性」，非「與 confirmatory 跨環境相同」（per-sample 已刪、無法直比）；
       scalar-vs-JSON 是唯一跨環境相同之 proxy，故 [NEW] 輸入全對齊時，路A等+scalar超容忍指向跨環境生成漂移。
 
-k 溯源（依 records/2026-07-08-02 §2.1 增修）：confirmatory metadata 未存 nearest_k，唯一來源為 driver
+k 溯源（依 R-2026-07-08-02 §2.1 增修）：confirmatory metadata 未存 nearest_k，唯一來源為 driver
 argparse 預設 5。precision/coverage（DINOv2 與 Inception 兩側）依賴 k；char_clean_fid、near_boundary_frac、
 label_noise_excess 三個 k-free scalar 不依賴。本探針落盤 per-sample 特徵（DINOv2＋Inception），支援離線
 k-sweep（--k-sweep-only）：k∈{1..15} 於同一落盤特徵重算 precision/coverage，兩側同步與凍結 JSON 比對，
@@ -31,7 +31,7 @@ import platform
 import sys
 import time
 
-# 決定性環境旗標（依 records/2026-07-08-02 §2.1e）：在 import/建 CUDA context 前設 cublas workspace，
+# 決定性環境旗標（依 R-2026-07-08-02 §2.1e）：在 import/建 CUDA context 前設 cublas workspace，
 # 使 P0 於決定性環境執行，最大化路 A 逐位重現之機率。與 confirmatory 同機同環境跑。
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 
@@ -50,7 +50,7 @@ from fid_clean import clean_fid_vs_dataset
 CONF = "results/cifar10_cfg_confirmatory.json"
 ART = "results/p0_probe_artifacts"
 SEED, W = 10, 1.0            # 首個 cell：seed10 之第一 grid 點（sorted grid 之 w1）
-TOL = 1e-4                    # 容忍內門檻（相對誤差），與 records/2026-07-06-05 §4 決定性三態一致
+TOL = 1e-4                    # 容忍內門檻（相對誤差），與 R-2026-07-06-05 §4 決定性三態一致
 K_SWEEP_RANGE = range(1, 16)  # k∈{1..15}（§2.3b）
 
 # 對帳 scalar 是否依賴 nearest_k：k-free 三臂是 §2.3 分診的控制臂，k-dependent 是 k-sweep 找回對象。

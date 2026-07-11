@@ -1,7 +1,7 @@
 """Phase 1 主體：在 CIFAR-10 的 CFG-guidance 軸上量測 CaF 選擇器訊號。
 
 將 MNIST 的 Gate-A 實驗延伸到 CIFAR-10，使用經驗證的 EDM backbone
-（FID 1.848，見 records/2026-07-03-03_test_edm-fid-gate.md）。這裡的「sampler config」
+（FID 1.848，見 R-2026-07-03-03_test_edm-fid-gate.md）。這裡的「sampler config」
 軸是 classifier-free guidance 強度 w，由 cond + uncond 兩個 EDM checkpoint 建構
 （原廠 cond 模型並非以 CFG 訓練，因此我們在 denoised 空間結合兩個
 模型：D_w = D_uncond + w*(D_cond - D_uncond)）。

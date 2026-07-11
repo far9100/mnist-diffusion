@@ -1,4 +1,4 @@
-"""C2 全網格偏相關裁決（confirmatory），依 records/2026-07-05-13。
+"""C2 全網格偏相關裁決（confirmatory），依 R-2026-07-05-13。
 
 讀 confirmatory 多 seed 輸出（run_cifar_cfg_multiseed 的 JSON），以 config 為觀測單位（grid 10 點），
 每 config 取 fresh seeds 的均值（n=10），計兩個偏 Spearman 相關並以 permutation test 判定：
