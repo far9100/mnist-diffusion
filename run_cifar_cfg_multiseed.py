@@ -119,6 +119,37 @@ def gen_seed(dataset, seed, w):
     return seed * 10_000_000 + int(w * 1000) * 10_000
 
 
+def cell_key(seed, w):
+    return f"seed{seed}_w{w:g}"
+
+
+def load_partial(path):
+    """讀回已完成的 cell（斷點續跑）。
+
+    沿 run_p1_streaming.py 的作法：每個 cell 一算完就 append 到 JSONL sidecar。CIFAR-100
+    confirmatory 是 80 cell、數日級的單 GPU 連續執行，中途斷電或當機若得從頭再來，代價無法接受。
+    此機制只決定「哪些 cell 需要重算」，不參與任何數值計算——續跑出的結果與一次跑完逐位相同，
+    因為每個 cell 的生成種子 gseed(seed, w) 只由 (seed, w) 決定，與執行順序無關。
+    """
+    done = {}
+    if not os.path.exists(path):
+        return done
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            done[rec["cell"]] = rec["row"]
+    return done
+
+
+def append_partial(path, seed, w, row):
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps({"cell": cell_key(seed, w), "seed": seed, "guidance": w,
+                            "row": row}, ensure_ascii=False) + "\n")
+
+
 def load_judge_floor(path="results/cifar10_judge.json", num_classes=10):
     """逐類真實 judge 誤判率（floor），依增修 2026-07-05-08 規格2 作固定儀器。
 
@@ -276,6 +307,15 @@ def main():
     detector = None if args.no_inception else load_inception_detector(device)
     print(f"Real ref {real_imgs.size(0)} imgs; inception={'關' if detector is None else '開'}", flush=True)
 
+    partial_path = output + ".partial.jsonl"
+    done = load_partial(partial_path)
+    total_cells = len(args.seeds) * len(args.guidance)
+    if done:
+        print(f"斷點續跑：{partial_path} 已有 {len(done)}/{total_cells} 個 cell，將略過重算", flush=True)
+    completed = len(done)
+    run_start = time.time()
+    cells_this_run = 0
+
     seed_results = []
     for seed in args.seeds:
         print(f"\n########## seed {seed} ##########", flush=True)
@@ -283,14 +323,30 @@ def main():
                                       args.num_classes)
         configs = []
         for w in args.guidance:
+            key = cell_key(seed, w)
+            if key in done:
+                row = done[key]
+                configs.append(row)
+                print(f"  w={w:<4g} [已完成，略過]", flush=True)
+                continue
+            t0 = time.time()
             row = measure(model, schedule, judge, real_imgs, real_dino, real_labels,
                           test_loader, detector, judge_floor, w, args, device, seed,
                           do_fid=not args.no_fid)
+            elapsed = time.time() - t0
+            append_partial(partial_path, seed, w, row)   # 先落盤再往下走
             configs.append(row)
+            completed += 1
+            cells_this_run += 1
+            # 以本次執行的實測均速外推剩餘時間，比事前估算可靠。
+            mean_cell = (time.time() - run_start) / cells_this_run
+            remaining = (total_cells - completed) * mean_cell
             fid_s = f"{row['char_clean_fid']:.2f}" if row["char_clean_fid"] is not None else "n/a"
             print(f"  w={w:<4g} prec={row['precision']:.3f} cov={row['coverage']:.3f} "
                   f"tstr={row['tstr']:.2f} excess_ln={row['label_noise_excess_mean']:+.3f} "
                   f"char_fid={fid_s} near_bnd={row['near_boundary_frac']:.3f}", flush=True)
+            print(f"        [{completed}/{total_cells}] 本 cell {elapsed/60:.1f} 分，"
+                  f"均 {mean_cell/60:.1f} 分/cell，預估剩餘 {remaining/3600:.1f} 小時", flush=True)
         report = select_and_report(configs, real_ref_precision=ref_prec,
                                    tau_fraction=args.tau_fraction, utility_key="tstr",
                                    signal_key=signal_key)
@@ -370,6 +426,10 @@ def main():
                                    "cifar100_per_class_freeze": "2026-07-11-08"},
                         "off_protocol": args.off_protocol,       # True 表示本輸出不是 confirmatory
                         "start_timestamp": start_timestamp,      # F1：開跑時刻
+                        "end_timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "cells_total": total_cells,
+                        "cells_resumed_from_partial": len(done),  # 本次執行前已完成的 cell 數
+                        "partial_log": partial_path,
                         "argv": " ".join(sys.argv),              # F1：完整命令留痕（含 --nearest-k / --batch 實傳值）
                         "nearest_k": args.nearest_k, "batch": args.batch,
                         # 有效 k = min(nearest_k, 該類真實樣本數-1)。claude.md §5.2 要求記錄：
