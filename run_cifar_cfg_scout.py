@@ -58,7 +58,7 @@ def verdict(rows):
     """甜蜜點＝TSTR 峰位；崩點＝coverage 峰位之後首個跌破 90% 峰值的 w。
 
     崩點取「峰位後」是修正舊版對非單調曲線的誤判（舊版取第一個低於峰值 90% 者，會落在峰前，
-    見 records/2026-07-05-06 更正）。
+    見 R-2026-07-05-06 更正）。
     """
     gs = [r["guidance"] for r in rows]
     cov = [r["coverage_dino"] for r in rows]

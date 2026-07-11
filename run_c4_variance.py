@@ -1,4 +1,4 @@
-"""C4：變異分解（σ_cls 對 σ_gen），交付 D4 功效規劃。依凍結規則 records/2026-07-06-05 §6 C4、-09-04 §2.2。
+"""C4：變異分解（σ_cls 對 σ_gen），交付 D4 功效規劃。依凍結規則 R-2026-07-06-05 §6 C4、-09-04 §2.2。
 
 目的：分離「分類器訓練變異」σ_cls（同一合成集、不同訓練 RNG）與「生成變異」σ_gen（不同 gen seed），
 供 D4 決策單之功效規劃——若 CIFAR-100 σ_gen 同量級，3 seeds 定不住峰位 ±1 格，登記主張須為峰位噪聲
@@ -7,7 +7,7 @@
 凍結設計（N 死）：
 - cells：w ∈ {1, 1.5, 2, 2.5} × seed ∈ {10, 11, 12} = 12 cells（低中段，涵蓋上升肢與峰）。
 - 每 cell 固定 +2 新 TSTR 重訓（fresh ResNet18、未種子化 shuffle＝σ_cls 來源，協定 dossier 甲-8）。
-- 混池規則：P1 全逐位（records/2026-07-09-01）→ 凍結 confirmatory TSTR 計為第 3 replicate（同一逐位重現之
+- 混池規則：P1 全逐位（R-2026-07-09-01）→ 凍結 confirmatory TSTR 計為第 3 replicate（同一逐位重現之
   合成集之一次抽樣），故 3 replicate/cell、within df = 12×2 = 24。（若 P1 非逐位則改 2/cell、12df，取嚴——
   本例 P1 逐位，用 3/cell。）
 - 預期結論事前寫死：上升肢（w1→w1.5，+0.80pp、SE 1.88）維持 unresolved；record 不得因結果回改。

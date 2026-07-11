@@ -1,9 +1,9 @@
-"""C7：small-probe FID 排序穩定性（依凍結規則段 records/2026-07-06-15）。
+"""C7：small-probe FID 排序穩定性（依凍結規則段 R-2026-07-06-15）。
 
 測 clean-fid 對 guidance 組態之排序在小 probe（少量真實參考）下是否穩定，餵 D5 之 matched-probe FID-min
 baseline。exploratory（C0）：規則先於計算、不因結果回改。
 
-凍結規則（records/2026-07-06-15）：
+凍結規則（R-2026-07-06-15）：
 - 真實參考子抽樣至 {100, 250, 500}/class，每尺寸 5 次重抽（seed 事前定 = draw 0..4），重算各組態 clean-fid、得排序。
 - 穩定性度量：小 probe 排序對全參考排序之 Kendall τ；並報 FID-argmin 是否隨 probe 尺寸改變。
 - 判定（事前）：τ 高且 FID-argmin 穩定 → FID-min baseline 於小 probe 可靠（餵 D5）；否則 → D5 之 matched-probe

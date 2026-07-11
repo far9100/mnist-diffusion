@@ -10,13 +10,15 @@
 範圍與護城河（誠實聲明）：取樣步數 steps 與 DDIM 隨機性 η 的效用行為只在 MNIST sandbox 尺度得證（η
 對效用為 null、steps 次要），CIFAR 尺度只掃 guidance 軸，不宣稱聯合曲面。此收緊使 CIFAR 尺度的差異化
 剩「非單調性、CaF、機制」三項；相對 Chamfer / Fan / DP 擴散文獻是否充分，由 CIFAR-100 機制 gate 與
-Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位依據見 `records/2026-07-05-12`。
+Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位依據見 [CHANGELOG 2026-07-05-12](CHANGELOG.md#2026-07-05)。
 
-實驗結果與數據分析見 `docs/results_analysis.md`；論文 intro 草稿見 `docs/paper_intro_draft.md`；研究計畫與進度記錄見 `records/`。
+實驗結果與數據分析見 `docs/results_analysis.md`；論文 intro 草稿見 `docs/paper_intro_draft.md`；CIFAR-100 預註冊全文見 `docs/prereg_cifar100.md`。
 
-進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 `records/2026-07-09-03`）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。詳見 `records/`。
+更新歷史見 [CHANGELOG.md](CHANGELOG.md)，每一列對應一份過程記錄。過程記錄本身（`records/`）不隨工作樹發布，全文留在 git 歷史，需要時以 `git log -- records/` 查閱。
 
-> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 records/2026-07-09-03，CIFAR-100 預註冊（D 包）見 records/2026-07-09-13。
+進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。
+
+> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)，CIFAR-100 預註冊（D 包）見 [CIFAR-100 預註冊](docs/prereg_cifar100.md)。
 
 ## 前言
 
@@ -97,7 +99,7 @@ uv sync
 - Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 1.848 重現通過。
 - Phase 1-2（自訓 CFG backbone）：CIFAR-10 完成（base model 50k clean-fid 8.95 過 gate）；CIFAR-100 未開始。
 - Phase 1-3（CIFAR-10 guidance 軸）：完成。confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）
-  三判決定稿（`records/2026-07-09-03`）：頭條「FID-opt 偏離 TSTR-opt」被反證（C1 於 Inception 與 DINOv2 兩空間
+  三判決定稿（[CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）：頭條「FID-opt 偏離 TSTR-opt」被反證（C1 於 Inception 與 DINOv2 兩空間
   皆不分離）；判決三 FID-min per-seed regret 0.91pp 勝 CaF 3.69pp（2 勝 1 負）＋結構性 Pareto 失明；P0/P1 對帳
   全 30 config 量測 scalar 逐位重現、k=5 獲探針反證。exploratory pilot 為前導觀察。
 - Phase 1-4（CIFAR-100 機制與翻轉檢查）：未開始，是全案科學承重牆。
@@ -108,7 +110,7 @@ uv sync
 ## 實驗設計：完整實驗要確立的事
 
 - CIFAR-10 confirmatory（steps=50、η=0、10 點 guidance grid、fresh seeds 10/11/12）：guidance 的內部最優
-  是否持續，CaF 是否跨 3 seed 近最優選中（regret 小）；C2 以全網格偏相關裁決（見 records/2026-07-05-13）。
+  是否持續，CaF 是否跨 3 seed 近最優選中（regret 小）；C2 以全網格偏相關裁決（見 [CHANGELOG 2026-07-05-13](CHANGELOG.md#2026-07-05)）。
 - CIFAR-100（更難、非可分）：coverage 主導是否複製，near-boundary 機制是否可量測（不飽和）。這是
   真正的 go/no-go 硬門檻。
 - 第二特徵表徵（CLIP / Inception）交叉驗證 coverage，破除 DINOv2 的雙重使用循環。
@@ -170,8 +172,9 @@ inference_var.py         — VAR-mini 推論
 輸出與記錄：
 
 ```
-records/                 — 研究計畫與進度記錄（檔名 YYYY-MM-DD-NN_action_content）
-docs/                    — 實驗結果的分析
+CHANGELOG.md             — 更新歷史（依日期列點，每列對應一份過程記錄）
+docs/                    — 實驗結果分析、CIFAR-100 預註冊、論文骨架
+records/                 — 過程記錄（檔名 YYYY-MM-DD-NN_action_content，不在 git 內）
 results/                 — 各實驗的 json/csv/txt/log 輸出（不在 git 內）
 checkpoints/             — 模型權重與參考統計（不在 git 內）
 samples/、samples_cifar/ — 訓練過程的樣本網格（不在 git 內）
@@ -210,6 +213,9 @@ uv run python train_cifar.py --epochs 1000 --batch-size 128
 
 ## 記錄與慣例
 
-計畫與進度記錄於 `records/`（檔名 `YYYY-MM-DD-NN_action_content`），實驗結果分析於 `docs/`，開發
-慣例（記錄格式、檔頭註解、語言與最小變更原則）定義於 `claude.md`。每一項工作都應先在 `records/`
-建立記錄，內容涵蓋 Goal、Result、Follow-up。
+對外的更新歷史是 `CHANGELOG.md`，依日期倒序列點，每一列對應一份過程記錄的結論。實驗結果分析、
+CIFAR-100 預註冊與論文骨架於 `docs/`。
+
+過程記錄本身寫在 `records/`（檔名 `YYYY-MM-DD-NN_action_content`，內容涵蓋 Goal、Result、
+Follow-up），但不隨工作樹發布；2026-07-11 以前的記錄全文留在 git 歷史，以 `git log -- records/`
+查閱。開發慣例（記錄格式、CHANGELOG 同步、檔頭註解、語言與最小變更原則）定義於 `claude.md`。

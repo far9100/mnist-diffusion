@@ -9,6 +9,9 @@ wheels/
 # Claude File
 .claude/*
 
+# 過程記錄（本機保留，對外以 CHANGELOG.md 為準；2026-07-11 前的全文仍在 git 歷史）
+records/
+
 # Virtual environments
 .venv
 

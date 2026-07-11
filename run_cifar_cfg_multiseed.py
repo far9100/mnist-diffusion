@@ -1,23 +1,23 @@
 """自訓 CFG CIFAR-10 / CIFAR-100 多 seed 全量（confirmatory 主結果）。
 
-CIFAR-100 一般化（D 包 `records/2026-07-09-13`）：--dataset cifar100 時類數 100、生成種子改用無碰撞
+CIFAR-100 一般化（D 包 `R-2026-07-09-13`）：--dataset cifar100 時類數 100、生成種子改用無碰撞
 hash 公式（datasets/cifar100_gseed）、selector 改用 CaF-v2（argmax recall s.t. precision≥τ，D8）、
 char clean-fid 用 base gate 自建的 cifar100_train_clean32 參考、每 (seed,w) 做 --reps 次 TSTR 重訓。
 
-在封頂 amendment（records/2026-07-05-11）凍結的 grid（w∈{1,1.5,2,2.5,3,4,5,6,7,8}，固定 steps=50
+在封頂 amendment（R-2026-07-05-11）凍結的 grid（w∈{1,1.5,2,2.5,3,4,5,6,7,8}，固定 steps=50
 eta=0）上跑 fresh seeds {10,11,12}，每個 (seed, w) 量：precision + coverage（DINOv2 主、Inception 交叉）
 + TSTR + near-boundary + 標籤噪音。跨 seed 彙總帶信賴區間；並以 CaF（argmax coverage s.t. precision
 ≥ tau，tau 自 real-vs-real 參考自動決定）在完整網格（不剪枝）計 regret@selected / rank / top-k，作為
 go/no-go 主指標（協定 §6、§8）。
 
 凍結規格的儀器（confirmatory）：
-  - per-class 超額 label-noise（增修 records/2026-07-05-08 規格2）：逐類合成 label-noise 減真實 judge
+  - per-class 超額 label-noise（增修 R-2026-07-05-08 規格2）：逐類合成 label-noise 減真實 judge
     floor（floor 自 cifar10_judge.json 的 per_class_accuracy），跨 seed 帶 CI。難類 floor 本高，逐類相減
     才能分離「難類本難判」與「guidance 製造污染」。
   - per-config characterization clean-fid（規格1）：重用生成集算 clean-fid，只報告不 gate，呈現 FID 隨
     guidance 的軌跡。
   - per_class 依協定 2026-07-05-02 §3 用 1000（消 coverage 樣本數假影），非 pilot 的 500。
-  - C2 裁決（全網格偏相關）由生成後腳本 run_c2_partial.py 讀本檔輸出另算（records/2026-07-05-13）。
+  - C2 裁決（全網格偏相關）由生成後腳本 run_c2_partial.py 讀本檔輸出另算（R-2026-07-05-13）。
 
 Usage:
     uv run python run_cifar_cfg_multiseed.py --quick
@@ -51,7 +51,7 @@ from cifar100_base_gate import clean_fid_gen_vs_ref
 def gen_seed(dataset, seed, w):
     """(seed, w) → 生成種子。CIFAR-100 用無碰撞 hash 公式（D9 datasets/cifar100_gseed.py）；
     CIFAR-10 沿用原 (seed+w)×1e7 公式以保凍結資料之逐位重現（該公式已知在 CIFAR-10 網格有退化
-    碰撞，見 records/2026-07-06-05 §1.12，但 CIFAR-10 confirmatory 已用它跑完並定稿，不改）。"""
+    碰撞，見 R-2026-07-06-05 §1.12，但 CIFAR-10 confirmatory 已用它跑完並定稿，不改）。"""
     if dataset == "cifar100":
         return gseed_hash(seed, w)
     return seed * 10_000_000 + int(w * 1000) * 10_000

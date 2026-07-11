@@ -1,4 +1,4 @@
-# 用途：CIFAR-100 之無碰撞生成種子公式（D9，修 CIFAR-10 gseed 反對角線碰撞 records/2026-07-06-05 §1.12）。
+# 用途：CIFAR-100 之無碰撞生成種子公式（D9，修 CIFAR-10 gseed 反對角線碰撞 R-2026-07-06-05 §1.12）。
 # hash 派生：gseed(seed, w) = int(sha256(f"{seed}_{w:g}").hexdigest()[:15], 16)。附全網格枚舉唯一性驗證。
 import hashlib
 
