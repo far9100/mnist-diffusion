@@ -1,10 +1,9 @@
 """
-TSTR (Train on Synthetic, Test on Real) evaluator for the MNIST diffusion model.
+MNIST 擴散模型的 TSTR（Train on Synthetic, Test on Real）評估器。
 
-Trains a CNN purely on diffusion-generated images, then evaluates it on the
-real MNIST test set. The CNN's accuracy on real digits = how well the
-generations cover and match the real distribution. Recommended training set
-size is 10K images (inference.py --per-digit 1000).
+僅以擴散模型生成的影像訓練一個 CNN，再拿它在真實的 MNIST 測試集上評估。
+CNN 在真實數字上的準確率 = 生成結果涵蓋並貼合真實分佈的程度。建議的訓練集
+大小為 10K 張影像（inference.py --per-digit 1000）。
 
 Usage:
     uv run python evaluate.py

@@ -1,6 +1,87 @@
-# DDPM MNIST 手寫數字生成
+<!-- 用途：專案總覽——前言、背景知識、方法、實驗設計、程式碼分代、專案結構與重現指令。 -->
 
-從零實作 Denoising Diffusion Probabilistic Model (DDPM)，用於生成 MNIST 手寫數字圖片。
+# Sampling for Utility, not Fidelity
+
+擴散模型生成的合成影像越來越常被當成下游分類器的訓練資料。本專案的主張收緊到 **CFG guidance 軸**：
+在此軸上，下游訓練效用（TSTR）的最優點偏離視覺保真度（FID）的最優點；效用對 guidance **非單調、存在
+內部最優**。由此導出貢獻本體——一個免訓練、可遷移、有機制解釋的組態選擇器 **CaF（Coverage-at-Fidelity）**，
+以零頭成本定位該效用最優組態。
+
+範圍與護城河（誠實聲明）：取樣步數 steps 與 DDIM 隨機性 η 的效用行為只在 MNIST sandbox 尺度得證（η
+對效用為 null、steps 次要），CIFAR 尺度只掃 guidance 軸，不宣稱聯合曲面。此收緊使 CIFAR 尺度的差異化
+剩「非單調性、CaF、機制」三項；相對 Chamfer / Fan / DP 擴散文獻是否充分，由 CIFAR-100 機制 gate 與
+Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位依據見 `records/2026-07-05-12`。
+
+實驗結果與數據分析見 `docs/results_analysis.md`；論文 intro 草稿見 `docs/paper_intro_draft.md`；研究計畫與進度記錄見 `records/`。
+
+進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 `records/2026-07-09-03`）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。詳見 `records/`。
+
+> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 records/2026-07-09-03，CIFAR-100 預註冊（D 包）見 records/2026-07-09-13。
+
+## 前言
+
+控制擴散 sampler 的旋鈕（去噪步數、隨機性、guidance 強度）幾乎總是為了最佳化影像保真度（FID）
+而調整，背後隱含「越逼真的影像就是越好的訓練資料」的假設。本專案指出這個假設在一個具體且可操作
+的意義上是錯的：**讓保真度最高的取樣組態，並不是讓下游效用（Train on Synthetic, Test on Real,
+TSTR）最高的組態**，而且兩者的落差是由**多樣性 / coverage**驅動，不是由保真度驅動。
+
+這個觀察本身不新——差分隱私擴散的文獻曾順帶提及，近期的 guidance 方法也隱含此點。本專案的貢獻
+不是這個觀察，而是它的**可用結果**：一個**免訓練的選擇器**，在只有一小份真實參考集、且沒有下游
+分類器的情況下，從候選組態中挑出效用最佳的取樣組態。我們稱之為 **CaF（Coverage-at-Fidelity）**：
+在 precision 不低於門檻 τ 的前提下，選 manifold coverage 最大的組態；τ 由真實對真實（real-vs-real）
+的參考自動決定，不需要 TSTR、也不需要任務標籤。
+
+## 背景知識
+
+- **擴散取樣的旋鈕**：steps 是反向去噪的步數；η 是 DDIM 的隨機性（η=0 為 deterministic 的
+  probability-flow ODE，η=1 且滿步時退回 DDPM ancestral sampling）；guidance 是 classifier-free
+  guidance（CFG）的強度，控制取樣往條件類別集中的程度。
+- **FID 與 TSTR**：FID 以特徵空間的 Fréchet distance 量單張影像的視覺保真度；TSTR 只用合成圖訓練
+  一個分類器、再於真實測試集量準確率，反映合成資料的下游訓練效用。兩者量的是不同東西。
+- **precision 與 coverage**：manifold-based 的生成指標（PRDC）。precision 近似保真度（生成樣本
+  落在真實流形內的比例），coverage 近似多樣性涵蓋（真實流形被生成樣本涵蓋的比例）。
+- **guidance 會銳化分佈**：提高 guidance 會把取樣分佈往 class prototype 集中（Ho & Salimans 2022；
+  Bradley & Nakkiran 2024 的「denoise + sharpen」措辭），因而抽走低 margin、靠近決策邊界的樣本。
+
+## 方法：CaF 與機制
+
+**CaF 選擇器**：在候選 (steps × η × guidance) 組態上，用一小份真實 probe set 於特徵空間計算每個
+組態的 precision 與 coverage，選 `argmax coverage s.t. precision ≥ τ`。門檻 τ 由真實 probe 的
+real-vs-real precision 乘上一個比例自動決定，因此不依賴 TSTR、不需要在任務上訓練分類器，屬免訓練。
+選擇品質以 `regret@selected`（選中組態的 TSTR 與網格最佳 TSTR 之差）與 top-k 命中衡量，取代容易被
+爛組態撐高的全域相關係數。
+
+**機制**：提高 guidance 使取樣往 class prototype 集中，移除下游分類器用來擺放決策邊界所需的低
+margin、near-boundary 樣本。因此有一條因果鏈：**guidance 上升 → coverage 下降 → near-boundary
+訓練樣本變少 → 下游 margin 變弱 → TSTR 下降**。near-boundary 以一個用真實資料訓練的分類器量測
+（機率 margin，即 p(top1) − p(top2)），並對「低 guidance 引入離類 / 模糊樣本」這條 label-noise
+競爭機制做對照。
+
+## 與 Chamfer 的定位
+
+另一條並行研究（Chamfer Guidance, NeurIPS 2025；Feedback-guided Synthesis, TMLR 2024；Deliberate
+Practice, 2025）以**改變生成過程**（在每一步加入 guidance 項、讓梯度穿過特徵抽取器與解碼器，或把
+下游任務分類器放進迴圈）讓合成資料更有用。CaF 佔據互補的操作點：
+
+- **它選擇、不修改**：CaF 在既有的組態 / 輸出中挑選，sampler 不動。因此 CaF 可組合，能疊在任何
+  生成器的輸出上，包括某個 guidance 方法的輸出。guidance 方法無法這樣宣稱，因為它必須擁有 sampler。
+- **免任務分類器、無 guidance 強度超參**：CaF 對真實參考算一次 precision / coverage，沒有逐樣本
+  的梯度導引，也沒有需要隨 backbone 調整的 guidance 強度。
+- **附機制**：CaF 解釋了為什麼驅動效用的是 coverage 而非 fidelity，這是那些 guidance 方法沒有給
+  的因果說法。
+
+明確不主張為新穎的部分：coverage / precision 指標本身、「少量真實範例 + 特徵抽取器」的設定、以及
+比 CFG 便宜（Chamfer 已宣稱）。差異化押在**操作點**（免訓練、任務無關、不修改、可組合）加上**為
+選擇證明的機制**。
+
+## 程式碼分代
+
+- **Gen-1（MNIST sandbox，已完成）**：從零實作的條件式 DDPM 與 DDIM(η) 取樣器、MNIST-FID、TSTR
+  評估、分佈診斷。用於最低成本驗證機制方向與選擇器可行性。
+- **Gen-2（Phase 1，CIFAR，進行中）**：自訓 CFG-capable CIFAR 模型、以預訓練 EDM 作量測錨點、PRDC
+  與 FD-DINOv2 量測堆疊、CaF 選擇器與機制分析在 CIFAR-10/100 上的複製與對決。
+- **VAR-mini（旁支探索）**：MNIST 上的兩階段 VAR-mini（多尺度殘差 VQ-VAE + scale-wise transformer）。
+  目前與研究主線無關，僅有 smoke 測試，去留待定。
 
 ## 環境設定
 
@@ -10,166 +91,125 @@
 uv sync
 ```
 
-## 訓練
+## 目前進度
 
-```bash
-# 使用預設參數訓練
-uv run python train.py
+- Phase 0（MNIST sandbox）：完成，機制方向正確、CaF 可行。
+- Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 1.848 重現通過。
+- Phase 1-2（自訓 CFG backbone）：CIFAR-10 完成（base model 50k clean-fid 8.95 過 gate）；CIFAR-100 未開始。
+- Phase 1-3（CIFAR-10 guidance 軸）：完成。confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）
+  三判決定稿（`records/2026-07-09-03`）：頭條「FID-opt 偏離 TSTR-opt」被反證（C1 於 Inception 與 DINOv2 兩空間
+  皆不分離）；判決三 FID-min per-seed regret 0.91pp 勝 CaF 3.69pp（2 勝 1 負）＋結構性 Pareto 失明；P0/P1 對帳
+  全 30 config 量測 scalar 逐位重現、k=5 獲探針反證。exploratory pilot 為前導觀察。
+- Phase 1-4（CIFAR-100 機制與翻轉檢查）：未開始，是全案科學承重牆。
+- Phase 1-5（CaF vs Chamfer matched-budget 對決）：未開始，是護城河承重牆。
 
-# 自訂訓練參數
-uv run python train.py --epochs 50 --lr 1e-4 --batch-size 256
+各階段的實際數據與分析見 `docs/results_analysis.md`。
 
-# 從已有的 checkpoint 繼續訓練
-uv run python train.py --resume ddpm_mnist.pt --epochs 10
-```
+## 實驗設計：完整實驗要確立的事
 
-訓練過程中會在 `samples/` 資料夾定期儲存：
-- `epoch_{N}.png` — 10×8 數字網格圖（每個數字 8 張）
-- `denoise_epoch_{N}.png` — 去噪過程視覺化（每個數字一列，從純噪音到最終結果）
-
-訓練結束後模型權重儲存為 `ddpm_mnist.pt`。
-
-### 訓練參數
-
-| 參數 | 預設值 | 說明 |
-|------|--------|------|
-| `--epochs` | `20` | 訓練輪數 |
-| `--batch-size` | `128` | 訓練批次大小 |
-| `--lr` | `2e-4` | 學習率 |
-| `--timesteps` | `1000` | 擴散時間步數 |
-| `--base-channels` | `64` | UNet 基礎通道數 |
-| `--sample-interval` | `5` | 每 N 個 epoch 儲存一次樣本 |
-| `--guidance-scale` | `3.0` | 取樣時的 classifier-free guidance 強度 |
-| `--num-workers` | `2` | DataLoader 工作程序數 |
-| `--output-dir` | `samples/` | 樣本圖片輸出資料夾 |
-| `--save-path` | `ddpm_mnist.pt` | 模型權重儲存路徑 |
-| `--resume` | — | 從指定 checkpoint 繼續訓練 |
-
-## 推論
-
-使用訓練好的模型生成數字。輸出只有 `generated/dataset.pt`（給 `evaluate.py` 用），生成過程的視覺化由 `train.py` 在訓練時記錄到 `samples/`，推論時不再重複輸出。
-
-```bash
-# 生成所有數字（0-9），每個數字 100 張
-uv run python inference.py
-
-# 只生成特定數字
-uv run python inference.py --digits 3 7
-
-# 調整每個數字的生成數量（建議 TSTR 標準流程跑 1000）
-uv run python inference.py --per-digit 1000
-```
-
-### 推論參數
-
-| 參數 | 預設值 | 說明 |
-|------|--------|------|
-| `--checkpoint` | `ddpm_mnist.pt` | 模型權重路徑 |
-| `--digits` | `0-9` | 要生成的數字 |
-| `--per-digit` | `100` | 每個數字的生成數量 |
-| `--batch-size` | `64` | 生成批次大小 |
-| `--guidance-scale` | `3.0` | Classifier-free guidance 強度 |
-| `--output-dir` | `generated/` | 輸出資料夾 |
-
-## 評估（TSTR：Train on Synthetic, Test on Real）
-
-把整個專案串成一個端到端的故事：**訓練 DDPM → 用它生成手寫數字 → 拿這些生成圖（不碰真實 MNIST）訓練一個 CNN 分類器 → 看看這個 CNN 能不能認得真實人類寫的 MNIST 數字**。CNN 在真實 MNIST 測試集上的準確率，就是「生成資料的實用價值」——分數越高，代表生成圖在保真度與多樣性兩個面向上都越接近真實分佈。學界把這個量法叫做 **TSTR（Train on Synthetic, Test on Real）** 或 Classification Accuracy Score，比起單純檢查每張圖好不好看，更能抓出 mode collapse。
-
-**訓練資料量建議**：標準流程用 10000 張（每類 1000）。MNIST 在這個量級即使用真實資料訓練也已經接近天花板（~98%），所以資料量不再是混淆變項，分數差異可乾淨歸因到生成器的 coverage / mode collapse。
-
-```bash
-# 1. 生成 10K 張（每類 1000）作為 TSTR 訓練集（建議規模）
-uv run python inference.py --per-digit 1000 --output-dir generated
-
-# 2. 訓練 CNN（純粹用生成圖），並在真實 MNIST 測試集上評估
-uv run python evaluate.py --confusion-matrix \
-    --report report.txt --report-json report.json
-
-# 3. 之後快速重跑（用已訓練好的 CNN，跳過訓練）
-uv run python evaluate.py --checkpoint mnist_cnn_gen.pt --report report.txt
-
-# 4. CI 整合：accuracy 低於警告門檻則 exit code 非 0
-uv run python evaluate.py --checkpoint mnist_cnn_gen.pt \
-    --threshold 95 --threshold-warn 90 --strict
-```
-
-### 評估參數
-
-| 參數 | 預設值 | 說明 |
-|------|--------|------|
-| `--generated` | `generated/dataset.pt` | 用來訓練 CNN 的生成資料集路徑 |
-| `--checkpoint` | — | 已訓練好的 CNN 權重路徑；提供時跳過訓練 |
-| `--save-cnn` | `mnist_cnn_gen.pt` | 訓練完將 CNN 權重存到此路徑 |
-| `--epochs` | `20` | CNN 訓練輪數 |
-| `--batch-size` | `64` | 訓練與評估批次大小 |
-| `--lr` | `1e-3` | 學習率 |
-| `--data-dir` | `./data` | MNIST 資料夾（自動下載真實 MNIST 測試集） |
-| `--num-workers` | `2` | DataLoader 工作程序數（用於真實 MNIST 測試集載入） |
-| `--confusion-matrix` | 關 | 列印混淆矩陣（在真實 MNIST 測試集上） |
-| `--report` | — | 將純文字報告寫入此路徑 |
-| `--report-json` | — | 將機器可讀 JSON 報告寫入此路徑 |
-| `--threshold` | `95.0` | 真實 MNIST 評估準確率達標門檻（%）|
-| `--threshold-warn` | `90.0` | 可接受門檻（%），低於此值視為未達標 |
-| `--strict` | 關 | 未達標時以非 0 exit code 結束（CI 用）|
-
-評估輸出包含：CNN 在生成訓練集上的準確率（sanity row，正常應接近 100%）、CNN 在真實 MNIST 測試集上的整體準確率（**主要指標**）、每個數字 0–9 的 per-class 準確率、混淆矩陣、TSTR 品質達標判定（PASS / FAIL）。
-
-報告格式：
-- **`.txt`**：給人閱讀，含 metadata（GPU、PyTorch 版本、git commit、checkpoint mtime、執行時間）、per-class 表格、混淆矩陣、達標結論、generalization gap（訓練集準確率減去真實準確率，正值越大代表 overfit 越嚴重）
-- **`.json`**：給機器解析，方便比較不同 checkpoint 或在 CI 中追蹤指標
-
-## 最新評估結果
-
-以預設超參數（DDPM 訓練 20 epochs、`inference.py --per-digit 1000` 生成 10000 張）跑完整 TSTR pipeline，CNN 評估器在真實 MNIST 測試集上的判定如下：
-
-| 指標 | 值 |
-|---|---|
-| CNN 訓練集準確率（生成圖 sanity row）| 100.00% (10000 / 10000) |
-| **真實 MNIST 測試集準確率** | **95.30% (9530 / 10000)** |
-| Generalization gap | +4.70 pp |
-| 達標判定（門檻 95%）| **PASS（高品質）** |
-
-per-class 準確率最強：`1`（98.85%）、`0`（98.37%）、`5`（97.31%）；最弱：`8`（89.73%）、`7`（92.90%）、`9`（92.96%）。混淆矩陣顯示真實的 8 常被誤判為 0（33 筆）或 9（18 筆）——通常代表生成器對數字 8 的多樣性覆蓋仍有限，是改進 DDPM 的主要方向。
-
-要重新產生上述報告：
-
-```bash
-uv run python inference.py --per-digit 1000 --output-dir generated
-uv run python evaluate.py --confusion-matrix --report report.txt --report-json report.json
-```
-
-完整數字以執行後產出的 `report.txt` / `report.json` 為準。
+- CIFAR-10 confirmatory（steps=50、η=0、10 點 guidance grid、fresh seeds 10/11/12）：guidance 的內部最優
+  是否持續，CaF 是否跨 3 seed 近最優選中（regret 小）；C2 以全網格偏相關裁決（見 records/2026-07-05-13）。
+- CIFAR-100（更難、非可分）：coverage 主導是否複製，near-boundary 機制是否可量測（不飽和）。這是
+  真正的 go/no-go 硬門檻。
+- 第二特徵表徵（CLIP / Inception）交叉驗證 coverage，破除 DINOv2 的雙重使用循環。
+- matched-budget 對決：CaF 與重實作的 Chamfer 基線比下游準確率與成本，並展示可組合性（CaF 疊在
+  Chamfer 的輸出之上）。
+- τ 穩健性與 TSTR-free 的 τ 自動決定，誠實報告其敏感度。
 
 ## 專案結構
 
+研究主線（Gen-2, CaF / CIFAR / 機制）：
+
 ```
-ddpm.py       — 模型架構（UNet）與擴散排程（DiffusionSchedule）
-train.py      — 訓練迴圈、取樣邏輯，定期把網格與去噪過程寫到 samples/
-inference.py  — 推論腳本，輸出 dataset.pt（給 evaluate.py 用）
-evaluate.py   — TSTR 流程：用生成圖訓練 CNN，然後在真實 MNIST 測試集上評估
-samples/      — train.py 訓練過程的網格圖與去噪視覺化（不在 git 內）
-generated/    — inference.py 預設輸出位置（自動建立、不在 git 內，可隨意覆蓋）
+selector.py              — CaF：argmax coverage s.t. precision ≥ τ，含 auto-τ、τ 穩健性、regret@selected
+mechanism.py             — 機制分析：guidance 對 near-boundary 樣本支持度的影響、label-noise 對照
+metrics_prdc.py          — PRDC（Precision/Recall/Density/Coverage），純 torch
+metrics_features.py      — 表徵式生成指標（DINOv2 特徵、FD-DINOv2）
+fid_clean.py             — 標準 Inception-FID（clean-fid），正確性錨點
+train_cifar.py           — CFG-capable CIFAR-10/100 擴散模型訓練（EMA、週期性 checkpoint）
+cifar_data.py            — CIFAR-10/100 載入
+cifar_classifier.py      — 從零實作 CIFAR 分類器與 TSTR 測試框架
+datasets/                — CIFAR-10/100 資料集載入器
+phase1_edm_repro.py      — 正確性 gate：重現 EDM CIFAR-10 FID
+cifar_judge.py           — 真實 CIFAR-10 judge 分類器，校準 near-boundary threshold，供機制與 label-noise 量測
+cifar_cfg_sample.py      — 自訓 CFG 模型的平衡生成與 FID gate
+run_comparison.py        — (steps × η × guidance) 聯合掃描，產出效用曲面與選擇器輸入（MNIST sandbox 尺度）
+run_selector_signal.py   — MNIST 上 CaF 的多 seed go/no-go 訊號
+run_cifar_selector.py    — CIFAR-10 上 CaF 選擇器訊號
+run_cifar_cfg_scout.py   — 1-seed 寬 grid scout，定位 coverage 崩點以凍結 confirmatory grid
+run_cifar_cfg_upper_scout.py — 上緣 coverage-only scout（w>8 區段）
+run_cifar_cfg_multiseed.py — confirmatory 主 driver：凍結 10 點 grid、fresh seeds，量 precision/coverage/TSTR/near-boundary/label-noise
+run_c2_partial.py        — C2 全網格偏相關裁決（partial Spearman + permutation + bootstrap CI）
+run_flip_earlywarning.py — CIFAR-10 難子集 coverage 主導鬆動的早期預警
+chamfer.py               — 簡化 Chamfer guidance 基線，供 matched-budget 對決
+run_guidance_study.py    — guidance 對 FID/TSTR/多樣性的取捨研究
+validate_metrics.py      — 量測堆疊在真實 CIFAR-10 上的數值驗證
 ```
 
-## 架構概覽
+Gen-1（MNIST sandbox）：
 
-- **UNet**：編碼器-瓶頸-解碼器結構，含跳躍連接
-  - 通道數：64 → 128 → 256
-  - 在 14×14 解析度加入自注意力機制
-  - 透過正弦位置編碼注入時間步資訊
-- **擴散排程**：線性 β 排程（1e-4 至 0.02），共 1000 步
-  - 前向過程：逐步加噪
-  - 反向過程：逐步去噪生成圖片
+```
+ddpm.py                  — UNet、擴散排程與 DDPM/DDIM 取樣器
+train.py                 — MNIST DDPM 訓練與取樣
+inference.py             — 推論，輸出供 evaluate.py 使用的 dataset.pt
+evaluate.py              — TSTR：以合成圖訓練 CNN，於真實 MNIST 測試集評估
+fid.py                   — MNIST-FID（classifier-Fréchet distance），免 scipy
+analyze_distribution.py  — 合成分佈診斷（mode collapse / canonical bias / drift）
+test_classifier.py       — CNN 評估器健全性檢查
+```
 
-## 預設超參數
+VAR-mini（旁支探索）：
 
-| 參數 | 預設值 |
-|------|--------|
-| 時間步數 T | 1000 |
-| β 範圍 | [1e-4, 0.02] |
-| 基礎通道數 | 64 |
-| 批次大小 | 128 |
-| 學習率 | 2e-4 |
-| 訓練輪數 | 20 |
+```
+var/                     — VAR-mini 套件（vqvae、transformer、sample）
+train_vqvae.py           — Stage 1：多尺度殘差 VQ-VAE
+train_var.py             — Stage 2：scale-wise transformer
+inference_var.py         — VAR-mini 推論
+```
 
-所有超參數均可透過命令列參數覆寫，詳見上方訓練參數表。
+輸出與記錄：
+
+```
+records/                 — 研究計畫與進度記錄（檔名 YYYY-MM-DD-NN_action_content）
+docs/                    — 實驗結果的分析
+results/                 — 各實驗的 json/csv/txt/log 輸出（不在 git 內）
+checkpoints/             — 模型權重與參考統計（不在 git 內）
+samples/、samples_cifar/ — 訓練過程的樣本網格（不在 git 內）
+generated/               — 推論輸出的合成資料集（不在 git 內）
+```
+
+## 指標說明
+
+- **MNIST-FID**（`fid.py`）：以 `mnist_cnn.pt` 的 penultimate 特徵計算 Fréchet distance，免 scipy。
+  僅為 MNIST sandbox 內 samplers / guidance 之間的相對指標，不可與文獻的 Inception-FID 直接比較。
+- **Inception-FID / clean-fid**（`fid_clean.py`）：標準 FID，用來重現公開模型數字作為量測正確性錨點。
+- **FD-DINOv2 與 PRDC**（`metrics_features.py`、`metrics_prdc.py`）：Phase 1 的保真度與多樣性量測；
+  PRDC 的 coverage 是 CaF 選擇器的核心訊號。
+
+## 重現指令
+
+Gen-1 MNIST sandbox 的 CaF 訊號：
+
+```bash
+uv run python run_selector_signal.py --seeds 0 1 2
+```
+
+EDM CIFAR-10 FID 量測錨點：
+
+```bash
+uv run python phase1_edm_repro.py --num 50000 --batch 256
+```
+
+CIFAR CFG 模型訓練：
+
+```bash
+uv run python train_cifar.py --epochs 1000 --batch-size 128
+```
+
+各腳本的完整參數以 `--help` 為準。
+
+## 記錄與慣例
+
+計畫與進度記錄於 `records/`（檔名 `YYYY-MM-DD-NN_action_content`），實驗結果分析於 `docs/`，開發
+慣例（記錄格式、檔頭註解、語言與最小變更原則）定義於 `claude.md`。每一項工作都應先在 `records/`
+建立記錄，內容涵蓋 Goal、Result、Follow-up。

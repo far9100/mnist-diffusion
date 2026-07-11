@@ -1,0 +1,149 @@
+<!-- 用途：Phase 1 排程優化版計畫（已被 2026-07-05-01_plan_phase1-execution.md 取代，保留為歷史）。 -->
+
+# Phase 1 執行計畫（優化排程版）— Sampling for Utility, not Fidelity
+
+狀態：已被 records/2026-07-05-01_plan_phase1-execution.md（嚴謹綜合版）取代，保留為歷史記錄。其 L4/L5/L6 經依 repo 記錄審查，判定為以方法論嚴謹換速度、且與既有記錄或自身 Watch-list 矛盾，故不予採用；採用的安全子集見取代版。
+
+> **給 Claude Code 的說明**：本文件是 `2026-07-03-09_plan_phase1-cifar.md` 的**排程優化版**。
+> 前一版的**所有決策**（backbone fork：自訓 CFG 主軸 + EDM 量測錨點 + autoguidance/ICG 第二方法 + ImageNet 延後；
+> go/no-go 用 regret@selected；τ/DINOv2 護欄）**全部沿用不變**。本版**只改「怎麼排」**——把長序列鏈改成
+> signal-forward + 並行的排程，目的是把生死信號提前、把總時長壓短。衝突處以本文件的**排程**為準、以前一版的**決策**為準。
+
+---
+
+## 0. TL;DR（本版改了什麼）
+- **核心問題不是算力，是排程結構**：全案生死門檻（CIFAR-100 coverage 主導會不會翻轉）目前排在長序列鏈**最末端**，
+  要到 ~第 7–10 天才知道。本版把它提前到 ~第 2–3 天。
+- **六個時間槓桿**：①提前翻轉預讀（用現有 CIFAR-10 模型）②排序穩定停訓（非絕對 FID）③並行實作進 GPU 空窗
+  ④CaF 剪枝網格 ⑤預覽改法 ⑥CIFAR-100 針對性。
+- **預期**：Phase 1 go/no-go 定論從 ~2–3 週 → **~10–14 天**；翻轉方向性讀數 ~第 7–10 天 → **~第 2–3 天**。
+- **今天第一件事（存亡風險）**：提交 untracked 的研究主線到自己的分支。
+
+---
+
+## 1. 現況快照
+
+### 存亡風險：git 分支分裂（最優先）
+- HEAD 在 `experiment/var-mini`（多尺度殘差 VQ-VAE / VAR-mini），**不在任何 records/ 路線圖內**。
+- 研究主線（`selector.py`, `mechanism.py`, `train_cifar.py`, `run_comparison.py` 等）**全部 untracked**。
+- → 一次 `git clean` / 磁碟意外就會抹掉數週實質進度。**這不是風格問題，是資料存亡。今天就提交。**
+
+### 訓練實況
+- CIFAR-10 CFG 訓練中（PID 26772）：~epoch 680/1000，~1.9 min/epoch，**剩 ~10h**。**CFG 模型 FID 尚未量過。**
+- 參照（搜尋）：CIFAR-100 conditional teacher **35.8M 參數即到 FID 6.80**；部分 CFG CIFAR 設置 **~100 epoch 就出結果**。
+  → **1000 epoch 目標很可能過度訓練**（見 L2）。
+
+### 階段狀態（精簡）
+| 階段 | 狀態 |
+|---|---|
+| Phase 0 MNIST sandbox | Gate A 多 seed 通過（CaF regret 0、機制方向、Chamfer 差異空間） |
+| Phase 1-1 量測堆疊 gate | EDM FID 1.848（論文 1.79）；PRDC/FD-DINOv2 過（clean-fid Windows pickling 小 bug 待修） |
+| Phase 1-2 CFG backbone | CIFAR-10 ~68%；**CIFAR-100 未開始** |
+| Phase 1-3 CIFAR-10 複製 C1 | 僅 8 步預覽，出現曖昧「內部最優」，需重跑（見 L5） |
+| Phase 1-4 CIFAR-100 C2 機制 | 未開始＝**全案科學承重牆** |
+| Phase 1-5 CaF vs Chamfer | 基線未實作 |
+
+---
+
+## 2. 核心洞察：優化排程結構
+
+**問題**：現路徑「CIFAR-10 訓完 → CIFAR-10 全掃 → 訓 CIFAR-100 → CIFAR-100 掃」把生死門檻放最後。
+風險是花一週打磨 CIFAR-10，第 8 天才發現 coverage 主導在難集翻轉、框架要重議。
+
+**兩個排程原則（貫穿以下所有任務）**
+- **Signal-forward**：最能殺死專案的信號要最早拿到——即使用代理、低樣本、部分訓練的模型。
+- **Parallelize**：GPU 訓練/生成是唯一硬瓶頸；所有 CPU/寫程式工作塞進 GPU 空窗，讓 A（算力）與 B（實作）
+  從「相加」變「取大」。
+
+---
+
+## 3. 立即動作（this session，有序）
+
+- **① 提交研究主線（15 分鐘，消存亡風險）**：從當前狀態開 `research/caf-main`（或 `main`），
+      `git add` 研究主線檔案並 commit；`experiment/var-mini` 留作側分支。**先做這個，再啟動任何新 run。**
+- **② 量現行 CIFAR-10 CFG FID + 排序穩定檢查**（見 L2）：決定是否提早停訓、省下 ~10h。
+- **③ 決定停訓後 → GPU 立刻排 CIFAR-100 訓練**（訓到排序穩定即止，非 1000 epoch）。
+- **④ 同時（CPU 並行）**：實作簡化 Chamfer 基線、`mechanism.py` 的標籤噪音診斷、修 clean-fid Windows pickling bug、
+      寫 pre-register 協定草稿。
+- **⑤ CIFAR-10 一空出 → 跑難子集翻轉預讀**（見 L1）：拿生死方向性信號。
+
+---
+
+## 4. 六個時間槓桿（任務化）
+
+### L1 — 提前翻轉預讀 + 翻轉兩結果化（最大槓桿）
+用**現有 CIFAR-10 模型**，不等 CIFAR-100 訓好，就拿翻轉的方向性讀數：
+- **難子集代理**：在 CIFAR-10 易混類（貓/狗、汽車/卡車、鹿/馬）上量 coverage 主導是否鬆動
+      （這些類 margin 未飽和）。若此處已搖擺 → CIFAR-100 幾乎篤定翻。
+- **標籤噪音診斷（內建進 `mechanism.py`）**：數個 guidance 值下生成中等量樣本，用真實資料訓的分類器量
+      「離類/模糊質量」佔比——直接量會導致翻轉的競爭機制。
+- **翻轉兩結果化**：把「翻轉」從硬 No-Go 改成兩種可發表結果——
+      不翻 → 原 thesis；翻 → 「效用最優 guidance 隨任務難度而變，存在 coverage vs 標籤噪音取捨，CaF 逐資料集選對該點」（更豐富的貢獻）。
+      **標籤噪音診斷從一開始內建 → 無論哪個方向都能解釋，不臨時補儀器。**
+
+### L2 — 排序穩定停訓（非絕對 FID）
+- 你做的是**相對**組態研究，停訓準則是**組態排序穩定**，不是 FID 夠低。
+- 量現行 FID（不需 1.79；CIFAR-100 有 35.8M→FID 6.8 的參照，堪用門檻約 FID 7–12）。
+- 比較早一個 checkpoint 與最新 checkpoint 在幾個組態上的 coverage/TSTR 排序；**排序已穩 → 停訓**。
+- CIFAR-100 同準則訓（別盲跑 1000 epoch）。
+
+### L3 — 並行實作進 GPU 空窗（A+B 取大而非相加）
+- 把這些純 CPU/寫程式工作排進 CIFAR-10 收尾（~10h）與 CIFAR-100 訓練（~1.5–2 天）的空窗：
+      Chamfer 基線、pre-register 協定、clean-fid bug、`mechanism.py` 介入分析。
+- 排程守則：**GPU 永不閒置、寫程式永不擋 GPU**。
+
+### L4 — CaF 剪枝網格（吃自己的狗糧）
+- 掃描成本 = 組態數 × 樣本數 × seed 數。先用 CaF 便宜 probe 掃全網格，**只對 CaF top-k + 幾個對照**跑
+      全品質 multi-seed TSTR。兩資料集各約**砍半掃描成本**。
+- 這同時是主賣點：CaF 在**自己的 pipeline** 裡就展現實用價值。
+
+### L5 — 預覽改法（消除要重跑的假影）
+- 8 步預覽的曖昧「內部最優」源於**在非研究網格的步數上預覽**，自製假影。
+- 改法：全品質預算一次定死（**EDM 18-step Heun**）；預覽只**減樣本數、不減步數**。
+      快靠少生成、非少步數 → 預覽永遠與最終跑同分布，不再有要重跑的曖昧結果。
+
+### L6 — CIFAR-100 針對性（別複製整個立方體）
+- CIFAR-10 已負責畫 steps×η×guidance（C1）。CIFAR-100 的任務是 **C2 機制 + 翻轉檢查**。
+- 只需：**固定 CIFAR-10 選出的好 (steps,η) + 只掃 guidance 軸 + margin/標籤噪音儀器**。
+      不必在 100 類重跑完整 steps×η×seed → ~2–3 天掃描壓到 **~1 天**。
+
+---
+
+## 5. 修訂後 go/no-go
+- **早期（~第 2–3 天，新增）**：難子集翻轉預讀 + 標籤噪音診斷給出方向性讀數（不翻/翻/邊界）。
+- CIFAR：regret@selected 低 + top-k 命中（非全域 ρ）。
+- **coverage 主導跨 CIFAR-10 與 CIFAR-100 都成立**（難集不翻＝硬門檻；若翻則走 L1 的兩結果化框架）。
+- CIFAR-100：margin 抽乾（介入式證據，非只單調曲線）。
+- CaF 在 matched-budget 打平/贏 Chamfer（多 seed CI）。
+- 正確性 gate：新 backbone 先重現其 FID 再掃描（EDM 1.848 已過）。
+
+---
+
+## 6. 修訂後時間估計
+- **翻轉方向性讀數**：~第 7–10 天 → **~第 2–3 天**（L1）。
+- **Phase 1 go/no-go 定論**（CIFAR-10 複製 + CIFAR-100 機制 + 最小對決）：~2–3 週 → **~10–14 天**
+  （靠 L2 提早停訓 + L3 並行 + L4 剪枝 + L6 針對性）。
+- **可投稿完整初稿**（+ Phase 2 主結果表 + 撰稿）：仍約 **2–3 個月**，主要受 Phase 2 與撰稿主導，不樂觀壓縮。
+
+---
+
+## 7. Watch-list
+- **別假設 η-null 複製到 CIFAR**（要驗不要假設；DP 擴散先導偏向會複製）。
+- **難度上升時 CaF regret 是否擴大**（CIFAR-100 是壓力測試）。
+- **標籤噪音是否在難集壓過多樣性**（＝翻轉；L1 已內建診斷）。
+- **CIFAR-100 過度訓練**（用 L2 排序穩定準則收斂）。
+- τ 循環 / DINOv2 雙重使用護欄（見 `2026-07-03-07_plan_research-revision-brief.md` §3）。
+
+---
+
+## 8. 決策依據事實（含搜尋）
+- **無現成 CIFAR-100 CFG 預訓練 checkpoint**（社群多只釋 CIFAR-10）→ CIFAR-100 需自訓。
+- CIFAR-100 conditional teacher：35.8M 參數 → FID 6.80 / IS 7.46（w=4.0, 50-step DDIM）→ 堪用 FID 目標與模型規模參照。
+- 部分 CFG CIFAR 設置 ~100 epoch 出結果 → 1000 epoch 多為過度訓練。
+- 極簡 CFG CIFAR repo（`FutureXiang/Diffusion`, `zhaisf/cDiffusion-cifar10`）有 `cifar_conditional.yaml`／`sample_guide.py`，
+  可改 num_classes 適配 CIFAR-100。
+- **ICG**（免訓練 fallback）與 **autoguidance**（弱模型當負項）語意見 `2026-07-03-09_plan_phase1-cifar.md` §2。
+
+## 9. 一句話
+> 瓶頸是排程不是算力。把生死信號（CIFAR-100 翻轉）用現有 CIFAR-10 模型提前到第 2–3 天，實作並行進 GPU 空窗，
+> CaF 剪枝、排序穩定停訓、CIFAR-100 只做針對性——go/no-go 從 2–3 週壓到 10–14 天。今天先提交主線,消存亡風險。
