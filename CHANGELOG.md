@@ -10,6 +10,17 @@
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-16
+
+- `2026-07-16-01` test — CIFAR-100 confirmatory 下游裁決：matched-budget FID-min duel 顯示 CaF 與
+  FID-min 逐 seed 同選 w1.5、regret 均 0.76pp 打平（未達 D4 的 ≥1.5pp，selector 主張不成立）；C1 分離
+  格步 0/8（不分離）；D3 三觀察量三項全成立（機制複製）。客觀讀數對照 D1 第三分支（不分離但機制複製→
+  診斷論文），揭盲路由待作者確認。輸出 `results/cifar100_c6_fidmin_duel.json`。
+- `2026-07-11-10` test — CIFAR-100 confirmatory 真跑完成：80 cell（seeds 10–17 × grid 10 點、reps 5、
+  per_class=real=500、CaF-v2 recall selector）於 2026-07-14 起跑、跨 GPU 搶佔中斷以斷點續跑接力、
+  2026-07-16 22:58 完成；coverage(DINOv2) 峰 w2.5 0.698、TSTR 由 w1 59.66 單調降至 w8 15.88、
+  char_fid 最小 w1.5 7.17、CaF 全 seed 選 w1.5（regret 0.76pp、rank 2/10、top-3 命中 100%）。
+
 ## 2026-07-11
 
 - `2026-07-11-09` plan — D10 末閘：凍結 CIFAR-100 confirmatory 的 per-class 口徑為 gen=real=500。
