@@ -68,6 +68,12 @@ FROZEN_CIFAR100 = {
     "real_per_class": 500,   # CIFAR-100 訓練集每類上限即 500，無法沿用 CIFAR-10 的 1000
     "steps": 50,
     "eta": 0.0,
+    # 量測儀器參數（護欄化）：nearest_k 為 D9 metadata 必記且係 P0/C0 溯源事件的參數；
+    # tau_fraction=0.9 為 D8 登記之 auto-τ 比例；tstr_epochs 未在預註冊登記，凍結為 as-run
+    # 可重現值。與已完成 confirmatory 的 argv/metadata 完全吻合，故護欄化不重算、不動既有輸出。
+    "nearest_k": 5,
+    "tau_fraction": 0.9,
+    "tstr_epochs": 15,
 }
 
 # CIFAR-10 的既有預設（pilot/smoke 用；confirmatory 已定稿，不由預設值驅動）。
@@ -79,27 +85,45 @@ DEFAULT_CIFAR10 = {
     "real_per_class": 500,
     "steps": 50,
     "eta": 0.0,
+    # 量測儀器參數與 CIFAR-100 同值（資料集無關）；改 None 預設後由此填回，避免 None 破在下游。
+    "nearest_k": 5,
+    "tau_fraction": 0.9,
+    "tstr_epochs": 15,
 }
 
 
-def resolve_protocol(args):
+# confirmatory 護欄涵蓋的鍵：未明示則填凍結值，CIFAR-100 未帶 --off-protocol 而偏離即拒跑。
+# threshold 不在此列——它的 None 是「自 judge json 載入」的哨兵，另以 threshold_cli 明示覆寫判定。
+GUARDED_KEYS = ("guidance", "seeds", "reps", "per_class", "real_per_class", "steps", "eta",
+                "nearest_k", "tau_fraction", "tstr_epochs")
+
+
+def resolve_protocol(args, threshold_cli):
     """把未明示的參數填成該 dataset 的預設/凍結值，並對 CIFAR-100 檢查是否偏離預先登記。
 
     argparse 的預設一律設 None，才分得出「使用者沒給」與「使用者給了剛好等於預設的值」。
     CIFAR-100 未帶 --off-protocol 而偏離凍結規格時直接拒跑：confirmatory 是預先登記的揭盲
-    步，用錯 grid 跑掉數天 GPU 之後才發現，已無法回頭。
+    步，用錯 grid（或量測參數）跑掉數天 GPU 之後才發現，已無法回頭。
+
+    threshold_cli 是 --threshold 的 CLI 原值（None=用凍結 judge json 值）。--threshold 在本函式
+    呼叫前已於 main() 被解析成具體 float，無法再用 None 判斷，故由呼叫端把原值傳入：非 None
+    即代表使用者明示覆寫了凍結的 near-boundary threshold，屬偏離。
     """
     frozen = FROZEN_CIFAR100 if args.dataset == "cifar100" else DEFAULT_CIFAR10
-    for key in ("guidance", "seeds", "reps", "per_class", "real_per_class", "steps", "eta"):
+    for key in GUARDED_KEYS:
         if getattr(args, key) is None:
             setattr(args, key, frozen[key])
 
     if args.dataset != "cifar100" or args.off_protocol:
         return []
     deviations = []
-    for key in ("guidance", "seeds", "reps", "per_class", "real_per_class", "steps", "eta"):
+    for key in GUARDED_KEYS:
         if getattr(args, key) != frozen[key]:
             deviations.append(f"{key}: {getattr(args, key)} != 凍結值 {frozen[key]}")
+    if threshold_cli is not None:
+        deviations.append(
+            f"threshold: 明示覆寫 {threshold_cli}"
+            "（confirmatory 須用凍結 judge json 的 near_boundary_threshold，勿由 CLI 帶入）")
     if args.no_fid:
         deviations.append("no_fid: characterization clean-fid 被關閉，confirmatory 須開")
     if deviations:
@@ -248,11 +272,15 @@ def main():
     p.add_argument("--off-protocol", action="store_true",
                    help="允許 CIFAR-100 偏離凍結規格（僅 smoke/dry-run；輸出不得當 confirmatory）")
     p.add_argument("--batch", type=int, default=250)
-    p.add_argument("--nearest-k", type=int, default=5)
+    # nearest_k / tau_fraction / tstr_epochs 預設改 None：與上方 7 鍵同走 resolve_protocol 的
+    # None→frozen 填值，如此 CIFAR-100 confirmatory 才分得出「使用者明示覆寫」與「用凍結值」，
+    # 而能把這三個量測參數納入 off-protocol 護欄（它們都會改 confirmatory 數字）。
+    p.add_argument("--nearest-k", type=int, default=None)
     p.add_argument("--threshold", type=float, default=None,
-                   help="near-boundary threshold；未給則自 <dataset>_judge.json 讀")
-    p.add_argument("--tau-fraction", type=float, default=0.9)
-    p.add_argument("--tstr-epochs", type=int, default=15)
+                   help="near-boundary threshold；未給則自 <dataset>_judge.json 讀"
+                        "（confirmatory 須用凍結 judge json 值，勿由 CLI 帶入）")
+    p.add_argument("--tau-fraction", type=float, default=None)
+    p.add_argument("--tstr-epochs", type=int, default=None)
     p.add_argument("--judge-json", default=None, help="預設 results/<dataset>_judge.json")
     p.add_argument("--no-inception", action="store_true")
     p.add_argument("--no-fid", action="store_true",
@@ -269,6 +297,9 @@ def main():
     judge_json = args.judge_json or f"results/{args.dataset}_judge.json"
     output = args.output or f"results/{args.dataset}_cfg_multiseed.json"
     signal_key = "recall" if args.dataset == "cifar100" else "coverage"
+    # --threshold 的 None 是「用凍結 judge json 值」的哨兵；先存 CLI 原值供護欄判定明示覆寫，
+    # 再把 None 解析成 judge json 的 near_boundary_threshold（下游 measure() 需具體 float）。
+    threshold_cli = args.threshold
     if args.threshold is None:
         with open(judge_json, encoding="utf-8") as f:
             args.threshold = float(json.load(f)["near_boundary_threshold"])
@@ -284,7 +315,7 @@ def main():
         args.off_protocol = True  # quick 依定義偏離凍結規格，其輸出不是 confirmatory
 
     # 未明示的參數填成凍結/預設值；CIFAR-100 偏離凍結規格且未帶 --off-protocol 時在此拒跑。
-    resolve_protocol(args)
+    resolve_protocol(args, threshold_cli)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}  dataset={args.dataset} num_classes={args.num_classes} "
@@ -436,6 +467,7 @@ def main():
                         # P0 source-tracing 事件就是因為 nearest_k 沒存而無法對帳。
                         "effective_nearest_k": min(args.nearest_k, args.real_per_class - 1),
                         "tau_fraction": args.tau_fraction,
+                        "tstr_epochs": args.tstr_epochs,   # §5.2 完整性：TSTR 訓練 epoch 數會影響下游準確率
                         "env": {"torch": torch.__version__, "cuda": torch.version.cuda,
                                 "cudnn": torch.backends.cudnn.version()}},
            "aggregate": agg, "per_seed": seed_results}

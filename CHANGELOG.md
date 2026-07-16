@@ -10,6 +10,13 @@
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-17
+
+- `2026-07-17-01` debug — off-protocol 護欄補 nearest_k/tau_fraction/tstr_epochs/threshold 四個量測
+  參數（原只攔 7 個凍結鍵），metadata 補記 tstr_epochs；凍結值與已完成 confirmatory 的 as-run 完全
+  吻合，不重算、不影響既有輸出，只強化對未來 re-run（如 D3 介入臂重生成）誤帶量測參數的攔截；
+  scratch 七情境驗證全通過。
+
 ## 2026-07-16
 
 - `2026-07-16-01` test — CIFAR-100 confirmatory 下游裁決：matched-budget FID-min duel 顯示 CaF 與
