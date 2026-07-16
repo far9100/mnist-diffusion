@@ -10,8 +10,39 @@
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-17
+
+- `2026-07-17-02` add — D3 三觀察量獨立 driver（`run_d3_observables.py`，純衍生、附 §5.2 metadata）：
+  以 coverage 均值峰位切段判三觀察量，(i) 升段 near-boundary 單調降、(ii) 高段 coverage 與 TSTR 同崩、
+  (iii) 高段 near-boundary 谷後回升脫鉤，三項全成立、3/3 機制複製，與 `2026-07-16-01` 內嵌判讀一致；
+  輸出對帳 ALL_MATCH。
+- `2026-07-17-01` debug — off-protocol 護欄補 nearest_k/tau_fraction/tstr_epochs/threshold 四個量測
+  參數（原只攔 7 個凍結鍵），metadata 補記 tstr_epochs；凍結值與已完成 confirmatory 的 as-run 完全
+  吻合，不重算、不影響既有輸出，只強化對未來 re-run（如 D3 介入臂重生成）誤帶量測參數的攔截；
+  scratch 七情境驗證全通過。
+
+## 2026-07-16
+
+- `2026-07-16-01` test — CIFAR-100 confirmatory 下游裁決：matched-budget FID-min duel 顯示 CaF 與
+  FID-min 逐 seed 同選 w1.5、regret 均 0.76pp 打平（未達 D4 的 ≥1.5pp，selector 主張不成立）；C1 分離
+  格步 0/8（不分離）；D3 三觀察量三項全成立（機制複製）。客觀讀數對照 D1 第三分支（不分離但機制複製→
+  診斷論文），揭盲路由待作者確認。輸出 `results/cifar100_c6_fidmin_duel.json`。
+- `2026-07-11-10` test — CIFAR-100 confirmatory 真跑完成：80 cell（seeds 10–17 × grid 10 點、reps 5、
+  per_class=real=500、CaF-v2 recall selector）於 2026-07-14 起跑、跨 GPU 搶佔中斷以斷點續跑接力、
+  2026-07-16 22:58 完成；coverage(DINOv2) 峰 w2.5 0.698、TSTR 由 w1 59.66 單調降至 w8 15.88、
+  char_fid 最小 w1.5 7.17、CaF 全 seed 選 w1.5（regret 0.76pp、rank 2/10、top-3 命中 100%）。
+
 ## 2026-07-11
 
+- `2026-07-11-09` plan — D10 末閘：凍結 CIFAR-100 confirmatory 的 per-class 口徑為 gen=real=500。
+  CIFAR-10 的 1000/class 匹配口徑物理不可行——CIFAR-100 訓練集每類僅 500 張，真實參考集上限即 500；
+  500/500 是唯一能同時維持 gen=real 匹配並讓真實參考取滿的選擇。判準本體不動；coverage 絕對值跨
+  資料集不可比一事於揭盲前登記為限制。
+- `2026-07-11-08` debug — confirmatory 前置修正五項：凍結 grid/seeds/reps 寫入 driver 並對偏離者
+  拒跑；`load_real_per_class` 樣本不足改為拋錯（原會靜默截斷，CIFAR-100 每類上限 500）；PRDC density
+  分母改用夾限後的 k（現有路徑數值不變）；補回 `run_c6_fidmin_duel.py` 與 `run_c0_recall_density.py`
+  兩支缺失 driver，對凍結結果逐值對帳皆 ALL_MATCH，並查明 C0 係自 P1 特徵重算、跨 seed 平均用
+  `statistics.mean`（與 confirmatory 的 `sum/len` 差 1 ULP）；`cifar_data.py` 併入 `datasets/cifar.py`。
 - `2026-07-11-07` refactor — 將 69 份過程記錄下架出版控（`records/` 進 .gitignore，本機保留、全文留在
   git 歷史），改以本檔為對外更新歷史；CIFAR-100 預註冊提升為 `docs/prereg_cifar100.md` 續留版控；
   62 處引用改寫（`.py` 溯源標記改純 ID、README 與 docs 內容性引用改指 CHANGELOG 錨點）；

@@ -174,3 +174,78 @@ grid 選擇依據（不含 TSTR 讀數）：
 
 8 seed × 5 rep × 10 grid = 400 個 (seed, rep, w) cell，每 cell 需平衡生成一份 CIFAR-100 合成集並訓一個
 TSTR 分類器；單 GPU 下屬數日級重計算，且為預註冊揭盲之不可逆步。
+
+---
+
+## 第三部分：D10 末閘 per-class 凍結 amendment（2026-07-11 登記，記錄 `2026-07-11-09`）
+
+第二部分「未凍結項」明列 `--per-class` 留至 confirmatory 閘定案，且若偏離 CIFAR-10 的 1000/class
+口徑須另以 amendment 明記。本 amendment 履行該義務，於 confirmatory 真跑前登記。
+
+本 amendment 只鎖樣本數口徑。判準本體——grid、selector（CaF-v2 / recall）、H2 門檻 1.5pp、seeds、
+功效配置 8×5、steps=50 eta=0、種子公式——一律不動。
+
+### 事由：CIFAR-10 口徑在 CIFAR-100 上物理不可行
+
+CIFAR-10 confirmatory 用的是 gen=real=1000/class 的匹配口徑（協定 `2026-07-05-02` §3，理由是消
+coverage 的樣本數假影）。此口徑無法移植：**CIFAR-100 訓練集每類僅 500 張**（CIFAR-10 為 5000），
+真實參考集每類上限即 500，`real_per_class=1000` 不可能達成。
+
+此事於 driver 一般化時發現：`datasets/cifar.py` 的 `load_real_per_class` 以切片取樣，per_class 超過
+可用張數時會**靜默回傳 500 張**而不報錯，使實際參考集大小與 metadata 記錄的 per_class 不符。這正是
+`claude.md` §5.2 要防的「量不出參數來源的 scalar」。該函式已改為樣本不足即拋錯（見下「凍結落實」）。
+
+### 凍結值（作者裁定）
+
+| 參數 | 凍結值 | 說明 |
+|---|---|---|
+| `--per-class`（生成） | **500** | 每 cell 生成 100 類 × 500 = 50,000 張 |
+| `--real-per-class`（真實參考） | **500** | CIFAR-100 訓練集每類硬上限 |
+
+裁定依據：
+
+1. **維持 gen=real 匹配**。PRDC 的 coverage 對 real/fake 張數不平衡敏感（MNIST 每數字 50 張的假影，
+   `datasets/cifar.py` 已記此害）。CIFAR-10 用的是匹配口徑，500/500 是 CIFAR-100 上唯一能同時
+   維持匹配、又讓真實參考取滿的選擇。
+2. **真實參考取到上限**。coverage 是拿真實流形當被覆蓋對象，參考集越大越不失真；500 已是天花板。
+
+### 已登記的限制（樣本數假影）
+
+1000/class 的原始理由是消 coverage 的樣本數假影；500/500 的樣本數較小，該假影無法完全消除。事前登記
+此限制的射程：
+
+- **不影響判準**。所有判決（H1 機制、H2 selector regret、C1 分離口徑）都是**同一資料集內跨 config 的
+  比較**，而每個 config 的張數完全相同，樣本數假影對各 config 一致，不改變排序或 argmax。
+- **影響跨資料集的 coverage 絕對值比較**。CIFAR-100 的 coverage 絕對值不得與 CIFAR-10 的直接對比，
+  兩者樣本數不同。分支三（診斷論文）若要並陳兩資料集的 coverage 曲線，須改用資料集內正規化後的量，
+  或明記此不可比性。此限制在揭盲前登記，不得於看到結果後再行調整。
+
+### 對 D5 的影響
+
+D5 的 matched-probe FID-min baseline（1000/class）是**生成**探針，生成張數無資料集上限，故 D5 不受
+本 amendment 影響，維持原值。但凡涉及真實參考集的量（PRDC、FD-DINOv2），CIFAR-100 一律以 500/class
+為上限，D5 三臂對決執行時須沿用。
+
+### 規模與 ETA
+
+| 項目 | 值 |
+|---|---|
+| cell 數（seed × grid） | 8 × 10 = **80** |
+| 每 cell 生成張數 | 100 類 × 500 = **50,000** |
+| 每 cell TSTR 重訓 | 5 rep（D4） |
+| TSTR 分類器訓練總數 | 80 × 5 = **400** |
+| 生成影像總數 | 80 × 50,000 = **400 萬張** |
+
+單 GPU（RTX 5070）下屬數日級重計算。精確 ETA 由真跑前的單 cell 計時探針量定，記於 `2026-07-11-10`。
+
+### 凍結落實（依 `claude.md §5.1` 四要件）
+
+- **(a) prose 登記**：本 amendment，於 confirmatory 取樣前 commit。
+- **(b) 落在版控程式碼**：`run_cifar_cfg_multiseed.py` 的 `FROZEN_CIFAR100` 常數載明 grid / seeds /
+  reps / per_class / real_per_class / steps / eta；未明示的參數即取凍結值。CIFAR-100 一旦偏離凍結值
+  而未帶 `--off-protocol`，driver 直接拒跑——用錯規格跑掉數天 GPU 之後才發現，已無法回頭。
+  `--off-protocol` 會寫入輸出 metadata，故 smoke 產物不可能被誤認為 confirmatory。
+  `datasets/cifar.py::load_real_per_class` 改為樣本不足即拋錯，堵掉靜默截斷。
+- **(c) dry-run**：`2026-07-11-06` 已驗 gseed 無碰撞與全鏈路；本 amendment 之凍結值另經 driver
+  解析驗證（80 cells）與單 cell 計時探針。
+- **(d) 逐位對帳**：confirmatory 之 P 資產，沿 CIFAR-10 P0/P1 規格。

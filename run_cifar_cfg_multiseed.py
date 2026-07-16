@@ -16,11 +16,19 @@ go/no-go 主指標（協定 §6、§8）。
     才能分離「難類本難判」與「guidance 製造污染」。
   - per-config characterization clean-fid（規格1）：重用生成集算 clean-fid，只報告不 gate，呈現 FID 隨
     guidance 的軌跡。
-  - per_class 依協定 2026-07-05-02 §3 用 1000（消 coverage 樣本數假影），非 pilot 的 500。
+  - per_class：CIFAR-10 confirmatory 依協定 2026-07-05-02 §3 用 1000（消 coverage 樣本數假影）。
+    CIFAR-100 無法沿用此口徑——其訓練集每類僅 500 張，real_per_class 硬上限即 500——故另發
+    per-class 凍結 amendment（R-2026-07-11-08）定為 gen=real=500 的匹配口徑。
   - C2 裁決（全網格偏相關）由生成後腳本 run_c2_partial.py 讀本檔輸出另算（R-2026-07-05-13）。
+
+CIFAR-100 的凍結規格寫在 FROZEN_CIFAR100 常數，未明示參數即取該值；偏離須帶 --off-protocol。
 
 Usage:
     uv run python run_cifar_cfg_multiseed.py --quick
+    # CIFAR-100 confirmatory（全部參數取凍結值，不必逐一手打）
+    uv run python run_cifar_cfg_multiseed.py --dataset cifar100 \
+        --output results/cifar100_cfg_confirmatory.json
+    # CIFAR-10 confirmatory（已定稿，指令留存供重現）
     uv run python run_cifar_cfg_multiseed.py --guidance 1 1.5 2 2.5 3 4 5 6 7 8 \
         --seeds 10 11 12 --per-class 1000 --real-per-class 1000 \
         --output results/cifar10_cfg_confirmatory.json
@@ -48,6 +56,84 @@ from fid_clean import clean_fid_vs_dataset
 from cifar100_base_gate import clean_fid_gen_vs_ref
 
 
+# CIFAR-100 confirmatory 的凍結規格（grid 凍結 amendment R-2026-07-11-05；per-class 凍結
+# amendment R-2026-07-11-08）。寫成常數而非只寫在文件裡，是凍結四要件的 (b)：涉及計算的規則
+# 必須落在版控程式碼中，否則用預設值誤跑就會靜默違反預先登記。任何偏離都要 --off-protocol
+# 明示，且該旗標會寫進輸出 metadata 留痕。
+FROZEN_CIFAR100 = {
+    "guidance": [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+    "seeds": [10, 11, 12, 13, 14, 15, 16, 17],
+    "reps": 5,
+    "per_class": 500,
+    "real_per_class": 500,   # CIFAR-100 訓練集每類上限即 500，無法沿用 CIFAR-10 的 1000
+    "steps": 50,
+    "eta": 0.0,
+    # 量測儀器參數（護欄化）：nearest_k 為 D9 metadata 必記且係 P0/C0 溯源事件的參數；
+    # tau_fraction=0.9 為 D8 登記之 auto-τ 比例；tstr_epochs 未在預註冊登記，凍結為 as-run
+    # 可重現值。與已完成 confirmatory 的 argv/metadata 完全吻合，故護欄化不重算、不動既有輸出。
+    "nearest_k": 5,
+    "tau_fraction": 0.9,
+    "tstr_epochs": 15,
+}
+
+# CIFAR-10 的既有預設（pilot/smoke 用；confirmatory 已定稿，不由預設值驅動）。
+DEFAULT_CIFAR10 = {
+    "guidance": [1.0, 2.0, 3.0, 4.0, 5.0, 8.0],
+    "seeds": [0, 1, 2],
+    "reps": 1,
+    "per_class": 500,
+    "real_per_class": 500,
+    "steps": 50,
+    "eta": 0.0,
+    # 量測儀器參數與 CIFAR-100 同值（資料集無關）；改 None 預設後由此填回，避免 None 破在下游。
+    "nearest_k": 5,
+    "tau_fraction": 0.9,
+    "tstr_epochs": 15,
+}
+
+
+# confirmatory 護欄涵蓋的鍵：未明示則填凍結值，CIFAR-100 未帶 --off-protocol 而偏離即拒跑。
+# threshold 不在此列——它的 None 是「自 judge json 載入」的哨兵，另以 threshold_cli 明示覆寫判定。
+GUARDED_KEYS = ("guidance", "seeds", "reps", "per_class", "real_per_class", "steps", "eta",
+                "nearest_k", "tau_fraction", "tstr_epochs")
+
+
+def resolve_protocol(args, threshold_cli):
+    """把未明示的參數填成該 dataset 的預設/凍結值，並對 CIFAR-100 檢查是否偏離預先登記。
+
+    argparse 的預設一律設 None，才分得出「使用者沒給」與「使用者給了剛好等於預設的值」。
+    CIFAR-100 未帶 --off-protocol 而偏離凍結規格時直接拒跑：confirmatory 是預先登記的揭盲
+    步，用錯 grid（或量測參數）跑掉數天 GPU 之後才發現，已無法回頭。
+
+    threshold_cli 是 --threshold 的 CLI 原值（None=用凍結 judge json 值）。--threshold 在本函式
+    呼叫前已於 main() 被解析成具體 float，無法再用 None 判斷，故由呼叫端把原值傳入：非 None
+    即代表使用者明示覆寫了凍結的 near-boundary threshold，屬偏離。
+    """
+    frozen = FROZEN_CIFAR100 if args.dataset == "cifar100" else DEFAULT_CIFAR10
+    for key in GUARDED_KEYS:
+        if getattr(args, key) is None:
+            setattr(args, key, frozen[key])
+
+    if args.dataset != "cifar100" or args.off_protocol:
+        return []
+    deviations = []
+    for key in GUARDED_KEYS:
+        if getattr(args, key) != frozen[key]:
+            deviations.append(f"{key}: {getattr(args, key)} != 凍結值 {frozen[key]}")
+    if threshold_cli is not None:
+        deviations.append(
+            f"threshold: 明示覆寫 {threshold_cli}"
+            "（confirmatory 須用凍結 judge json 的 near_boundary_threshold，勿由 CLI 帶入）")
+    if args.no_fid:
+        deviations.append("no_fid: characterization clean-fid 被關閉，confirmatory 須開")
+    if deviations:
+        raise SystemExit(
+            "CIFAR-100 confirmatory 偏離預先登記凍結規格，拒絕執行：\n  "
+            + "\n  ".join(deviations)
+            + "\n（若確為 smoke/dry-run，請明示 --off-protocol；其輸出不得作為 confirmatory 結果）")
+    return []
+
+
 def gen_seed(dataset, seed, w):
     """(seed, w) → 生成種子。CIFAR-100 用無碰撞 hash 公式（D9 datasets/cifar100_gseed.py）；
     CIFAR-10 沿用原 (seed+w)×1e7 公式以保凍結資料之逐位重現（該公式已知在 CIFAR-10 網格有退化
@@ -55,6 +141,37 @@ def gen_seed(dataset, seed, w):
     if dataset == "cifar100":
         return gseed_hash(seed, w)
     return seed * 10_000_000 + int(w * 1000) * 10_000
+
+
+def cell_key(seed, w):
+    return f"seed{seed}_w{w:g}"
+
+
+def load_partial(path):
+    """讀回已完成的 cell（斷點續跑）。
+
+    沿 run_p1_streaming.py 的作法：每個 cell 一算完就 append 到 JSONL sidecar。CIFAR-100
+    confirmatory 是 80 cell、數日級的單 GPU 連續執行，中途斷電或當機若得從頭再來，代價無法接受。
+    此機制只決定「哪些 cell 需要重算」，不參與任何數值計算——續跑出的結果與一次跑完逐位相同，
+    因為每個 cell 的生成種子 gseed(seed, w) 只由 (seed, w) 決定，與執行順序無關。
+    """
+    done = {}
+    if not os.path.exists(path):
+        return done
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            done[rec["cell"]] = rec["row"]
+    return done
+
+
+def append_partial(path, seed, w, row):
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps({"cell": cell_key(seed, w), "seed": seed, "guidance": w,
+                            "row": row}, ensure_ascii=False) + "\n")
 
 
 def load_judge_floor(path="results/cifar10_judge.json", num_classes=10):
@@ -144,19 +261,26 @@ def main():
     p.add_argument("--dataset", default="cifar10", choices=["cifar10", "cifar100"])
     p.add_argument("--ckpt", default=None, help="預設 checkpoints/<dataset>_cfg.pt")
     p.add_argument("--judge", default=None, help="預設 checkpoints/<dataset>_judge.pt")
-    p.add_argument("--guidance", type=float, nargs="+", default=[1.0, 2.0, 3.0, 4.0, 5.0, 8.0])
-    p.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
-    p.add_argument("--reps", type=int, default=1, help="每 (seed,w) 之 TSTR 重訓次數（D4 CIFAR-100=5）")
-    p.add_argument("--per-class", type=int, default=500)
-    p.add_argument("--real-per-class", type=int, default=500)
-    p.add_argument("--steps", type=int, default=50)
-    p.add_argument("--eta", type=float, default=0.0)
+    # 預設一律 None，由 resolve_protocol() 依 dataset 填入 FROZEN_CIFAR100 / DEFAULT_CIFAR10。
+    p.add_argument("--guidance", type=float, nargs="+", default=None)
+    p.add_argument("--seeds", type=int, nargs="+", default=None)
+    p.add_argument("--reps", type=int, default=None, help="每 (seed,w) 之 TSTR 重訓次數（D4 CIFAR-100=5）")
+    p.add_argument("--per-class", type=int, default=None)
+    p.add_argument("--real-per-class", type=int, default=None)
+    p.add_argument("--steps", type=int, default=None)
+    p.add_argument("--eta", type=float, default=None)
+    p.add_argument("--off-protocol", action="store_true",
+                   help="允許 CIFAR-100 偏離凍結規格（僅 smoke/dry-run；輸出不得當 confirmatory）")
     p.add_argument("--batch", type=int, default=250)
-    p.add_argument("--nearest-k", type=int, default=5)
+    # nearest_k / tau_fraction / tstr_epochs 預設改 None：與上方 7 鍵同走 resolve_protocol 的
+    # None→frozen 填值，如此 CIFAR-100 confirmatory 才分得出「使用者明示覆寫」與「用凍結值」，
+    # 而能把這三個量測參數納入 off-protocol 護欄（它們都會改 confirmatory 數字）。
+    p.add_argument("--nearest-k", type=int, default=None)
     p.add_argument("--threshold", type=float, default=None,
-                   help="near-boundary threshold；未給則自 <dataset>_judge.json 讀")
-    p.add_argument("--tau-fraction", type=float, default=0.9)
-    p.add_argument("--tstr-epochs", type=int, default=15)
+                   help="near-boundary threshold；未給則自 <dataset>_judge.json 讀"
+                        "（confirmatory 須用凍結 judge json 值，勿由 CLI 帶入）")
+    p.add_argument("--tau-fraction", type=float, default=None)
+    p.add_argument("--tstr-epochs", type=int, default=None)
     p.add_argument("--judge-json", default=None, help="預設 results/<dataset>_judge.json")
     p.add_argument("--no-inception", action="store_true")
     p.add_argument("--no-fid", action="store_true",
@@ -173,6 +297,9 @@ def main():
     judge_json = args.judge_json or f"results/{args.dataset}_judge.json"
     output = args.output or f"results/{args.dataset}_cfg_multiseed.json"
     signal_key = "recall" if args.dataset == "cifar100" else "coverage"
+    # --threshold 的 None 是「用凍結 judge json 值」的哨兵；先存 CLI 原值供護欄判定明示覆寫，
+    # 再把 None 解析成 judge json 的 near_boundary_threshold（下游 measure() 需具體 float）。
+    threshold_cli = args.threshold
     if args.threshold is None:
         with open(judge_json, encoding="utf-8") as f:
             args.threshold = float(json.load(f)["near_boundary_threshold"])
@@ -185,6 +312,10 @@ def main():
         args.real_per_class = 64
         args.tstr_epochs = 2
         args.no_fid = True  # 32/class 太少，cleanfid 不穩；smoke 不量 FID
+        args.off_protocol = True  # quick 依定義偏離凍結規格，其輸出不是 confirmatory
+
+    # 未明示的參數填成凍結/預設值；CIFAR-100 偏離凍結規格且未帶 --off-protocol 時在此拒跑。
+    resolve_protocol(args, threshold_cli)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}  dataset={args.dataset} num_classes={args.num_classes} "
@@ -207,6 +338,15 @@ def main():
     detector = None if args.no_inception else load_inception_detector(device)
     print(f"Real ref {real_imgs.size(0)} imgs; inception={'關' if detector is None else '開'}", flush=True)
 
+    partial_path = output + ".partial.jsonl"
+    done = load_partial(partial_path)
+    total_cells = len(args.seeds) * len(args.guidance)
+    if done:
+        print(f"斷點續跑：{partial_path} 已有 {len(done)}/{total_cells} 個 cell，將略過重算", flush=True)
+    completed = len(done)
+    run_start = time.time()
+    cells_this_run = 0
+
     seed_results = []
     for seed in args.seeds:
         print(f"\n########## seed {seed} ##########", flush=True)
@@ -214,14 +354,30 @@ def main():
                                       args.num_classes)
         configs = []
         for w in args.guidance:
+            key = cell_key(seed, w)
+            if key in done:
+                row = done[key]
+                configs.append(row)
+                print(f"  w={w:<4g} [已完成，略過]", flush=True)
+                continue
+            t0 = time.time()
             row = measure(model, schedule, judge, real_imgs, real_dino, real_labels,
                           test_loader, detector, judge_floor, w, args, device, seed,
                           do_fid=not args.no_fid)
+            elapsed = time.time() - t0
+            append_partial(partial_path, seed, w, row)   # 先落盤再往下走
             configs.append(row)
+            completed += 1
+            cells_this_run += 1
+            # 以本次執行的實測均速外推剩餘時間，比事前估算可靠。
+            mean_cell = (time.time() - run_start) / cells_this_run
+            remaining = (total_cells - completed) * mean_cell
             fid_s = f"{row['char_clean_fid']:.2f}" if row["char_clean_fid"] is not None else "n/a"
             print(f"  w={w:<4g} prec={row['precision']:.3f} cov={row['coverage']:.3f} "
                   f"tstr={row['tstr']:.2f} excess_ln={row['label_noise_excess_mean']:+.3f} "
                   f"char_fid={fid_s} near_bnd={row['near_boundary_frac']:.3f}", flush=True)
+            print(f"        [{completed}/{total_cells}] 本 cell {elapsed/60:.1f} 分，"
+                  f"均 {mean_cell/60:.1f} 分/cell，預估剩餘 {remaining/3600:.1f} 小時", flush=True)
         report = select_and_report(configs, real_ref_precision=ref_prec,
                                    tau_fraction=args.tau_fraction, utility_key="tstr",
                                    signal_key=signal_key)
@@ -297,11 +453,21 @@ def main():
                         "prereg": {"grid_cap": "2026-07-05-11", "repositioning": "2026-07-05-12",
                                    "c2_stats": "2026-07-05-13", "label_noise_spec": "2026-07-05-08 規格2",
                                    "cifar100_d_package": "2026-07-09-13",
-                                   "cifar100_grid_freeze": "2026-07-11-05"},
+                                   "cifar100_grid_freeze": "2026-07-11-05",
+                                   "cifar100_per_class_freeze": "2026-07-11-08"},
+                        "off_protocol": args.off_protocol,       # True 表示本輸出不是 confirmatory
                         "start_timestamp": start_timestamp,      # F1：開跑時刻
+                        "end_timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "cells_total": total_cells,
+                        "cells_resumed_from_partial": len(done),  # 本次執行前已完成的 cell 數
+                        "partial_log": partial_path,
                         "argv": " ".join(sys.argv),              # F1：完整命令留痕（含 --nearest-k / --batch 實傳值）
                         "nearest_k": args.nearest_k, "batch": args.batch,
+                        # 有效 k = min(nearest_k, 該類真實樣本數-1)。claude.md §5.2 要求記錄：
+                        # P0 source-tracing 事件就是因為 nearest_k 沒存而無法對帳。
+                        "effective_nearest_k": min(args.nearest_k, args.real_per_class - 1),
                         "tau_fraction": args.tau_fraction,
+                        "tstr_epochs": args.tstr_epochs,   # §5.2 完整性：TSTR 訓練 epoch 數會影響下游準確率
                         "env": {"torch": torch.__version__, "cuda": torch.version.cuda,
                                 "cudnn": torch.backends.cudnn.version()}},
            "aggregate": agg, "per_seed": seed_results}

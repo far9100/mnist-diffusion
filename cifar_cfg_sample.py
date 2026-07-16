@@ -14,6 +14,8 @@ Usage:
 import argparse
 import json
 import os
+import sys
+import time
 
 import torch
 
@@ -64,8 +66,13 @@ def main():
     p.add_argument("--guidance", type=float, default=1.0, help="FID gate 用的代表性 CFG 強度")
     p.add_argument("--batch", type=int, default=250)
     p.add_argument("--real-per-class", type=int, default=500, help="FD-DINOv2 的真實參考張數/類")
+    # 協定門檻：CIFAR-10 base model 50k clean-fid <= 10（增修 R-2026-07-05-08）。舊版此處硬編一個
+    # 「堪用帶 5-15」的欄位，與協定不一致；改為明示的 gate 門檻，欄名與 cifar100_base_gate.py 對齊。
+    p.add_argument("--gate-threshold", type=float, default=10.0,
+                   help="clean-fid gate 門檻（CIFAR-10 協定為 <= 10）")
     p.add_argument("--output", default="results/cifar10_cfg_fid.json")
     args = p.parse_args()
+    start_timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}", flush=True)
@@ -99,17 +106,25 @@ def main():
 
     cfid = float(cfid)
     fd_dino = float(fd_dino)
-    band_ok = bool(5.0 <= cfid <= 15.0)
+    passed = bool(cfid <= args.gate_threshold)
     print("\n" + "=" * 60)
     print(f"  自訓 CFG CIFAR-10 FID gate (steps={args.steps} eta={args.eta} w={args.guidance})")
     print("=" * 60)
-    print(f"  clean-fid (Inception) : {cfid:.3f}   (堪用帶 5-15: {'落在帶內' if band_ok else '帶外，需檢視'})")
+    print(f"  clean-fid (Inception) : {cfid:.3f}   "
+          f"(gate <= {args.gate_threshold:g}: {'通過' if passed else '未通過'})")
     print(f"  FD-DINOv2             : {fd_dino:.3f}")
     print("=" * 60)
 
     out = {"ckpt": args.ckpt, "epoch": hp.get("epoch"), "steps": args.steps, "eta": args.eta,
-           "guidance": args.guidance, "num": per_class * 10,
-           "clean_fid": cfid, "fd_dinov2": fd_dino, "usable_band_5_15": band_ok}
+           "guidance": args.guidance, "num": per_class * 10, "batch": args.batch,
+           "real_per_class": args.real_per_class,
+           "clean_fid": cfid, "fd_dinov2": fd_dino,
+           "gate_threshold": args.gate_threshold, "passed": passed,
+           # claude.md §5.2：量測 driver 須留下可重現這些數字的全部參數與環境。
+           "start_timestamp": start_timestamp,
+           "argv": " ".join(sys.argv),
+           "env": {"torch": torch.__version__, "cuda": torch.version.cuda,
+                   "cudnn": torch.backends.cudnn.version()}}
     with open(args.output, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
     print(f"Wrote {args.output}", flush=True)
