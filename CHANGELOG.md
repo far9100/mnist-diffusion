@@ -10,6 +10,14 @@
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-18
+
+- `2026-07-18-01` test — CIFAR-100 H3 護城河對決（Stage 4b，GPU）：新增 `run_cifar100_h3_duel.py`，
+  matched-budget 比 Chamfer 對 vanilla w1.5（＝FID-min＝CaF-v2）。Chamfer 兩變體皆勝——任務無關
+  DINOv2 特徵 TSTR 61.18（+2.54pp）、任務對齊 judge 特徵 61.75（+3.11pp），皆勝過 vanilla oracle w1
+  （59.66）；但兩臂 DINOv2 coverage 皆低（0.44–0.48 < vanilla 0.643），效用增益不見於 coverage proxy。
+  CaF「選 vanilla」在效用上敗於 Chamfer，強化「無普適便宜代理」診斷主軸；已整合入診斷論文 §4.5。
+
 ## 2026-07-17
 
 - `2026-07-17-06` test — CIFAR-100 Chamfer 真模型 smoke（Stage 4a，GPU）：`chamfer.py` 補 `_cifar_smoke`

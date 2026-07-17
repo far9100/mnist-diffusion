@@ -129,6 +129,35 @@ CIFAR-10 C2/C3/C5 同向（[CHANGELOG 2026-07-09-08](../CHANGELOG.md#2026-07-09)
 隨 guidance 這樣變」，不保證「哪個代理能選中最優」。（重生成之合成集對 confirmatory seed-10 逐位
 重現，見 `results/cifar100_regen_reconcile.json`，rel_delta 全 0。）
 
+## 4.5 護城河對決（H3）：Chamfer 勝 vanilla，但增益不見於 coverage
+
+matched-budget 三臂對決（各 5 萬張、真實參考 500/class、seed 10）。FID-min 與 CaF-v2 於 CIFAR-100
+同選 w1.5（vanilla，TSTR 58.65），故兩臂同一份；Chamfer 臂為新生成（guidance_scale=1.0 純條件 +
+chamfer_weight 1.0，逐類對同類 exemplar 導引）。為破除「用任務訓練的 judge 特徵導引＝注入任務資訊」
+的公平性疑慮，Chamfer 臂跑兩個特徵空間：任務無關的 DINOv2（主結果，對 CaF 之「免任務分類器」公平）
+與任務對齊的 judge（對照）。
+
+| 臂 | TSTR | DINOv2 coverage |
+|---|---|---|
+| vanilla w1.5（＝FID-min＝CaF-v2） | 58.65 | 0.643 |
+| Chamfer（DINOv2 特徵，任務無關，主結果） | 61.18 | 0.439 |
+| Chamfer（judge 特徵，任務對齊，對照） | 61.75 | 0.479 |
+
+（`results/cifar100_h3_duel_dinov2.json`、`_judge.json`；各 N=3 reps，[61.39,61.29,60.87] 與
+[61.88,61.54,61.84] 皆緊。）觀察（禁因果）：
+
+- **Chamfer 兩變體皆勝 vanilla**（+2.54pp DINOv2、+3.11pp judge），且勝過 vanilla 全網格 oracle w1
+  （59.66）。任務無關版仍勝 +2.54pp（略低於 σ_cls 2.96 但 3 reps 緊），故 Chamfer 之勝不全由任務資訊
+  注入解釋——coverage-boosting guidance 產生的合成資料下游效用高於任何 vanilla CFG 組態。
+- **但增益不見於 coverage proxy**：兩個 Chamfer 臂的 DINOv2 coverage 皆低（0.44–0.48，低於 vanilla
+  w1.5 的 0.643、接近最低的 w1 0.481），卻有最高 TSTR。Chamfer 的高效用集會被 DINOv2 coverage 排在
+  後段——又一個便宜代理不追蹤效用的例子，與 §2、§3 同向。
+
+意涵：CaF 的「選 vanilla、不修改」在效用上敗於較複雜的 Chamfer（即使 Chamfer 用任務無關特徵），且
+沒有便宜代理（FID、coverage）能事前把 Chamfer 的高效用集排在前面。這進一步否定 CaF 的操作優勢、強化
+「無普適便宜代理」的診斷主軸。限制：chamfer_weight 固定 1.0（未窮盡調校）、每類 16 exemplar、DINOv2
+導引解析度 112（coverage 量測仍 224）、N=3 reps——屬 exploratory 護城河對照，非窮盡 benchmark。
+
 ## 5. 誠實負面與貢獻定位
 
 CaF 作為「普適免訓練選擇器」的原始賣點，在 CIFAR-10 敗於更便宜的 FID-min、在 CIFAR-100 與其打平，
@@ -166,10 +195,11 @@ CaF 作為「普適免訓練選擇器」的原始賣點，在 CIFAR-10 敗於更
 | C4 變異 σ_cls 2.963 / σ_gen 1.182 | `cifar10_c4_variance.json` | 已算 |
 | CIFAR-100 機制雙段 + D3 三觀察量 3/3 | `cifar100_cfg_confirmatory.json`、`cifar100_d3_observables.json` | 已算 |
 | D3 介入臂（C3 pruning）：cov-matched≈random，無因果支持 | `cifar100_d3_intervention.json`、重生成對帳 `cifar100_regen_reconcile.json`（rel 全 0） | 已跑 |
-| H3 CaF-v2 vs Chamfer 三臂對決 | `cifar100_h3_duel.json` | 待跑（GPU） |
+| H3 護城河對決：Chamfer(DINOv2/judge) 勝 vanilla +2.54/+3.11pp、coverage 低（§4.5） | `cifar100_h3_duel_dinov2.json`、`_judge.json` | 已跑 |
 
 ## 狀態
 
 表格版草稿，D1 已於 2026-07-17 確認為現行路由（`docs/verdict_cifar100.md`）。D3 介入臂已補（§4，
-cov-matched≈random、無因果支持）。待補：H3 三臂對決之 GPU 結果（§附錄）、發表級圖（§4.3 新視覺化，
-另行確認）。三判決脈絡見 [CHANGELOG 2026-07-09-03](../CHANGELOG.md#2026-07-09)。
+cov-matched≈random、無因果支持）；H3 護城河對決已補（§4.5，Chamfer 兩變體勝 vanilla、coverage 低）。
+待補：發表級圖（§4.3 新視覺化，另行確認）。三判決脈絡見
+[CHANGELOG 2026-07-09-03](../CHANGELOG.md#2026-07-09)。
