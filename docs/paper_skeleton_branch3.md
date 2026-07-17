@@ -32,4 +32,8 @@
 
 ## 狀態
 
-草稿。CIFAR-100 分支裁決前不定稿；若落分支一/二/四則本骨架作廢或改寫。三判決見 [CHANGELOG 2026-07-09-03](../CHANGELOG.md#2026-07-09)。
+**現行路由（2026-07-17 更新）**：D1 已確認落分支三——CIFAR-100 which-FID 不分離（Inception 側 0/8）、
+D3 三觀察量 3/3 機制複製、CaF-v2 平 FID-min。本骨架為現行；正文草稿見 `docs/paper_branch3_diagnostic.md`、
+揭盲裁決見 `docs/verdict_cifar100.md`。
+
+（原草稿註）CIFAR-100 分支裁決前不定稿；若落分支一/二/四則本骨架作廢或改寫。三判決見 [CHANGELOG 2026-07-09-03](../CHANGELOG.md#2026-07-09)。

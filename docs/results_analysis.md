@@ -1,4 +1,4 @@
-<!-- 用途：彙整並分析各階段實驗結果（量測錨點、MNIST sandbox、CIFAR-10 預覽）。 -->
+<!-- 用途：彙整並分析各階段實驗結果（量測錨點、MNIST sandbox、CIFAR-10 confirmatory、CIFAR-100 confirmatory）。 -->
 
 # 實驗結果分析
 
@@ -179,7 +179,53 @@ oracle。C0 recall/density 探針（[CHANGELOG 2026-07-09-12](../CHANGELOG.md#20
 `argmax recall s.t. precision ≥ τ`**，待 CIFAR-100 分支驗證。README 與 `docs/paper_intro_draft.md`
 內定義 CaF 為 coverage 版，屬凍結敘述（依協定不回改），以本段為現行定義來源。
 
+## CIFAR-100 confirmatory（機制複製，分支三）
+
+CIFAR-100 為 CIFAR-10 結論的 validation（[CIFAR-100 預註冊](prereg_cifar100.md) D0）。設定：steps=50、
+η=0、grid {1,1.5,2,2.5,3,4,5,6,7,8}、seeds {10..17}（8 seed）、reps 5、per_class=real_per_class=500
+（per-class 凍結 amendment：CIFAR-100 訓練集每類上限 500）。揭盲裁決全文見 `docs/verdict_cifar100.md`。
+本段為觀察性描述，禁因果措辭。
+
+### 判決一（thesis／C1）：不分離
+
+Inception clean-fid（char_clean_fid）argmin=w1.5、TSTR argmax=w1，相隔 1 格；逐 seed 分離格步 >1 的
+數目 0/8（[CHANGELOG 2026-07-16-01](../CHANGELOG.md#2026-07-16)）。依凍結口徑（>1 才算分離）判不分離。
+範圍限制：CIFAR-100 未算 per-config FD-DINOv2（無對應 P1 跑，CIFAR-10 §E3 的 FD-DINOv2 來自 P1
+streaming），which-FID 只在 Inception 空間評估；DINOv2 PRDC 的 coverage 峰 w2.5 距 TSTR-opt w1 亦遠，
+與不分離一致。
+
+### 判決三（selector）：CaF-v2 與 FID-min 打平
+
+matched-budget FID-min 對決：CaF-v2（recall）與更便宜的 FID-min 逐 seed regret 完全相同（per-seed
+[0.79,1.15,0.45,0.87,0.67,0.73,0.91,0.52]、兩者均值各 0.76pp、同選 w1.5、oracle w1）。D4 門檻要求
+CaF-v2 低於 FID-min ≥1.5pp；實得差 0.00pp，selector 主張不成立。此為 MNIST／CIFAR-10 之後第三個資料
+點，CIFAR-100 與 CIFAR-10 同型（FID-min 近最優），非 MNIST 那型（coverage 主導、CaF 選中 oracle）。
+
+### 雙段機制（觀察性，禁因果；均值曲線）
+
+| w | 1 | 1.5 | 2 | 2.5 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| TSTR | 59.66 | 58.90 | 55.39 | 50.72 | 45.26 | 35.78 | 28.00 | 22.85 | 18.77 | 15.88 |
+| coverage(DINOv2) | .481 | .643 | .697 | .698 | .679 | .617 | .560 | .508 | .468 | .433 |
+| precision | .783 | .824 | .844 | .851 | .854 | .845 | .832 | .822 | .812 | .804 |
+| recall | .476 | .446 | .394 | .338 | .288 | .216 | .167 | .133 | .108 | .092 |
+| near-boundary | .258 | .117 | .067 | .047 | .038 | .033 | .036 | .044 | .056 | .072 |
+| char_clean_fid | 11.17 | 7.17 | 8.40 | 10.77 | 13.17 | 17.11 | 20.10 | 22.53 | 24.64 | 26.60 |
+
+D3 三觀察量（`results/cifar100_d3_observables.json`，純衍生）：(i) 升段 w1→w2.5 near-boundary
+.258→.047 單調降；(ii) 高段 w2.5→w8 coverage .698→.433 與 TSTR 50.72→15.88 同崩；(iii) 高段
+near-boundary 於 w4 谷 .033 後回升至 w8 .072、同段 coverage 續降（脫鉤）。三項全成立（3/3），過三中二
+門檻，機制複製。與 CIFAR-10 §E3 的雙段結構同型。coverage 峰於 CIFAR-100 落 w2.5（絕對值 .698，跨
+資料集不可與 CIFAR-10 直接比，per-class 樣本數不同，per-class 凍結 amendment 已登記此限制）。
+
+### D1 路由：分支三
+
+客觀觀察量（不分離＋機制複製 3/3＋CaF-v2 平 FID-min）唯一相容分支三（診斷論文）；branch 1/2 需分離、
+branch 4 需機制不複製，皆被資料排除。作者 2026-07-17 簽核（[CHANGELOG 2026-07-17-03](../CHANGELOG.md#2026-07-17)）。
+診斷論文正文見 `docs/paper_branch3_diagnostic.md`。
+
 ## 待確認
-- **CIFAR-100（主線）**：coverage 主導是否複製（難集不翻轉），near-boundary 機制是否可量測（不飽和）；
-  which-FID 是否於更難資料集才分離。
-- CaF 與簡化 Chamfer 在 matched-budget 下的對決與可組合性展示（D5/D7 三臂：FID-min／CaF／Chamfer）。
+- D3 介入臂（C3 coverage-matched pruning）於 CIFAR-100：機制複製之**介入**證據（觀察量已成立），待重
+  生成 confirmatory 合成集後執行（GPU），非路由輸入。
+- CaF-v2 與簡化 Chamfer 在 matched-budget 下的對決與可組合性展示（D5/D7 三臂：FID-min／CaF-v2／
+  Chamfer）；作者裁定納入、排 GPU 佇列。

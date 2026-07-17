@@ -10,8 +10,38 @@
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-18
+
+- `2026-07-18-02` proofread — 分支三診斷論文全文定稿：逐一對 results/*.json 核數字皆一致，摘要與 §5
+  補 H3、§4.5 補 rep 不對稱限制；VAR-mini 裁定保留現狀；合併 PR #4（Stage 1–4）入 main。分支三收尾
+  完成——D1 落分支三、機制觀察複製但因果未證、selector 敗/平便宜 baseline、Chamfer 勝 vanilla 但
+  增益不見於 coverage。發表級圖後補。
+- `2026-07-18-01` test — CIFAR-100 H3 護城河對決（Stage 4b，GPU）：新增 `run_cifar100_h3_duel.py`，
+  matched-budget 比 Chamfer 對 vanilla w1.5（＝FID-min＝CaF-v2）。Chamfer 兩變體皆勝——任務無關
+  DINOv2 特徵 TSTR 61.18（+2.54pp）、任務對齊 judge 特徵 61.75（+3.11pp），皆勝過 vanilla oracle w1
+  （59.66）；但兩臂 DINOv2 coverage 皆低（0.44–0.48 < vanilla 0.643），效用增益不見於 coverage proxy。
+  CaF「選 vanilla」在效用上敗於 Chamfer，強化「無普適便宜代理」診斷主軸；已整合入診斷論文 §4.5。
+
 ## 2026-07-17
 
+- `2026-07-17-06` test — CIFAR-100 Chamfer 真模型 smoke（Stage 4a，GPU）：`chamfer.py` 補 `_cifar_smoke`
+  （完成記載的 CIFAR smoke TODO），驗 `chamfer_guided_ddim_sample` 於真實 CFG 模型 + ResNet18 特徵端到端
+  跑通；chamfer_weight 0→1 使 PRDC coverage 0.411→0.614、覆蓋項 9.304→7.792（w=10 飽和），Chamfer 可用、
+  操作點 weight≈1.0。三臂 duel driver 待作者確認設計後建。
+- `2026-07-17-05` test — CIFAR-100 D3 介入臂（Stage 3，GPU）：重生成 seed-10 w1/w2.5 兩 cell 對
+  confirmatory 逐位重現（rel_delta 全 0）；C3 coverage-matched pruning 把 w2.5 剪至 w1 coverage 水準
+  （移 13606 樣本）TSTR 45.75，等計數隨機剪枝 45.86，差 −0.11pp（N_retrain=2、遠在 σ_cls 內）——
+  cov-matched 與 random 無法區分，介入臂未對 coverage 因果角色提供支持，與 CIFAR-10 C2/C3/C5 同向；
+  已整合入診斷論文 §4。
+- `2026-07-17-04` add — CIFAR-100 D3 介入臂前置程式（Stage 2，CPU）：新增 `regen_cifar100_cells.py`
+  （重生成 seed-10 w1/w2.5 兩 cell、cifar100 gseed、對帳 confirmatory 於 1e-4）與
+  `run_cifar100_d3_intervention.py`（C3-only coverage-matched pruning，target_cov 由重生成 w1 cross-env
+  現算，另立新檔不動凍結的 CIFAR-10 driver）；py_compile 與 dry-run 通過，待 GPU 空出跑 Stage 3。
+- `2026-07-17-03` add — CIFAR-100 揭盲裁決落地分支三：新增揭盲 verdict（`docs/verdict_cifar100.md`，
+  客觀讀數 C1 不分離 0/8、H2 CaF-v2 平 FID-min 0.76pp、H1 機制 3/3，作者簽核）與診斷論文正文草稿
+  （`docs/paper_branch3_diagnostic.md`，表格版，主結果 selector 判決跨資料集反轉）；`results_analysis.md`
+  吸收 CIFAR-100 confirmatory；標註 branch3/4 骨架現行狀態。精確化「兩空間」措辭——CIFAR-100 僅算
+  Inception clean-fid 一個 FID 空間（未算 FD-DINOv2），which-FID 單空間評估，不改路由。
 - `2026-07-17-02` add — D3 三觀察量獨立 driver（`run_d3_observables.py`，純衍生、附 §5.2 metadata）：
   以 coverage 均值峰位切段判三觀察量，(i) 升段 near-boundary 單調降、(ii) 高段 coverage 與 TSTR 同崩、
   (iii) 高段 near-boundary 谷後回升脫鉤，三項全成立、3/3 機制複製，與 `2026-07-16-01` 內嵌判讀一致；

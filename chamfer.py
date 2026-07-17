@@ -279,6 +279,58 @@ def _mnist_smoke(ckpt="ddpm_mnist.pt", cnn_ckpt="mnist_cnn.pt", data_dir="./data
     print("  端到端管線跑通（真實 UNet + 可微 CNN 特徵 + Chamfer 取樣迴圈）；weight 的正式數值待實驗調校。")
 
 
+def _cifar_smoke(ckpt="checkpoints/cifar100_cfg.pt", judge_ckpt="checkpoints/cifar100_judge.pt",
+                 num_classes=100, batch=200, steps=50, weights=(0.0, 0.1, 1.0, 10.0), seed=0):
+    """CIFAR-100 真模型 Chamfer 取樣 smoke（GPU）：驗證 chamfer_guided_ddim_sample 在真實 CFG 擴散
+    模型 + ResNet18 penultimate 特徵上跑得通，並掃幾個 chamfer_weight 看 chamfer 覆蓋項與 PRDC
+    coverage 的量級與方向。weight 的正式值待 H3 對決調校，此處只驗管線可用、定位合理 weight 量級。"""
+    import os
+
+    from cifar_cfg_sample import load_cfg_model
+    from cifar_classifier import ResNet18
+    from datasets.cifar import load_real_per_class
+    from metrics_prdc import compute_prdc
+
+    for path in (ckpt, judge_ckpt):
+        if not os.path.exists(path):
+            print(f"ERROR: 找不到檔案 {path}")
+            return
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"CIFAR-{num_classes} Chamfer smoke（device={device}, batch={batch}, steps={steps}）...")
+    model, schedule, hp = load_cfg_model(ckpt, device)
+    clf = ResNet18(num_classes=num_classes).to(device)
+    clf.load_state_dict(torch.load(judge_ckpt, map_location=device, weights_only=True))
+    clf.eval()
+    feature_fn = cifar_penultimate_feature_fn(clf)   # ResNet18 512 維 penultimate（可微）
+
+    exemplars, _ = load_real_per_class("cifar100", 2, seed=seed)              # 2/class exemplar（導引來源）
+    real_ref, _ = load_real_per_class("cifar100", 10, seed=seed + 1)          # 較大真實參考（算 PRDC coverage）
+    with torch.no_grad():
+        exemplar_feats = feature_fn(exemplars.to(device))
+        real_ref_feats = feature_fn(real_ref.to(device))
+
+    labels = torch.arange(num_classes, device=device).repeat(batch // num_classes + 1)[:batch]
+
+    def sample(w):
+        gen = torch.Generator(device=device).manual_seed(seed)   # 同 seed -> 相同初始噪音，跨 weight 可比
+        imgs = chamfer_guided_ddim_sample(model, schedule, feature_fn, exemplar_feats,
+                                          shape=(batch, 3, 32, 32), num_steps=steps, eta=0.0,
+                                          class_labels=labels, guidance_scale=1.0,
+                                          chamfer_weight=w, term="coverage", generator=gen)
+        return imgs.clamp(-1, 1)
+
+    print(f"  {'weight':>8} {'chamfer_cov_term':>17} {'PRDC_coverage':>14}")
+    for w in weights:
+        imgs = sample(w)
+        with torch.no_grad():
+            f = feature_fn(imgs)
+            ct = chamfer_coverage_term(f, exemplar_feats).item()
+            pc = compute_prdc(real_ref_feats, f, nearest_k=3)["coverage"]
+        print(f"  {w:>8.2f} {ct:>17.3f} {pc:>14.3f}", flush=True)
+    print("  CIFAR 真模型端到端跑通；weight 越大覆蓋項應越降（往覆蓋 exemplar），正式值待 H3 對決調校。")
+
+
 def main():
     import argparse
 
@@ -286,6 +338,8 @@ def main():
         description="Simplified Chamfer guidance baseline: synthetic self-check or MNIST end-to-end smoke.")
     parser.add_argument("--mnist-smoke", action="store_true",
                         help="Run the end-to-end MNIST smoke on CPU (needs ddpm_mnist.pt and mnist_cnn.pt).")
+    parser.add_argument("--cifar-smoke", action="store_true",
+                        help="Run the CIFAR-100 real-model Chamfer smoke on GPU (needs checkpoints/cifar100_cfg.pt, cifar100_judge.pt).")
     parser.add_argument("--ckpt", default="ddpm_mnist.pt")
     parser.add_argument("--cnn", default="mnist_cnn.pt")
     parser.add_argument("--data-dir", default="./data")
@@ -296,6 +350,8 @@ def main():
 
     if args.mnist_smoke:
         _mnist_smoke(args.ckpt, args.cnn, args.data_dir, args.batch, args.steps, args.weight)
+    elif args.cifar_smoke:
+        _cifar_smoke()
     else:
         _self_check()
 
