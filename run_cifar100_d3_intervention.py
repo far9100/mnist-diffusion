@@ -21,6 +21,7 @@ Usage:
 """
 import argparse
 import json
+import os
 import platform
 import sys
 import time
@@ -129,14 +130,25 @@ def main():
     p = argparse.ArgumentParser(description="CIFAR-100 D3 介入臂（C3 coverage-matched pruning）。")
     p.add_argument("--n-retrain", type=int, default=2,
                    help="每情境重訓次數；預設 2（沿 CIFAR-10 C3、N 死），作者可提高至 5（D4 power）")
+    p.add_argument("--output", default=OUT,
+                   help="輸出 JSON 路徑；預設覆寫原檔，提高 power 之 re-run 建議另存（保留原 N=2 結果）")
     args = p.parse_args()
     start_timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     d = json.load(open(CONF, encoding="utf-8"))
     test_loader = build_test_loader("cifar100")
-    real_imgs, real_labels = load_real_per_class("cifar100", d["metadata"]["real_per_class"], seed=0)
-    real_dino = dinov2_features((real_imgs + 1) / 2, device)
+    # 真實 DINOv2 特徵：優先載入 regen_cifar100_cells.py 已快取者（與此處 load_real_per_class(seed=0)
+    # ＋dinov2_features 逐位同源，見 regen_cifar100_cells.py:123-127），免載 DINOv2 模型與 50k 前向、
+    # 大幅降顯存（低顯存機器可跑；否則 fallback 重算）。
+    real_feat_path, real_label_path = f"{ASSET}/real_dino_feat.pt", f"{ASSET}/real_labels.pt"
+    if os.path.exists(real_feat_path) and os.path.exists(real_label_path):
+        real_dino = torch.load(real_feat_path, map_location="cpu", weights_only=True)
+        real_labels = torch.load(real_label_path, map_location="cpu", weights_only=True)
+        print(f"loaded cached real DINOv2 feats {tuple(real_dino.shape)} from {ASSET}", flush=True)
+    else:
+        real_imgs, real_labels = load_real_per_class("cifar100", d["metadata"]["real_per_class"], seed=0)
+        real_dino = dinov2_features((real_imgs + 1) / 2, device)
     print(f"device={device} seed={SEED} n_retrain={args.n_retrain}", flush=True)
 
     c3 = c3_coverage_matched(d, real_dino, real_labels, test_loader, device, args.n_retrain)
@@ -154,8 +166,8 @@ def main():
                     "device_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else platform.processor()},
         },
     }
-    json.dump(out, open(OUT, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
-    print(f"Wrote {OUT}", flush=True)
+    json.dump(out, open(args.output, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+    print(f"Wrote {args.output}", flush=True)
 
 
 if __name__ == "__main__":

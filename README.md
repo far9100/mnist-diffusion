@@ -16,9 +16,9 @@ Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位
 
 更新歷史見 [CHANGELOG.md](CHANGELOG.md)，每一列對應一份過程記錄。過程記錄本身（`records/`）不隨工作樹發布，全文留在 git 歷史，需要時以 `git log -- records/` 查閱。
 
-進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。
+進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。Phase 1-4／1-5 亦完成：CIFAR-100 confirmatory 依預註冊決策樹落分支三（診斷論文），H3 護城河對決 Chamfer 勝 vanilla 但增益不見於 coverage（[CHANGELOG 2026-07-18](CHANGELOG.md#2026-07-18)）。分支三診斷論文草稿見 `docs/thesis_draft.md`。
 
-> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)，CIFAR-100 預註冊（D 包）見 [CIFAR-100 預註冊](docs/prereg_cifar100.md)。
+> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。三判決全文見 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)，CIFAR-100 預註冊（D 包）見 [CIFAR-100 預註冊](docs/prereg_cifar100.md)。更新（2026-07-17）：CIFAR-100 confirmatory 已跑，依 D1 揭盲決策樹落分支三（診斷論文）——which-FID 不分離（0/8）、CaF-v2 與 FID-min 打平（regret 0.76 對 0.76）、機制三觀察量 3/3 複製但介入未證因果；揭盲裁決見 [CHANGELOG 2026-07-17-03](CHANGELOG.md#2026-07-17)。
 
 ## 前言
 
@@ -97,13 +97,16 @@ uv sync
 
 - Phase 0（MNIST sandbox）：完成，機制方向正確、CaF 可行。
 - Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 1.848 重現通過。
-- Phase 1-2（自訓 CFG backbone）：CIFAR-10 完成（base model 50k clean-fid 8.95 過 gate）；CIFAR-100 未開始。
+- Phase 1-2（自訓 CFG backbone）：CIFAR-10、CIFAR-100 皆完成（base 50k clean-fid 分別 8.95、11.226 過 gate）。
 - Phase 1-3（CIFAR-10 guidance 軸）：完成。confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）
   三判決定稿（[CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）：頭條「FID-opt 偏離 TSTR-opt」被反證（C1 於 Inception 與 DINOv2 兩空間
   皆不分離）；判決三 FID-min per-seed regret 0.91pp 勝 CaF 3.69pp（2 勝 1 負）＋結構性 Pareto 失明；P0/P1 對帳
   全 30 config 量測 scalar 逐位重現、k=5 獲探針反證。exploratory pilot 為前導觀察。
-- Phase 1-4（CIFAR-100 機制與翻轉檢查）：未開始，是全案科學承重牆。
-- Phase 1-5（CaF vs Chamfer matched-budget 對決）：未開始，是護城河承重牆。
+- Phase 1-4（CIFAR-100 機制與翻轉檢查）：完成。confirmatory（8 seed × 5 rep、10 點 grid、steps=50 η=0）
+  依 D1 揭盲決策樹落分支三——which-FID 不分離（0/8）、CaF-v2 平 FID-min（regret 0.76 對 0.76）、機制三
+  觀察量 3/3 複製但介入未證因果（[CHANGELOG 2026-07-17-03](CHANGELOG.md#2026-07-17)）。
+- Phase 1-5（CaF vs Chamfer matched-budget 對決）：完成。H3 護城河對決 Chamfer 勝 vanilla（+2.54pp
+  DINOv2、+3.11pp judge）但 coverage 反低，便宜代理排不到其高效用集（[CHANGELOG 2026-07-18-01](CHANGELOG.md#2026-07-18)）。
 
 各階段的實際數據與分析見 `docs/results_analysis.md`。
 
@@ -129,7 +132,6 @@ metrics_prdc.py          — PRDC（Precision/Recall/Density/Coverage），純 t
 metrics_features.py      — 表徵式生成指標（DINOv2 特徵、FD-DINOv2）
 fid_clean.py             — 標準 Inception-FID（clean-fid），正確性錨點
 train_cifar.py           — CFG-capable CIFAR-10/100 擴散模型訓練（EMA、週期性 checkpoint）
-cifar_data.py            — CIFAR-10/100 載入
 cifar_classifier.py      — 從零實作 CIFAR 分類器與 TSTR 測試框架
 datasets/                — CIFAR-10/100 資料集載入器
 phase1_edm_repro.py      — 正確性 gate：重現 EDM CIFAR-10 FID
@@ -168,6 +170,9 @@ train_vqvae.py           — Stage 1：多尺度殘差 VQ-VAE
 train_var.py             — Stage 2：scale-wise transformer
 inference_var.py         — VAR-mini 推論
 ```
+
+（VAR-mini 僅跑過 smoke，只存在 `var_vqvae_smoke.pt`／`var_transformer_smoke.pt`；預設檔名 `var_*.pt`
+未產出，推論／訓練須以 `--vqvae var_vqvae_smoke.pt --transformer var_transformer_smoke.pt` 指定現有權重。）
 
 輸出與記錄：
 

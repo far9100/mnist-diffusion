@@ -1,6 +1,7 @@
 """C6：matched-budget FID-min 對決 CaF（判決三的來源）。
 
-本檔重建 results/cifar10_c6_fidmin_duel.json 的產生程序。該 JSON 原先無對應 driver、也無
+本檔重建 results/cifar10_c6_fidmin_duel.json 的產生程序；driver 經 --confirmatory/--output 一般化，
+同一支也產出 results/cifar100_c6_fidmin_duel.json。該 JSON 原先無對應 driver、也無
 metadata（違反 claude.md §5.2），使 README 引用的頭條數字「FID-min regret 0.91pp 勝 CaF
 3.69pp」無法從工作樹重現。此處補回 driver 並對凍結 JSON 做逐值對帳。
 
