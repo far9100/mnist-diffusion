@@ -62,7 +62,7 @@ gate／重生成／訓練：
 - `analyze_distribution.py` — 合成分佈診斷（mode collapse / drift）。
 - `test_classifier.py` — CNN 評估器健全性檢查。
 
-## src/var_mini/ — VAR-mini 旁支（僅 smoke）
+## src/var_mini/ — VAR-mini 旁支（停放，僅 smoke，不列入論文）
 
 - `train_vqvae.py` — Stage 1：多尺度殘差 VQ-VAE。
 - `train_var.py` — Stage 2：scale-wise transformer。

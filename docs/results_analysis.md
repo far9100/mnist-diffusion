@@ -239,6 +239,8 @@ branch 4 需機制不複製，皆被資料排除。作者 2026-07-17 簽核（[C
   全網格 oracle w1（59.66），但 DINOv2 coverage 反低（0.44–0.48 < 0.643）。增益不見於 coverage proxy
   （`cifar100_h3_duel_dinov2.json`、`_judge.json`，[CHANGELOG 2026-07-18-01](../CHANGELOG.md#2026-07-18)）。
 
-## 待確認
-- 多 seed 複製（Q5 P1 剩餘）：FD-DINOv2（seed-10 已補、判分離，見上 C1 段）與 D3 介入（seed-10 N=8）
-  之跨 seed 複製；H3 護城河對決之多 seed／weight 掃描。皆需重新生成、較高 GPU 成本。
+## 未來工作（本論文範圍外）
+
+以下為 `docs/thesis_draft.md` 第七章列的延伸實驗，不屬本論文交付範圍，皆需重新生成、較高 GPU 成本：
+- 多 seed 複製：FD-DINOv2（seed-10 已補、判分離，見上 C1 段）與 D3 介入（seed-10 N=8）之跨 seed 複製。
+- H3 護城河對決之多 seed／weight 掃描。

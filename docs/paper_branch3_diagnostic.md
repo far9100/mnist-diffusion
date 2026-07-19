@@ -1,4 +1,4 @@
-<!-- 用途：分支三診斷論文正文（表格版草稿）。依分支三五主張、CIFAR-100 揭盲裁決（verdict_cifar100.md）撰寫；數據引 results/*.json，圖後補。D1 於 2026-07-17 確認為現行路由。 -->
+<!-- 用途：分支三診斷論文正文（表格版草稿，決策軌跡）。本稿已被定稿 docs/thesis_draft.md 取代（含 6 張發表級圖），保留作撰寫軌跡。依分支三五主張、CIFAR-100 揭盲裁決（verdict_cifar100.md）撰寫；數據引 results/*.json。D1 於 2026-07-17 確認為現行路由。 -->
 
 # 便宜代理何時可靠？合成訓練資料之取樣組態選擇的診斷研究
 
@@ -7,7 +7,7 @@ Selection for Synthetic Training Data*）
 
 本文為分支三（診斷論文）正文草稿。揭盲路由裁決見 `docs/verdict_cifar100.md`；所有數據引
 `results/*.json`（本機、gitignore），對照見附錄。
-本稿為表格版，發表級圖後補。
+本稿為表格版，已被定稿 `docs/thesis_draft.md`（含 6 張發表級圖）取代，保留作撰寫軌跡。
 
 ## 摘要
 
@@ -213,5 +213,5 @@ CaF 作為「普適免訓練選擇器」的原始賣點，在 CIFAR-10 敗於更
 
 表格版草稿，D1 已於 2026-07-17 確認為現行路由（`docs/verdict_cifar100.md`）。D3 介入臂已補（§4，
 cov-matched≈random、無因果支持）；H3 護城河對決已補（§4.5，Chamfer 兩變體勝 vanilla、coverage 低）。
-待補：發表級圖（§4.3 新視覺化，另行確認）。三判決脈絡見
+本稿已被定稿 `docs/thesis_draft.md` 取代（發表級圖已於該檔第五章補齊），保留作撰寫軌跡。三判決脈絡見
 [CHANGELOG 2026-07-09-03](../CHANGELOG.md#2026-07-09)。
