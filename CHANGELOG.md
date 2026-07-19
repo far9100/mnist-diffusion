@@ -2,16 +2,83 @@
 
 # Changelog
 
-本檔是專案的對外更新歷史，依日期倒序排列，新的在上。每列開頭的 ID 對應一份本機過程記錄
-（`records/`，不隨工作樹發布）；原始全文留在 git 歷史，需要時以 `git log -- records/` 查閱。
+本檔是專案的對外更新歷史與唯一記錄，依日期倒序排列，新的在上，逐列記錄每次計畫與更新。每列開頭的
+ID 為該列識別碼（`YYYY-MM-DD-NN`）。2026-07-19 起停用本機 `records/`；2026-07-11 以前的舊記錄仍留在
+git 歷史，可以 `git log -- records/` 查閱。
 
 動作字義：`plan` 計畫或規格凍結、`test` 執行與量測、`add` 新增程式或儀器、`refactor` 重構、
 `proofread` 校對與事實同步、`audit` 稽核。
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-19
+
+- `2026-07-19-04` refactor — 記錄慣例改為單軌：`CHANGELOG.md` 成為專案唯一記錄，停用本機 `records/`
+  （已刪除，2026-07-11 前的舊記錄仍在 git 歷史）。改寫 `claude.md` §1（Records and Changelog → Changelog）、
+  §3.1／§5.1 對 records 的引用，並同步 README 與本檔開頭說明。
+- `2026-07-19-03` refactor — 根目錄 45 個 .py 依類別移入 `src/`（core／experiments／gen1_mnist／
+  var_mini／figures）。因專案未打包成 package，扁平 import 以新增的 `src/_pathfix.py` 墊片在執行時把
+  各 src 子資料夾補回 sys.path 維持，import 語句不變；修 EDM／製圖三處 `__file__` 相對路徑改用
+  `_pathfix.ROOT`，墊片並把 argv[0] 正規化為裸檔名以保 results/*.json argv 逐字元相符（§5.2 慣例層）。
+  更新 README 結構與執行指令、新增 `docs/code_map.md`；凍結 prereg／thesis 內嵌區與 CHANGELOG 歷史不動。
+  驗證：最深 import 鏈與 EDM `--help`、fd_dinov2 `--dry-run`、metrics_prdc 自檢皆過，圖表重生成逐位相同，
+  verify_thesis_numbers 仍 OK 328／MISMATCH 0。
+- `2026-07-19-02` refactor — 清除過時檔案與收斂雜亂：刪除根目錄已落地審查建議書與 docs/ 三份被取代草稿
+  （`paper_intro_draft`／`paper_skeleton_branch3`／`paper_skeleton_branch4`，後者為分支四死枝），更新
+  README／results_analysis／paper_branch3_diagnostic 之可編輯引用，統一 thesis_draft 圖目錄路徑字面
+  （P0-5），刪一個 0-byte 備份空檔；凍結 prereg 及其逐字內嵌副本之骨架引用刻意保留（僅存 git 歷史）。
+  records 不刪。驗證工具重跑 OK 328／MISMATCH 0，承重數字未動。
+- `2026-07-19-01` test — Q5 P1（二）CIFAR-100 per-config FD-DINOv2 補算（GPU，低佔用 batch128 跨夜、
+  斷點續跑）：新增 `run_cifar100_fd_dinov2.py`，seed-10 FD-DINOv2 argmin=w2.5、離 TSTR-argmax w1 達 3 格
+  **判分離**，與 Inception（0/8 不分離）**相反**——Inception-FID 選 w1.5 regret≈0.8pp、DINOv2-FID 選 w2.5
+  regret≈8.8pp；以「which-FID 可靠性表徵相依」強化診斷（不復活普適 FID≠效用、不改凍結 Inception-only
+  路由，單 seed 事後）。整合入 `docs/thesis_draft.md` §5.4.1／branch3 §3a／results_analysis 三檔，驗證工具
+  增 5 個 FD-DINOv2 對帳、重跑 OK 328／MISMATCH 0；凍結檔未動。
+
 ## 2026-07-18
 
+- `2026-07-18-12` proofread — N=8 介入結論三份文件一致化：把 `2026-07-18-11` 的 N=8 結果（cov-matched
+  46.30 對 random 46.63、差 −0.33pp、MDE≈1.85pp、有功效 null）同步至 `docs/paper_branch3_diagnostic.md`
+  §4＋數據表，並將 `docs/results_analysis.md` 過時的「待確認」（把已完成的 D3 介入與 H3 仍列待執行）改為
+  已補結果段；三檔介入敘述一致，凍結檔未動。
+- `2026-07-18-11` test — Q5 P1（一）CIFAR-100 D3 介入臂 N=8 更高功效重跑（GPU）：coverage-matched
+  剪枝 TSTR 46.30 對等計數隨機剪枝 46.63、差 −0.33pp（SE 0.66、t=−0.50、MDE≈1.85pp，CI 跨零），把原
+  N=2（−0.11、underpowered）升級為有功效之 null（仍限單 seed、單一介入型式，不宣稱普遍否證）；driver
+  加 `--output`＋改載快取真實 DINOv2 特徵（免 OOM、與 regen 同源）另存 `cifar100_d3_intervention_n8.json`
+  不覆寫原檔；整合入 `docs/thesis_draft.md` §5.5/§6.3/§7/附錄 D，驗證工具增 N=8 對帳，重跑 OK 323／MISMATCH 0。
+- `2026-07-18-10` add — 診斷論文 P3＋P4（補強＋自足＋收斂）：新增 §3.6 量測與訓練細節（PRDC k／
+  DINOv2 管線／TSTR／judge p20=0.3622／Chamfer 實作，可複製）；§2.4 相關工作擴為分主題回顧；附錄 A/B
+  逐字內嵌凍結檔 prereg（249 行）與 verdict（72 行）使論文自足（凍結檔未動）；§4.2 形式化 H1/H2/H3 及
+  go/no-go 門檻與結果；§6.1 補「反轉為何發生」因果綜述；§6.1/6.3/6.4 依 P4 收斂宣稱（兩型非連續譜、
+  未證≠否證、度量堆疊混淆、CaF-v2 事後性、H3 削弱差異化後之三項剩餘貢獻），不改實驗結論。對帳仍 OK 320。
+- `2026-07-18-09` refactor — 診斷論文 P2（結構）：預先登記四分支決策樹提前為 §1.3（原論文組織順延
+  §1.4），§4.2 保留完整版；§5.2 判決前新增「兩把尺」前置段（Pareto 失明、σ_cls 雜訊地板）並加前向
+  指標（§5.4.2 實例含表 5.2 資料依賴，故不整段上移、採 hybrid）；§2.1 steps/η 兩 bullet 合併精簡。
+  數字未動，對帳仍 OK 320。
+- `2026-07-18-08` proofread — 診斷論文 P1（句法展開＋去譬喻＋粗體酌減）：摘要／§5.2 判決三／§5.5 介入
+  之電報式逗號串句展開為主謂完整句（數字核對一致）；去「押注／押在／頭條／避崖器／平台優化器／thesis 活
+  selector 死」等非正式詞，護城河對決／moat duel 於標題與摘要改正式名「與 Chamfer 之 matched-budget
+  對照」；§5 冗餘行內粗體酌減。數字未動，對帳仍 OK 320。
+- `2026-07-18-07` proofread — 診斷論文 P1（去代號＋g/w 統一＋行話界定＋符號表）：去裸用代號
+  （H-C2 併入 C2、C0／D3／D4 加描述名、C2/C3/C5 改述並去未定義之 C5、圖表目錄 H3 描述名前置），附錄 D
+  新增 D.1 代號對照表；MNIST guidance 全文由 g 統一為 w；plan-of-record／matched-probe／matched-budget／
+  ln_excess／ancestral sampling／probability-flow ODE／oracle／Pareto 失明／denoise-then-sharpen 補中文
+  界定（HARKing／MDE／auto-τ 已定義不重複）；新增符號表。數字未動，對帳仍 OK 320／MISMATCH 0。
+- `2026-07-18-06` audit — 診斷論文審查建議書 P0 落地：新增 `tools/verify_thesis_numbers.py` 對
+  `docs/thesis_draft.md` 表 5.1–5.5／E.1–E.3 及承重內文 scalar 逐位對帳 `results/*.json`（OK 320、
+  MISMATCH 0、MISSING 0、僅 1 進位邊界），進度句改為已逐位核對；README Phase 1-4／1-5 狀態同步至落
+  分支三、消除與論文矛盾；缺漏引用補正（Deliberate Practice = Askari-Hemmat 2025 arXiv:2502.15588、
+  DP-diffusion = Dockhorn TMLR 2023 arXiv:2210.09929 §5.2）；清 stale 待辦標記；審查書 P0-5 圖路徑判為
+  誤判不改。凍結檔與 `results/*.json` 未動。
+- `2026-07-18-05` proofread — 修正健檢 Q3 三處小瑕疵：刪 README 殘留的 `cifar_data.py` 行、`run_c6`
+  檔頭補述資料集通用（也產 `cifar100_c6_fidmin_duel.json`）、VAR-mini 依「保留現狀」不動程式改在 README
+  補 smoke 權重覆寫說明；皆事實同步、無研究行為變更，py_compile 通過、凍結檔未動。
+- `2026-07-18-04` add — 碩論草稿 P0 收尾：新增 `make_thesis_figures.py`（純讀 `results/*.json`，dev 依賴
+  加 matplotlib）產 6 張發表級圖並嵌入 `docs/thesis_draft.md` 第五章、參考文獻查證改正式格式 13 筆
+  （附 arXiv）、附錄 E 補 per-seed 表 E.1–E.3；數字對 `results/*.json` 皆一致、凍結檔未動。
+- `2026-07-18-03` add — 通讀專案回覆作者五問，並依裁定（繁中／新檔保留凍結證據／碩論章節）整合 docs
+  散稿為單一 `docs/thesis_draft.md`（七章＋前置頁＋五附錄，結果章數字逐一對 `results/*.json`、凍結
+  prereg/verdict 僅引用不動、被取代骨架留作決策軌跡）；發表級圖、參考文獻完整出處與 P1 加值實驗列為後續。
 - `2026-07-18-02` proofread — 分支三診斷論文全文定稿：逐一對 results/*.json 核數字皆一致，摘要與 §5
   補 H3、§4.5 補 rep 不對稱限制；VAR-mini 裁定保留現狀；合併 PR #4（Stage 1–4）入 main。分支三收尾
   完成——D1 落分支三、機制觀察複製但因果未證、selector 敗/平便宜 baseline、Chamfer 勝 vanilla 但

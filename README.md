@@ -12,13 +12,13 @@
 剩「非單調性、CaF、機制」三項；相對 Chamfer / Fan / DP 擴散文獻是否充分，由 CIFAR-100 機制 gate 與
 Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位依據見 [CHANGELOG 2026-07-05-12](CHANGELOG.md#2026-07-05)。
 
-實驗結果與數據分析見 `docs/results_analysis.md`；論文 intro 草稿見 `docs/paper_intro_draft.md`；CIFAR-100 預註冊全文見 `docs/prereg_cifar100.md`。
+實驗結果與數據分析見 `docs/results_analysis.md`；CIFAR-100 預註冊全文見 `docs/prereg_cifar100.md`。
 
-更新歷史見 [CHANGELOG.md](CHANGELOG.md)，每一列對應一份過程記錄。過程記錄本身（`records/`）不隨工作樹發布，全文留在 git 歷史，需要時以 `git log -- records/` 查閱。
+更新歷史見 [CHANGELOG.md](CHANGELOG.md)，每一列逐條記錄一次計畫或更新（2026-07-19 起 `CHANGELOG.md` 為唯一記錄，停用本機 `records/`）。
 
-進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。
+進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。Phase 1-4／1-5 亦完成：CIFAR-100 confirmatory 依預註冊決策樹落分支三（診斷論文），H3 護城河對決 Chamfer 勝 vanilla 但增益不見於 coverage（[CHANGELOG 2026-07-18](CHANGELOG.md#2026-07-18)）。分支三診斷論文草稿見 `docs/thesis_draft.md`。
 
-> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。最終定位待 CIFAR-100 預註冊分支裁決；三判決全文見 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)，CIFAR-100 預註冊（D 包）見 [CIFAR-100 預註冊](docs/prereg_cifar100.md)。
+> **2026-07-09 confirmatory 注記（E2）**：FID-opt 與 TSTR-opt 於 CIFAR-10 confirmatory 重合於 w1.5，且 which-FID 交叉裁決（C1）於 Inception 與 DINOv2 兩表徵空間皆不分離——本段頭條主張在 CIFAR-10 尺度被本專案自家資料反證。「內部最優」從未為登記假設，以 exploratory 觀察報告（上升肢 +0.80pp、SE 1.9，3 gen seeds 下不可判定）；「必然次優」全稱句已撤下。selector 層為描述性結果：更便宜的 FID-min baseline per-seed regret 0.91pp 對 CaF 3.69pp（per-seed 2 勝 1 負），且 CaF 於本網格存在結構性 Pareto 失明（見 docs/ C8 一頁版）。P0/P1 對帳：全 30 configs 之量測 scalar 逐位重現、k=5 獲探針反證支持。三判決全文見 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)，CIFAR-100 預註冊（D 包）見 [CIFAR-100 預註冊](docs/prereg_cifar100.md)。更新（2026-07-17）：CIFAR-100 confirmatory 已跑，依 D1 揭盲決策樹落分支三（診斷論文）——which-FID 不分離（0/8）、CaF-v2 與 FID-min 打平（regret 0.76 對 0.76）、機制三觀察量 3/3 複製但介入未證因果；揭盲裁決見 [CHANGELOG 2026-07-17-03](CHANGELOG.md#2026-07-17)。
 
 ## 前言
 
@@ -97,13 +97,16 @@ uv sync
 
 - Phase 0（MNIST sandbox）：完成，機制方向正確、CaF 可行。
 - Phase 1-1（量測堆疊正確性 gate）：完成，EDM CIFAR-10 FID 1.848 重現通過。
-- Phase 1-2（自訓 CFG backbone）：CIFAR-10 完成（base model 50k clean-fid 8.95 過 gate）；CIFAR-100 未開始。
+- Phase 1-2（自訓 CFG backbone）：CIFAR-10、CIFAR-100 皆完成（base 50k clean-fid 分別 8.95、11.226 過 gate）。
 - Phase 1-3（CIFAR-10 guidance 軸）：完成。confirmatory（fresh seeds 10/11/12、10 點 grid、steps=50 η=0）
   三判決定稿（[CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）：頭條「FID-opt 偏離 TSTR-opt」被反證（C1 於 Inception 與 DINOv2 兩空間
   皆不分離）；判決三 FID-min per-seed regret 0.91pp 勝 CaF 3.69pp（2 勝 1 負）＋結構性 Pareto 失明；P0/P1 對帳
   全 30 config 量測 scalar 逐位重現、k=5 獲探針反證。exploratory pilot 為前導觀察。
-- Phase 1-4（CIFAR-100 機制與翻轉檢查）：未開始，是全案科學承重牆。
-- Phase 1-5（CaF vs Chamfer matched-budget 對決）：未開始，是護城河承重牆。
+- Phase 1-4（CIFAR-100 機制與翻轉檢查）：完成。confirmatory（8 seed × 5 rep、10 點 grid、steps=50 η=0）
+  依 D1 揭盲決策樹落分支三——which-FID 不分離（0/8）、CaF-v2 平 FID-min（regret 0.76 對 0.76）、機制三
+  觀察量 3/3 複製但介入未證因果（[CHANGELOG 2026-07-17-03](CHANGELOG.md#2026-07-17)）。
+- Phase 1-5（CaF vs Chamfer matched-budget 對決）：完成。H3 護城河對決 Chamfer 勝 vanilla（+2.54pp
+  DINOv2、+3.11pp judge）但 coverage 反低，便宜代理排不到其高效用集（[CHANGELOG 2026-07-18-01](CHANGELOG.md#2026-07-18)）。
 
 各階段的實際數據與分析見 `docs/results_analysis.md`。
 
@@ -120,61 +123,36 @@ uv sync
 
 ## 專案結構
 
-研究主線（Gen-2, CaF / CIFAR / 機制）：
+所有 Python 腳本已依類別收進 `src/`（不再平放根目錄）。因專案未打包成 package，扁平 import
+（`import metrics_features` 等）由 `src/_pathfix.py` 墊片在執行時把 `src/` 各子資料夾補回
+`sys.path` 維持；import 語句不變，腳本一律**從專案根目錄**以 `python src/<類別>/<檔>.py` 執行。
+各檔逐一用途見 `docs/code_map.md`。
 
 ```
-selector.py              — CaF：argmax coverage s.t. precision ≥ τ，含 auto-τ、τ 穩健性、regret@selected
-mechanism.py             — 機制分析：guidance 對 near-boundary 樣本支持度的影響、label-noise 對照
-metrics_prdc.py          — PRDC（Precision/Recall/Density/Coverage），純 torch
-metrics_features.py      — 表徵式生成指標（DINOv2 特徵、FD-DINOv2）
-fid_clean.py             — 標準 Inception-FID（clean-fid），正確性錨點
-train_cifar.py           — CFG-capable CIFAR-10/100 擴散模型訓練（EMA、週期性 checkpoint）
-cifar_data.py            — CIFAR-10/100 載入
-cifar_classifier.py      — 從零實作 CIFAR 分類器與 TSTR 測試框架
-datasets/                — CIFAR-10/100 資料集載入器
-phase1_edm_repro.py      — 正確性 gate：重現 EDM CIFAR-10 FID
-cifar_judge.py           — 真實 CIFAR-10 judge 分類器，校準 near-boundary threshold，供機制與 label-noise 量測
-cifar_cfg_sample.py      — 自訓 CFG 模型的平衡生成與 FID gate
-run_comparison.py        — (steps × η × guidance) 聯合掃描，產出效用曲面與選擇器輸入（MNIST sandbox 尺度）
-run_selector_signal.py   — MNIST 上 CaF 的多 seed go/no-go 訊號
-run_cifar_selector.py    — CIFAR-10 上 CaF 選擇器訊號
-run_cifar_cfg_scout.py   — 1-seed 寬 grid scout，定位 coverage 崩點以凍結 confirmatory grid
-run_cifar_cfg_upper_scout.py — 上緣 coverage-only scout（w>8 區段）
-run_cifar_cfg_multiseed.py — confirmatory 主 driver：凍結 10 點 grid、fresh seeds，量 precision/coverage/TSTR/near-boundary/label-noise
-run_c2_partial.py        — C2 全網格偏相關裁決（partial Spearman + permutation + bootstrap CI）
-run_flip_earlywarning.py — CIFAR-10 難子集 coverage 主導鬆動的早期預警
-chamfer.py               — 簡化 Chamfer guidance 基線，供 matched-budget 對決
-run_guidance_study.py    — guidance 對 FID/TSTR/多樣性的取捨研究
-validate_metrics.py      — 量測堆疊在真實 CIFAR-10 上的數值驗證
+src/core/        — 被 import 的共用函式庫：selector, mechanism, metrics_prdc,
+                   metrics_features, fid_clean, chamfer, cifar_classifier,
+                   cifar_judge, cifar_cfg_sample
+src/experiments/ — Gen-2 執行腳本：confirmatory/scout/裁決 driver（run_*）、正確性 gate
+                   （phase1_edm_repro, validate_metrics, cifar100_base_gate）、
+                   重生成（regen_cifar100_cells）、CIFAR 訓練（train_cifar）
+src/gen1_mnist/  — Gen-1 MNIST sandbox：ddpm, train, inference, evaluate, fid,
+                   analyze_distribution, test_classifier
+src/var_mini/    — VAR-mini 旁支：train_vqvae, train_var, inference_var
+src/figures/     — 論文製圖：make_thesis_figures
+src/_pathfix.py  — sys.path 墊片，維持扁平 import（見上）
+datasets/        — CIFAR-10/100 資料集載入器（既有套件，留在根目錄）
+var/             — VAR-mini 套件（vqvae、transformer、sample）
+tools/           — 校核工具：verify_thesis_numbers.py
 ```
 
-Gen-1（MNIST sandbox）：
-
-```
-ddpm.py                  — UNet、擴散排程與 DDPM/DDIM 取樣器
-train.py                 — MNIST DDPM 訓練與取樣
-inference.py             — 推論，輸出供 evaluate.py 使用的 dataset.pt
-evaluate.py              — TSTR：以合成圖訓練 CNN，於真實 MNIST 測試集評估
-fid.py                   — MNIST-FID（classifier-Fréchet distance），免 scipy
-analyze_distribution.py  — 合成分佈診斷（mode collapse / canonical bias / drift）
-test_classifier.py       — CNN 評估器健全性檢查
-```
-
-VAR-mini（旁支探索）：
-
-```
-var/                     — VAR-mini 套件（vqvae、transformer、sample）
-train_vqvae.py           — Stage 1：多尺度殘差 VQ-VAE
-train_var.py             — Stage 2：scale-wise transformer
-inference_var.py         — VAR-mini 推論
-```
+（VAR-mini 僅跑過 smoke，只存在 `var_vqvae_smoke.pt`／`var_transformer_smoke.pt`；預設檔名 `var_*.pt`
+未產出，推論／訓練須以 `--vqvae var_vqvae_smoke.pt --transformer var_transformer_smoke.pt` 指定現有權重。）
 
 輸出與記錄：
 
 ```
-CHANGELOG.md             — 更新歷史（依日期列點，每列對應一份過程記錄）
+CHANGELOG.md             — 更新歷史與唯一記錄（依日期列點，逐條記錄每次計畫與更新）
 docs/                    — 實驗結果分析、CIFAR-100 預註冊、論文骨架
-records/                 — 過程記錄（檔名 YYYY-MM-DD-NN_action_content，不在 git 內）
 results/                 — 各實驗的 json/csv/txt/log 輸出（不在 git 內）
 checkpoints/             — 模型權重與參考統計（不在 git 內）
 samples/、samples_cifar/ — 訓練過程的樣本網格（不在 git 內）
@@ -183,10 +161,10 @@ generated/               — 推論輸出的合成資料集（不在 git 內）
 
 ## 指標說明
 
-- **MNIST-FID**（`fid.py`）：以 `mnist_cnn.pt` 的 penultimate 特徵計算 Fréchet distance，免 scipy。
+- **MNIST-FID**（`src/gen1_mnist/fid.py`）：以 `mnist_cnn.pt` 的 penultimate 特徵計算 Fréchet distance，免 scipy。
   僅為 MNIST sandbox 內 samplers / guidance 之間的相對指標，不可與文獻的 Inception-FID 直接比較。
-- **Inception-FID / clean-fid**（`fid_clean.py`）：標準 FID，用來重現公開模型數字作為量測正確性錨點。
-- **FD-DINOv2 與 PRDC**（`metrics_features.py`、`metrics_prdc.py`）：Phase 1 的保真度與多樣性量測；
+- **Inception-FID / clean-fid**（`src/core/fid_clean.py`）：標準 FID，用來重現公開模型數字作為量測正確性錨點。
+- **FD-DINOv2 與 PRDC**（`src/core/metrics_features.py`、`src/core/metrics_prdc.py`）：Phase 1 的保真度與多樣性量測；
   PRDC 的 coverage 是 CaF 選擇器的核心訊號。
 
 ## 重現指令
@@ -194,28 +172,28 @@ generated/               — 推論輸出的合成資料集（不在 git 內）
 Gen-1 MNIST sandbox 的 CaF 訊號：
 
 ```bash
-uv run python run_selector_signal.py --seeds 0 1 2
+uv run python src/experiments/run_selector_signal.py --seeds 0 1 2
 ```
 
 EDM CIFAR-10 FID 量測錨點：
 
 ```bash
-uv run python phase1_edm_repro.py --num 50000 --batch 256
+uv run python src/experiments/phase1_edm_repro.py --num 50000 --batch 256
 ```
 
 CIFAR CFG 模型訓練：
 
 ```bash
-uv run python train_cifar.py --epochs 1000 --batch-size 128
+uv run python src/experiments/train_cifar.py --epochs 1000 --batch-size 128
 ```
 
 各腳本的完整參數以 `--help` 為準。
 
 ## 記錄與慣例
 
-對外的更新歷史是 `CHANGELOG.md`，依日期倒序列點，每一列對應一份過程記錄的結論。實驗結果分析、
+對外的更新歷史是 `CHANGELOG.md`，依日期倒序列點，逐條記錄每一次計畫與更新的結論。實驗結果分析、
 CIFAR-100 預註冊與論文骨架於 `docs/`。
 
-過程記錄本身寫在 `records/`（檔名 `YYYY-MM-DD-NN_action_content`，內容涵蓋 Goal、Result、
-Follow-up），但不隨工作樹發布；2026-07-11 以前的記錄全文留在 git 歷史，以 `git log -- records/`
-查閱。開發慣例（記錄格式、CHANGELOG 同步、檔頭註解、語言與最小變更原則）定義於 `claude.md`。
+2026-07-19 起 `CHANGELOG.md` 為專案唯一記錄，停用本機 `records/` 資料夾；2026-07-11 以前已提交的
+舊記錄仍留在 git 歷史，以 `git log -- records/` 查閱。開發慣例（CHANGELOG 格式、檔頭註解、語言與
+最小變更原則）定義於 `claude.md`。
