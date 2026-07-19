@@ -123,52 +123,26 @@ uv sync
 
 ## 專案結構
 
-研究主線（Gen-2, CaF / CIFAR / 機制）：
+所有 Python 腳本已依類別收進 `src/`（不再平放根目錄）。因專案未打包成 package，扁平 import
+（`import metrics_features` 等）由 `src/_pathfix.py` 墊片在執行時把 `src/` 各子資料夾補回
+`sys.path` 維持；import 語句不變，腳本一律**從專案根目錄**以 `python src/<類別>/<檔>.py` 執行。
+各檔逐一用途見 `docs/code_map.md`。
 
 ```
-selector.py              — CaF：argmax coverage s.t. precision ≥ τ，含 auto-τ、τ 穩健性、regret@selected
-mechanism.py             — 機制分析：guidance 對 near-boundary 樣本支持度的影響、label-noise 對照
-metrics_prdc.py          — PRDC（Precision/Recall/Density/Coverage），純 torch
-metrics_features.py      — 表徵式生成指標（DINOv2 特徵、FD-DINOv2）
-fid_clean.py             — 標準 Inception-FID（clean-fid），正確性錨點
-train_cifar.py           — CFG-capable CIFAR-10/100 擴散模型訓練（EMA、週期性 checkpoint）
-cifar_classifier.py      — 從零實作 CIFAR 分類器與 TSTR 測試框架
-datasets/                — CIFAR-10/100 資料集載入器
-phase1_edm_repro.py      — 正確性 gate：重現 EDM CIFAR-10 FID
-cifar_judge.py           — 真實 CIFAR-10 judge 分類器，校準 near-boundary threshold，供機制與 label-noise 量測
-cifar_cfg_sample.py      — 自訓 CFG 模型的平衡生成與 FID gate
-run_comparison.py        — (steps × η × guidance) 聯合掃描，產出效用曲面與選擇器輸入（MNIST sandbox 尺度）
-run_selector_signal.py   — MNIST 上 CaF 的多 seed go/no-go 訊號
-run_cifar_selector.py    — CIFAR-10 上 CaF 選擇器訊號
-run_cifar_cfg_scout.py   — 1-seed 寬 grid scout，定位 coverage 崩點以凍結 confirmatory grid
-run_cifar_cfg_upper_scout.py — 上緣 coverage-only scout（w>8 區段）
-run_cifar_cfg_multiseed.py — confirmatory 主 driver：凍結 10 點 grid、fresh seeds，量 precision/coverage/TSTR/near-boundary/label-noise
-run_c2_partial.py        — C2 全網格偏相關裁決（partial Spearman + permutation + bootstrap CI）
-run_flip_earlywarning.py — CIFAR-10 難子集 coverage 主導鬆動的早期預警
-chamfer.py               — 簡化 Chamfer guidance 基線，供 matched-budget 對決
-run_guidance_study.py    — guidance 對 FID/TSTR/多樣性的取捨研究
-validate_metrics.py      — 量測堆疊在真實 CIFAR-10 上的數值驗證
-```
-
-Gen-1（MNIST sandbox）：
-
-```
-ddpm.py                  — UNet、擴散排程與 DDPM/DDIM 取樣器
-train.py                 — MNIST DDPM 訓練與取樣
-inference.py             — 推論，輸出供 evaluate.py 使用的 dataset.pt
-evaluate.py              — TSTR：以合成圖訓練 CNN，於真實 MNIST 測試集評估
-fid.py                   — MNIST-FID（classifier-Fréchet distance），免 scipy
-analyze_distribution.py  — 合成分佈診斷（mode collapse / canonical bias / drift）
-test_classifier.py       — CNN 評估器健全性檢查
-```
-
-VAR-mini（旁支探索）：
-
-```
-var/                     — VAR-mini 套件（vqvae、transformer、sample）
-train_vqvae.py           — Stage 1：多尺度殘差 VQ-VAE
-train_var.py             — Stage 2：scale-wise transformer
-inference_var.py         — VAR-mini 推論
+src/core/        — 被 import 的共用函式庫：selector, mechanism, metrics_prdc,
+                   metrics_features, fid_clean, chamfer, cifar_classifier,
+                   cifar_judge, cifar_cfg_sample
+src/experiments/ — Gen-2 執行腳本：confirmatory/scout/裁決 driver（run_*）、正確性 gate
+                   （phase1_edm_repro, validate_metrics, cifar100_base_gate）、
+                   重生成（regen_cifar100_cells）、CIFAR 訓練（train_cifar）
+src/gen1_mnist/  — Gen-1 MNIST sandbox：ddpm, train, inference, evaluate, fid,
+                   analyze_distribution, test_classifier
+src/var_mini/    — VAR-mini 旁支：train_vqvae, train_var, inference_var
+src/figures/     — 論文製圖：make_thesis_figures
+src/_pathfix.py  — sys.path 墊片，維持扁平 import（見上）
+datasets/        — CIFAR-10/100 資料集載入器（既有套件，留在根目錄）
+var/             — VAR-mini 套件（vqvae、transformer、sample）
+tools/           — 校核工具：verify_thesis_numbers.py
 ```
 
 （VAR-mini 僅跑過 smoke，只存在 `var_vqvae_smoke.pt`／`var_transformer_smoke.pt`；預設檔名 `var_*.pt`
@@ -188,10 +162,10 @@ generated/               — 推論輸出的合成資料集（不在 git 內）
 
 ## 指標說明
 
-- **MNIST-FID**（`fid.py`）：以 `mnist_cnn.pt` 的 penultimate 特徵計算 Fréchet distance，免 scipy。
+- **MNIST-FID**（`src/gen1_mnist/fid.py`）：以 `mnist_cnn.pt` 的 penultimate 特徵計算 Fréchet distance，免 scipy。
   僅為 MNIST sandbox 內 samplers / guidance 之間的相對指標，不可與文獻的 Inception-FID 直接比較。
-- **Inception-FID / clean-fid**（`fid_clean.py`）：標準 FID，用來重現公開模型數字作為量測正確性錨點。
-- **FD-DINOv2 與 PRDC**（`metrics_features.py`、`metrics_prdc.py`）：Phase 1 的保真度與多樣性量測；
+- **Inception-FID / clean-fid**（`src/core/fid_clean.py`）：標準 FID，用來重現公開模型數字作為量測正確性錨點。
+- **FD-DINOv2 與 PRDC**（`src/core/metrics_features.py`、`src/core/metrics_prdc.py`）：Phase 1 的保真度與多樣性量測；
   PRDC 的 coverage 是 CaF 選擇器的核心訊號。
 
 ## 重現指令
@@ -199,19 +173,19 @@ generated/               — 推論輸出的合成資料集（不在 git 內）
 Gen-1 MNIST sandbox 的 CaF 訊號：
 
 ```bash
-uv run python run_selector_signal.py --seeds 0 1 2
+uv run python src/experiments/run_selector_signal.py --seeds 0 1 2
 ```
 
 EDM CIFAR-10 FID 量測錨點：
 
 ```bash
-uv run python phase1_edm_repro.py --num 50000 --batch 256
+uv run python src/experiments/phase1_edm_repro.py --num 50000 --batch 256
 ```
 
 CIFAR CFG 模型訓練：
 
 ```bash
-uv run python train_cifar.py --epochs 1000 --batch-size 128
+uv run python src/experiments/train_cifar.py --epochs 1000 --batch-size 128
 ```
 
 各腳本的完整參數以 `--help` 為準。
