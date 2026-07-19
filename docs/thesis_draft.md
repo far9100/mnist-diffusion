@@ -77,12 +77,12 @@ sampling-configuration selection, pre-registration, FID, coverage/precision, Par
 
 ## 圖目錄
 
-- 圖 5.1 MNIST：coverage 與 TSTR 同向、precision 峰錯位（`docs/figures/fig_mnist.png`）
-- 圖 5.2 三尺度選擇器判決反轉（`docs/figures/fig_selector_reversal.png`）
-- 圖 5.3 CIFAR-10 Pareto 失明：w2.5 支配所有效用最優組態（oracle）（`docs/figures/fig_pareto.png`）
-- 圖 5.4 變異分解 σ_cls 主導且大於上升肢 Δ（`docs/figures/fig_variance.png`）
-- 圖 5.5 CIFAR-10 與 CIFAR-100 雙段機制（`docs/figures/fig_two_stage.png`）
-- 圖 5.6 護城河對決（H3）：Chamfer 勝 vanilla 但 coverage 反低（`docs/figures/fig_h3_duel.png`）
+- 圖 5.1 MNIST：coverage 與 TSTR 同向、precision 峰錯位（`figures/fig_mnist.png`）
+- 圖 5.2 三尺度選擇器判決反轉（`figures/fig_selector_reversal.png`）
+- 圖 5.3 CIFAR-10 Pareto 失明：w2.5 支配所有效用最優組態（oracle）（`figures/fig_pareto.png`）
+- 圖 5.4 變異分解 σ_cls 主導且大於上升肢 Δ（`figures/fig_variance.png`）
+- 圖 5.5 CIFAR-10 與 CIFAR-100 雙段機制（`figures/fig_two_stage.png`）
+- 圖 5.6 護城河對決（H3）：Chamfer 勝 vanilla 但 coverage 反低（`figures/fig_h3_duel.png`）
 
 （圖以 `make_thesis_figures.py` 由 `results/*.json` 產生；圖內文字為英文以避免中文字型缺字，圖說為中文。）
 
@@ -1267,7 +1267,7 @@ base clean-fid 11.226@50k、CIFAR-100 judge 測試準確率 74.25%、near-bounda
 - 階段 7（校對＋records＋CHANGELOG）：完成（records `2026-07-18-03`＋CHANGELOG 已補；第五章與附錄 E
   全部數值已對 `results/*.json` 逐位核對，對帳腳本見 `tools/verify_thesis_numbers.py`）。
 
-Q5 P0 已完成：發表級圖 6 張（`docs/figures/fig_*.png`，由 `make_thesis_figures.py` 純讀 `results/*.json`
+Q5 P0 已完成：發表級圖 6 張（`figures/fig_*.png`，由 `make_thesis_figures.py` 純讀 `results/*.json`
 產生並嵌入第五章）、參考文獻查證與正式格式（13 筆，附 arXiv 編號）、附錄 E per-seed 明細（表 E.1–E.3）。
 Q5 P1 進度：更高功效機制介入**已完成**（N=8，§5.5——cov-matched 46.30 對 random 46.63、差 −0.33pp、
 MDE≈1.85pp，有功效之 null）；CIFAR-100 per-config FD-DINOv2 **已完成**（seed 10，§5.4.1——DINOv2 空間

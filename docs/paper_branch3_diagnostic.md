@@ -1,12 +1,12 @@
-<!-- 用途：分支三診斷論文正文（表格版草稿）。依 paper_skeleton_branch3.md 五主張、CIFAR-100 揭盲裁決（verdict_cifar100.md）撰寫；數據引 results/*.json，圖後補。D1 於 2026-07-17 確認為現行路由。 -->
+<!-- 用途：分支三診斷論文正文（表格版草稿）。依分支三五主張、CIFAR-100 揭盲裁決（verdict_cifar100.md）撰寫；數據引 results/*.json，圖後補。D1 於 2026-07-17 確認為現行路由。 -->
 
 # 便宜代理何時可靠？合成訓練資料之取樣組態選擇的診斷研究
 
 （暫定英文題名：*When Is a Cheap Proxy Reliable? A Diagnostic Study of Sampling-Configuration
 Selection for Synthetic Training Data*）
 
-本文為分支三（診斷論文）正文草稿。揭盲路由裁決見 `docs/verdict_cifar100.md`；一頁骨架見
-`docs/paper_skeleton_branch3.md`；所有數據引 `results/*.json`（本機、gitignore），對照見附錄。
+本文為分支三（診斷論文）正文草稿。揭盲路由裁決見 `docs/verdict_cifar100.md`；所有數據引
+`results/*.json`（本機、gitignore），對照見附錄。
 本稿為表格版，發表級圖後補。
 
 ## 摘要

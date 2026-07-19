@@ -12,7 +12,7 @@
 剩「非單調性、CaF、機制」三項；相對 Chamfer / Fan / DP 擴散文獻是否充分，由 CIFAR-100 機制 gate 與
 Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位依據見 [CHANGELOG 2026-07-05-12](CHANGELOG.md#2026-07-05)。
 
-實驗結果與數據分析見 `docs/results_analysis.md`；論文 intro 草稿見 `docs/paper_intro_draft.md`；CIFAR-100 預註冊全文見 `docs/prereg_cifar100.md`。
+實驗結果與數據分析見 `docs/results_analysis.md`；CIFAR-100 預註冊全文見 `docs/prereg_cifar100.md`。
 
 更新歷史見 [CHANGELOG.md](CHANGELOG.md)，每一列對應一份過程記錄。過程記錄本身（`records/`）不隨工作樹發布，全文留在 git 歷史，需要時以 `git log -- records/` 查閱。
 
