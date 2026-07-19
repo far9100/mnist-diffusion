@@ -14,7 +14,7 @@ Chamfer matched-budget 對決回答，在該兩者有資料前為未決。定位
 
 實驗結果與數據分析見 `docs/results_analysis.md`；CIFAR-100 預註冊全文見 `docs/prereg_cifar100.md`。
 
-更新歷史見 [CHANGELOG.md](CHANGELOG.md)，每一列對應一份過程記錄。過程記錄本身（`records/`）不隨工作樹發布，全文留在 git 歷史，需要時以 `git log -- records/` 查閱。
+更新歷史見 [CHANGELOG.md](CHANGELOG.md)，每一列逐條記錄一次計畫或更新（2026-07-19 起 `CHANGELOG.md` 為唯一記錄，停用本機 `records/`）。
 
 進度：Phase 1-3 CIFAR-10 裁決完成（B 定稿 [CHANGELOG 2026-07-09-03](CHANGELOG.md#2026-07-09)）；P0/P1 對帳全 30 config 之量測 scalar 逐位重現、k=5 獲探針反證；C1 於兩表徵空間不分離。Phase 1-4／1-5 亦完成：CIFAR-100 confirmatory 依預註冊決策樹落分支三（診斷論文），H3 護城河對決 Chamfer 勝 vanilla 但增益不見於 coverage（[CHANGELOG 2026-07-18](CHANGELOG.md#2026-07-18)）。分支三診斷論文草稿見 `docs/thesis_draft.md`。
 
@@ -151,9 +151,8 @@ tools/           — 校核工具：verify_thesis_numbers.py
 輸出與記錄：
 
 ```
-CHANGELOG.md             — 更新歷史（依日期列點，每列對應一份過程記錄）
+CHANGELOG.md             — 更新歷史與唯一記錄（依日期列點，逐條記錄每次計畫與更新）
 docs/                    — 實驗結果分析、CIFAR-100 預註冊、論文骨架
-records/                 — 過程記錄（檔名 YYYY-MM-DD-NN_action_content，不在 git 內）
 results/                 — 各實驗的 json/csv/txt/log 輸出（不在 git 內）
 checkpoints/             — 模型權重與參考統計（不在 git 內）
 samples/、samples_cifar/ — 訓練過程的樣本網格（不在 git 內）
@@ -192,9 +191,9 @@ uv run python src/experiments/train_cifar.py --epochs 1000 --batch-size 128
 
 ## 記錄與慣例
 
-對外的更新歷史是 `CHANGELOG.md`，依日期倒序列點，每一列對應一份過程記錄的結論。實驗結果分析、
+對外的更新歷史是 `CHANGELOG.md`，依日期倒序列點，逐條記錄每一次計畫與更新的結論。實驗結果分析、
 CIFAR-100 預註冊與論文骨架於 `docs/`。
 
-過程記錄本身寫在 `records/`（檔名 `YYYY-MM-DD-NN_action_content`，內容涵蓋 Goal、Result、
-Follow-up），但不隨工作樹發布；2026-07-11 以前的記錄全文留在 git 歷史，以 `git log -- records/`
-查閱。開發慣例（記錄格式、CHANGELOG 同步、檔頭註解、語言與最小變更原則）定義於 `claude.md`。
+2026-07-19 起 `CHANGELOG.md` 為專案唯一記錄，停用本機 `records/` 資料夾；2026-07-11 以前已提交的
+舊記錄仍留在 git 歷史，以 `git log -- records/` 查閱。開發慣例（CHANGELOG 格式、檔頭註解、語言與
+最小變更原則）定義於 `claude.md`。
