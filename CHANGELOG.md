@@ -10,8 +10,26 @@
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-19
+
+- `2026-07-19-01` test — Q5 P1（二）CIFAR-100 per-config FD-DINOv2 補算（GPU，低佔用 batch128 跨夜、
+  斷點續跑）：新增 `run_cifar100_fd_dinov2.py`，seed-10 FD-DINOv2 argmin=w2.5、離 TSTR-argmax w1 達 3 格
+  **判分離**，與 Inception（0/8 不分離）**相反**——Inception-FID 選 w1.5 regret≈0.8pp、DINOv2-FID 選 w2.5
+  regret≈8.8pp；以「which-FID 可靠性表徵相依」強化診斷（不復活普適 FID≠效用、不改凍結 Inception-only
+  路由，單 seed 事後）。整合入 `docs/thesis_draft.md` §5.4.1／branch3 §3a／results_analysis 三檔，驗證工具
+  增 5 個 FD-DINOv2 對帳、重跑 OK 328／MISMATCH 0；凍結檔未動。
+
 ## 2026-07-18
 
+- `2026-07-18-12` proofread — N=8 介入結論三份文件一致化：把 `2026-07-18-11` 的 N=8 結果（cov-matched
+  46.30 對 random 46.63、差 −0.33pp、MDE≈1.85pp、有功效 null）同步至 `docs/paper_branch3_diagnostic.md`
+  §4＋數據表，並將 `docs/results_analysis.md` 過時的「待確認」（把已完成的 D3 介入與 H3 仍列待執行）改為
+  已補結果段；三檔介入敘述一致，凍結檔未動。
+- `2026-07-18-11` test — Q5 P1（一）CIFAR-100 D3 介入臂 N=8 更高功效重跑（GPU）：coverage-matched
+  剪枝 TSTR 46.30 對等計數隨機剪枝 46.63、差 −0.33pp（SE 0.66、t=−0.50、MDE≈1.85pp，CI 跨零），把原
+  N=2（−0.11、underpowered）升級為有功效之 null（仍限單 seed、單一介入型式，不宣稱普遍否證）；driver
+  加 `--output`＋改載快取真實 DINOv2 特徵（免 OOM、與 regen 同源）另存 `cifar100_d3_intervention_n8.json`
+  不覆寫原檔；整合入 `docs/thesis_draft.md` §5.5/§6.3/§7/附錄 D，驗證工具增 N=8 對帳，重跑 OK 323／MISMATCH 0。
 - `2026-07-18-10` add — 診斷論文 P3＋P4（補強＋自足＋收斂）：新增 §3.6 量測與訓練細節（PRDC k／
   DINOv2 管線／TSTR／judge p20=0.3622／Chamfer 實作，可複製）；§2.4 相關工作擴為分主題回顧；附錄 A/B
   逐字內嵌凍結檔 prereg（249 行）與 verdict（72 行）使論文自足（凍結檔未動）；§4.2 形式化 H1/H2/H3 及

@@ -342,13 +342,20 @@ def verify_inline():
     itv = load("cifar100_d3_intervention.json")["c3_coverage_matched"]
     cov_m = mean(itv["tstr_w2.5_cov_matched"])
     rnd = mean(itv["tstr_w2.5_rand_pruned"])
-    check("內文 cov-matched TSTR 45.75", "45.75", cov_m)
-    check("內文 random-pruned TSTR 45.86", "45.86", rnd)
-    check("內文 兩者差 -0.11", "-0.11", cov_m - rnd)
+    check("內文 N=2 cov-matched TSTR 45.75", "45.75", cov_m)
+    check("內文 N=2 random-pruned TSTR 45.86", "45.86", rnd)
+    check("內文 N=2 兩者差 -0.11", "-0.11", cov_m - rnd)
     check("內文 w2.5 base coverage 0.700", "0.700", itv["w2.5_base_coverage"])
     check("內文 w1 target coverage 0.481", "0.481", itv["w1_target_coverage"])
     check("內文 n_pruned 13606", "13606", itv["n_pruned_to_match"], ndigits=0)
     check("內文 w2.5 frozen TSTR 50.66", "50.66", itv["w2.5_frozen_tstr"])
+    # N=8 更高功效 follow-up（§5.5 主要報告值；結構量 0.700/0.481/13606/50.66 兩檔相同）
+    itv8 = load("cifar100_d3_intervention_n8.json")["c3_coverage_matched"]
+    cov8 = mean(itv8["tstr_w2.5_cov_matched"])
+    rnd8 = mean(itv8["tstr_w2.5_rand_pruned"])
+    check("內文 N=8 cov-matched TSTR 46.30", "46.30", cov8)
+    check("內文 N=8 random-pruned TSTR 46.63", "46.63", rnd8)
+    check("內文 N=8 兩者差 -0.33", "-0.33", cov8 - rnd8)
 
     c0 = load("cifar10_recall_density_c0.json")["per_config"]
     check("內文 recall w2.5 .493", ".493", c0["w2.5"]["recall"])
@@ -363,6 +370,18 @@ def verify_inline():
 
     thr = load("cifar100_cfg_confirmatory.json")["metadata"]["near_boundary_threshold"]
     check("內文 near-boundary 門檻 0.3622", "0.3622", thr)
+
+    # CIFAR-100 which-FID 之 DINOv2 空間（§5.4.1，事後、單 seed 10）
+    fd = load("cifar100_fd_dinov2.json")
+    wf = fd["which_fid_dinov2"]
+    check("內文 FD-DINOv2 分離格步 3", "3", wf["separation_step"], ndigits=0)
+    check_str("內文 FD-DINOv2 argmin w2.5", "w2.5", wf["fd_dinov2_argmin"])
+    fpc = {c["name"]: c for c in fd["per_config"]}
+    check("內文 FD-DINOv2 w2 基底 153.8", "153.8", fpc["w2"]["fd_dinov2"])
+    check("內文 FD-DINOv2 w2.5 基底 153.6", "153.6", fpc["w2.5"]["fd_dinov2"])
+    oracle_tstr = max(c["tstr_seed10"] for c in fd["per_config"])
+    check("內文 FD-DINOv2 選擇器 regret 8.8", "8.8",
+          oracle_tstr - fpc[wf["fd_dinov2_argmin"]]["tstr_seed10"])
 
 
 def main():
