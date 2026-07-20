@@ -11,8 +11,114 @@ git 歷史，可以 `git log -- records/` 查閱。
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-21
+
+- `2026-07-21-01` proofread — 任務書 fix_tasks T7.5（A5）H3 主張降級：把「Chamfer 增益不見於 coverage」於
+  摘要（中英）、§5.6（標題／bullet／意涵／圖 5.6 圖說）、§6.3 限制、§6.4、§7 一律改為條件句——保留穩健的
+  「Chamfer 下游效用勝任何 vanilla（+2.54pp DINOv2／+3.11pp judge）」，但明記本文 Chamfer 為單向簡化重寫、
+  單 seed，其 coverage 反低與官方雙向實作（報告 coverage 上升 0.603→0.912）方向相反，故該讀數可能為簡化
+  假影、待雙向公平化後方可定論；`paper_branch3_diagnostic.md`、`results_analysis.md` 同步。§5.6 未實體搬
+  附錄（避免破壞交叉引用與表 5.5 對帳，列為選配）。純措辭未動數字，凍結未動。
+- `2026-07-21-02` proofread — 任務書 fix_tasks T12.4：EDM 正確性 gate 口徑差註記——`thesis_draft.md`（量測
+  正確性錨點）、`results_analysis.md`、`docs/code_map.md` 明記本專案 EDM CIFAR-10 FID 1.848 為單次評估、
+  官方 1.79 為 min-of-3（NVlabs EDM README），兩者評估口徑不同、非同口徑比較（僅作 backbone 正確性錨點）。
+  純措辭未動數字。
+- `2026-07-21-03` proofread — 任務書 fix_tasks T12.8：補齊參考文獻正式清單並統一格式——把 §2.4 已引但未列於
+  清單的 14 篇（Ravuri & Vinyals、Azizi、Alaa、Kynkäänniemi 2019／2024、Sariyildiz、Shipard、StableRep、
+  SynCLR、Astolfi、CADS、Karras autoguidance、Bartlett、Sorscher）依主題新增為條目 16–29、各附 arXiv；
+  Dockhorn 條目 venue 統一為 TMLR 2023、去「順帶」殘留；Bradley & Nakkiran（2408.09000）經 web／dblp 查僅見
+  arXiv／CoRR 記錄，正式 venue 由「NeurIPS 2024 M3L Workshop」改標「待核」不臆造。純文字未動數字。
+
+## 2026-07-20
+
+- `2026-07-20-07` add — 任務書 fix_tasks T1c CIFAR-100 側補齊（streaming）＋2×2 完整六格＋T7 頭條定案：
+  `run_cifar_judgefeat_stack.py` 增 `--generate-missing`——CIFAR-100 缺 8 格以逐類生成、邊算 judge 特徵
+  （只留 512 維、不累積影像，避 CPU-RAM OOM/kill；smoke 驗峰值 1.18GB），seed 化分佈匹配。完整
+  coverage-CaF regret 2×2：MNIST judge 0.00／DINOv2 1.02；CIFAR-10 2.45／3.69；CIFAR-100 0.79／6.10。
+  judge 每列皆低於 DINOv2（特徵效應恆正、CIFAR-100 達 +5.31），故頭條**定案**為「coverage 代理可靠主由
+  **特徵空間**閘定、資料集調幅度」（先前 CIFAR-10 單格致之「資料集主」修正被全六格推翻）；摘要／§1.3／§6.1
+  （標題＋開場＋六格表＋兩型）／§5.3／§6.2／§7／圖 5.2 一致。verifier 增 CIFAR-100 judge 0.79（JSON）＋DINOv2
+  6.10（由 confirmatory 重算），重跑 OK 358／MISMATCH 0；凍結未動。
+- `2026-07-20-06` proofread — 任務書 fix_tasks T7 尾項（B&N 定理降範圍＋§3.5 matched-probe 校準）：§2.1 加
+  B&N（Bradley & Nakkiran 2024）引用範圍界定——其 predictor-corrector 定理朝 gamma-powered 中間分佈銳化
+  （≠「朝 class prototype 集中」）、且覆蓋隨機 CFG_DDPM，本文全程 η=0 DDIM 落其範圍外、MNIST η-null 與
+  「隨機性關鍵」有張力，故僅作銳化方向動機、非機制證明；§3.5 明寫 FID-min 之 clean-fid 用 cleanfid 全訓練集
+  stats（與 CaF probe 非同份）、C7 小 probe 排序穩定為佐證而非實作。純措辭，verify OK 356／MISMATCH 0。
+  未竟：參考文獻正式清單格式統一（T12.8）與 B&N 正式 venue 核對，列排版定稿階段。
+- `2026-07-20-05` add — 任務書 fix_tasks T7 相關工作補全（§2.4）：路線三改寫——加 Ravuri & Vinyals 2019
+  （arXiv:1905.10887，FID/IS 不預測 CAS 之完整先行，非僅 DPDM 旁註）、強化 DPDM（2210.09929）刻畫為並列
+  FID／Acc 兩套 sampler 設定＋diversity 機制（去「順帶」弱化措辭）、加 Azizi 2023（2304.08466，FID-argmin
+  為好選擇器之正面先例、與 T1a 實測一致）；本文定位加 Astolfi 2024（2406.10429，PRDC 前沿選組態、與 CaF
+  操作點最近，明確差異化）；補其他相關工作清單附 arXiv（Sariyildiz 2212.08420、Shipard 2302.03298、
+  StableRep 2306.00984／SynCLR 2312.17742、CADS 2310.17347、Kynkäänniemi 2404.07724／1904.06991、Karras
+  2406.02507、Alaa 2102.08921、Bartlett 2017、Sorscher 2022）。純文字未動數字，verify OK 356／MISMATCH 0。
+- `2026-07-20-04` add — 任務書 fix_tasks T1c（CIFAR judge 特徵堆疊，A1b 反向交叉）＋T1a clean-fid 第二讀數
+  ＋T7 頭條再修正：新增 `src/experiments/run_cifar_judgefeat_stack.py`，CIFAR-10 seed10 十格自快取影像算
+  judge 512 維 PRDC 與 CaF——coverage-CaF 選 w1.5（oracle w2、regret 2.45），judge 任務對齊特徵下仍未中
+  oracle。完整 2×2（coverage-CaF regret）：MNIST judge 0.00／DINOv2 1.02；CIFAR-10 judge 2.45／DINOv2 3.69
+  ——資料集效應（約 2.5pp）大於特徵空間（約 1pp），coverage-CaF 只在 MNIST+judge 成立。據此把 T7 頭條由
+  先前偏「特徵空間相依」**再修正**為「資料集主、特徵次之合取」（摘要／§1.3／§6.1 標題＋開場＋2×2 補充＋
+  兩型／§5.3／§6.2／§7／圖 5.2 一致）。T1a clean-fid（Inception 空間、重用 cache）亦選 g2、regret 1.02，與自製
+  classifier-FID 一致，破「自製 FID 有利」質疑。`regen_cifar100_cells.py` 增 `--guidance`；CIFAR-100 8 格 regen
+  進行中（補 2×2 第六格 CIFAR-100+judge）。verify OK 356／MISMATCH 0；凍結未動。
+- `2026-07-20-03` add — 任務書 fix_tasks T6b TSTR 種子化：`src/core/cifar_classifier.py` 之
+  `run_tstr`／`train_classifier`／`_AugmentedTensorDataset` 增 `seed` 參數——`seed=None` 維持現行未種子化
+  行為（凍結對帳語意不變）；非 None 時 `torch.manual_seed` 控模型初始化、`DataLoader(generator=)` 控
+  shuffle、增強改用傳入 CPU `Generator`。self-check 增決定性測試（CPU 同 seed 兩次逐位相同）通過。
+  `run_cifar_cfg_multiseed.py` 增 `--tstr-seeded` 旗標，`measure()` reps 迴圈以 sha256(tstr_<ds>_<seed>_<w>_<rep>)
+  衍生種子（T3 v2 啟用、凍結 v1 不加旗標故不受影響）。CUDA 殘留 cuDNN 非決定性另議、不由此保證。
+- `2026-07-20-02` proofread — 任務書 fix_tasks T7 頭條重寫（依 T1a/T1b 實測、保守 hedge）：摘要、§1.3、
+  §6.1（標題「代理可靠性之資料集相依性」→「coverage 代理可靠性之特徵空間相依性（FID-min 相對普適）」、
+  開場、兩型段）、圖 5.2 標題與圖說、§5.1（precision-argmax 與 FID-min 區辨）、§6.2／§7 結論一致改寫：由
+  「代理可靠性之資料集相依反轉」改為「coverage 型代理可靠性之特徵空間相依、FID-min 三尺度近最優相對普適」；
+  「反轉」限於 coverage 選擇器且沿特徵空間、完整 2×2 歸因待 T1c；刪去被反證之「FID-min 在 MNIST 選錯」。
+  附錄 B 逐字內嵌凍結 verdict（含舊框架）刻意不動；verify 重跑 OK 354／MISMATCH 0，凍結 verdict/prereg diff 空。
+- `2026-07-20-01` add — 任務書 fix_tasks T1a／T1b（A1）MNIST 兩臂：新增 `src/experiments/run_mnist_fid_arm.py`
+  （實測 MNIST FID-min，classifier-Fréchet）與 `src/experiments/run_mnist_dinov2_stack.py`（DINOv2 堆疊
+  CaF），共用 `results/mnist_gen_cache/` 同批影像（seeds 0/1/2、grid {1,2,3,5,7,10}、per_class 1000、DDIM
+  steps 50 eta 0）。結果（3 seed 一致）：T1a MNIST FID-min 選 g2、regret 1.02、與 oracle g1 相隔 1 格、
+  依 C1 口徑不分離——與 CIFAR 同型，推翻「FID-min 在 MNIST 選錯」（原係 precision-argmax 代打之假影）；
+  T1b 換 DINOv2 後 MNIST coverage 轉非單調（峰 g2）、CaF(coverage) regret 1.02（0/3 中 oracle）、
+  CaF-v2(recall) regret 0（3/3），即反轉主要跟著特徵空間。與 T2 fixed-g2（1.02）逐值交叉一致。落地：圖 5.2
+  橘柱改實測 FID-min、表 5.3 MNIST FID-min 欄 1.02、§5.3／§6.1 歸因段；verifier 增 4 對帳，OK 354／MISMATCH 0；
+  凍結未動。clean-fid 第二讀數（同快取再一遍 Inception）與摘要頭條之 T7 重寫待續。
+
 ## 2026-07-19
 
+- `2026-07-19-14` add — 任務書 fix_tasks T4（A6）τ 靈敏度：新增 `src/experiments/run_tau_sensitivity.py`
+  與 `results/tau_sensitivity.json`。(a) 提出凍結 `report.tau_robustness` 完整掃描；(b) tau_fraction
+  ∈{.80,.85,.90,.95}＋無 floor 重跑——CIFAR-100 於 0.85→regret 0.00（中 oracle w1）、預註冊 0.90→0.76
+  （改選 w1.5）、0.95→5.40，且無任一設定達 D4 的 1.5pp 勝幅；(c) seed-10 配平校準（快取 DINOv2 特徵）：
+  precision 量測改 250v250（對齊 250v250 校準）後 w1 通過 floor、CaF-v2 由 w1.5 翻回 oracle w1（regret
+  0.79→0.00），500v500 欄逐位重現 frozen。整合 §5.4.1／§6.3，verifier 增 9 對帳，重跑 OK 350／MISMATCH 0；凍結未動。
+- `2026-07-19-13` proofread — 任務書 fix_tasks T12.6：README 頭條保留「Sampling for Utility, not
+  Fidelity」但其下加診斷結論註記（該敘事在 CIFAR 尺度被自家資料反證、C1 兩空間不分離、貢獻收斂於
+  CaF）；純措辭、未動數字。
+- `2026-07-19-12` refactor — 任務書 fix_tasks T12.2／T12.3 圖表：`src/figures/make_thesis_figures.py`
+  圖 5.2（fig_selector_reversal）加「precision-argmax（非實測 FID）」過渡底註、圖 5.6（fig_h3_duel）
+  標題去「moat duel」改「matched-budget comparison」、檔頭圖號更正（fig_selector_reversal=圖 5.2、
+  fig_two_stage=圖 5.5）；重生成 `docs/figures/` 六張圖，純製圖未動任何數字。
+- `2026-07-19-11` proofread — 任務書 fix_tasks T12.5 去代號化：活躍文件與程式之「護城河／moat duel」
+  一律改「matched-budget 對照」（`thesis_draft.md`、`paper_branch3_diagnostic.md`、`results_analysis.md`、
+  `README.md`、`run_cifar100_h3_duel.py` 檔頭）；README「範圍與護城河」之競爭定位語意改「差異化」。凍結
+  `verdict_cifar100.md`、其於 thesis 附錄 B 之逐字內嵌副本（`thesis_draft.md:1153`）、CHANGELOG 歷史刻意保留不動。
+- `2026-07-19-10` refactor — 任務書 fix_tasks T12.7：停放旁支 `var/`、`src/var_mini/` 以 git mv 移入
+  `attic/`（`attic/var`、`attic/var_mini`），覆寫 `2026-07-19-05` 之「不動程式」裁定（作者本輪裁示）。三支
+  var_mini 腳本墊片改為接回 `src/_pathfix` 並補 `attic/` 於 `sys.path`，`--help` 驗證三支 import 均通過；同步
+  README、`docs/code_map.md`、`src/_pathfix.py` 註解。主線無任何模組 import var／var_mini，零影響。
+- `2026-07-19-09` proofread — 修正任務書 fix_tasks T12.1：刪 `docs/thesis_draft.md:1259` 本機路徑
+  洩漏（`.claude/plans/...`）改「依內部撰寫計畫」，為 git 追蹤檔中唯一之絕對路徑洩漏；純措辭、未動數字。
+- `2026-07-19-08` add — 任務書 fix_tasks T5a（A8）C1 配對統計：新增 `src/experiments/run_c1_paired_stats.py`
+  純衍生 post-hoc driver 與 `results/c1_paired_stats.json`。以雙口徑呈現 TSTR-argmax 對 FID-argmin：凍結
+  格步口徑 CIFAR-100 判 0/8 不分離（路由依據不回改），標準配對檢定則 mean 0.76pp、t=9.71、p≈2.6e-5、
+  符號 8/8——系統偏移存在但實務可忽略、TSTR-argmax 恆在網格邊界 w1；paired_diff 與凍結 c6 duel 逐值交叉
+  核對。整合入 §5.4.1，`verify_thesis_numbers.py` 增 4 對帳，重跑 OK 341／MISMATCH 0；凍結判決未動。
+- `2026-07-19-07` add — 任務書 fix_tasks T2（A7）固定 w／隨機可行點 baseline：新增
+  `src/experiments/run_baseline_fixed_random.py` 純衍生 driver 與 `results/baseline_fixed_random.json`，
+  補預註冊 D5 兩下限。fixed-w 對網格每一 w 報整欄 per-seed regret（防 HARKing），random-feasible 為可行集
+  TSTR 解析平均。CaF／FID-min 三資料集皆遠勝隨機可行點（CIFAR-100 22.82／CIFAR-10 15.66／MNIST 5.92pp）；
+  固定 w1 於 MNIST／CIFAR-100 為 0.00（oracle 恰在網格邊界 w1）但非自適應、CIFAR-10 為 1.71 劣於 FID-min。
+  表 5.3 增 fixed-w1／fixed-w2／random-feasible 三欄，`verify_thesis_numbers.py` 增 9 對帳；凍結檔未動。
 - `2026-07-19-06` proofread — 收尾被取代草稿與未來工作段措辭：`docs/paper_branch3_diagnostic.md` 檔頭與
   狀態段標明本稿已被定稿 `docs/thesis_draft.md`（含 6 張發表級圖）取代、保留作撰寫軌跡，去除「發表級圖
   後補／待補」開放待辦；`docs/results_analysis.md`「待確認」段改標「未來工作（本論文範圍外）」對齊論文

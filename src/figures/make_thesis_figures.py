@@ -2,12 +2,12 @@
 # 圖內文字用英文以避免中文字型缺字；markdown 圖說用中文。輸出至 docs/figures/。
 #
 # 產出：
-#   fig_mnist.png            5.1 MNIST：coverage 與 TSTR 同向、precision 峰錯位
-#   fig_selector_reversal.png 5.3 三尺度選擇器判決反轉（regret）
-#   fig_pareto.png           5.4.2 CIFAR-10 (precision, coverage) 平面上 w2.5 支配 oracle
-#   fig_variance.png         5.4.3 變異分解 σ_cls vs σ_gen 與上升肢 Δ
-#   fig_two_stage.png        5.2/5.5 CIFAR-10 與 CIFAR-100 雙段機制（TSTR/coverage/near-boundary）
-#   fig_h3_duel.png          5.6 H3 三臂：Chamfer 勝 vanilla 但 coverage 反而低
+#   fig_mnist.png            圖 5.1 MNIST：coverage 與 TSTR 同向、precision 峰錯位
+#   fig_selector_reversal.png 圖 5.2 三尺度選擇器判決反轉（regret）
+#   fig_pareto.png           圖 5.3 CIFAR-10 (precision, coverage) 平面上 w2.5 支配 oracle（§5.4.2）
+#   fig_variance.png         圖 5.4 變異分解 σ_cls vs σ_gen 與上升肢 Δ（§5.4.3）
+#   fig_two_stage.png        圖 5.5 CIFAR-10 與 CIFAR-100 雙段機制（TSTR/coverage/near-boundary）
+#   fig_h3_duel.png          圖 5.6 H3 三臂：Chamfer 勝 vanilla 但 coverage 反而低
 
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); import _pathfix  # noqa: E402  路徑墊片，見 src/_pathfix.py
@@ -96,12 +96,8 @@ def fig_selector_reversal():
     # coverage 選擇器 regret：MNIST 0（multiseed）、CIFAR-10/100 由 duel 檔
     mnist = load("selector_signal_multiseed.json")
     caf_mnist = sc(mnist["aggregate"]["regret_at_selected"])
-    # MNIST 保真代理：precision-argmax 之 regret（純衍生）
-    pc = mnist["aggregate"]["per_config"]
-    tstr = [sc(c["tstr"]) for c in pc]
-    prec = [sc(c["precision"]) for c in pc]
-    i_prec = max(range(len(prec)), key=lambda i: prec[i])
-    fid_mnist = max(tstr) - tstr[i_prec]
+    # MNIST 保真代理：T1a 實測 MNIST FID-min 之 regret（classifier-Fréchet，非再用 precision-argmax）
+    fid_mnist = load("mnist_fid_arm.json")["aggregate"]["mnist"]["fidmin_regret_mean"]
 
     c10 = load("cifar10_c6_fidmin_duel.json")
     c100 = load("cifar100_c6_fidmin_duel.json")
@@ -116,7 +112,7 @@ def fig_selector_reversal():
     b1 = ax.bar([i - w / 2 for i in x], caf, w, color=C_COV,
                 label="Coverage selector (CaF / CaF-v2)")
     b2 = ax.bar([i + w / 2 for i in x], fidmin, w, color=C_PREC,
-                label="Fidelity proxy (FID-min; MNIST: precision-argmax)")
+                label="Fidelity proxy (FID-min)")
     ax.bar_label(b1, fmt="%.2f", padding=2)
     ax.bar_label(b2, fmt="%.2f", padding=2)
 
@@ -131,7 +127,8 @@ def fig_selector_reversal():
     ax.set_xticklabels(datasets)
     ax.set_ylabel("regret@selected (pp, lower is better)")
     ax.set_ylim(0, max(max(caf), max(fidmin)) * 1.20)
-    ax.set_title("Which cheap proxy is reliable reverses across datasets")
+    ax.set_title("FID-min near-optimal across all three; coverage-CaF gated by\n"
+                 "feature space (task-aligned works, task-agnostic fails)")
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.10), ncol=2,
               framealpha=0.9, fontsize=9)
     fig.tight_layout()
@@ -267,7 +264,7 @@ def fig_h3_duel():
     ax2.set_ylabel("DINOv2 coverage", color=C_COV)
     ax1.set_ylim(55, max(tstr) + 2)
     ax2.set_ylim(0, 0.8)
-    ax1.set_title("H3 moat duel: Chamfer beats vanilla in utility,\n"
+    ax1.set_title("H3 matched-budget comparison: Chamfer beats vanilla in utility,\n"
                   "yet its coverage is lower (cheap proxy misses the high-utility set)")
     ax1.legend(loc="upper left", framealpha=0.9)
     ax2.legend(loc="upper right", framealpha=0.9)
