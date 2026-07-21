@@ -270,6 +270,23 @@ def verify_table_5_3(tables):
             check(f"表5.3 {ds} fixed-w2 regret", row[6], fixed_at(ds, 2.0))
             check(f"表5.3 {ds} random-feasible regret", row[7], base[ds]["random_feasible"]["mean_regret"])
 
+    # §5.2.1 無碰撞重跑 v2（新檔；v1 保留於對帳集，此處加 v2 頭條數字之對帳）
+    if os.path.exists(os.path.join(RES, "cifar10_c6_fidmin_duel_v2.json")):
+        v2 = load("cifar10_c6_fidmin_duel_v2.json")
+        check("§5.2.1 v2 FID-min regret 均值", "0.00", v2["fidmin_regret_mean"])
+        check("§5.2.1 v2 CaF regret 均值", "6.70", v2["caf_regret_mean"])
+        s10 = next(p for p in v2["per_seed"] if p["seed"] == 10)
+        check("§5.2.1 v2 seed10 CaF regret", "8.99", s10["caf_regret"])
+        vc = load("cifar10_cfg_confirmatory_v2.json")
+        b10 = next(s for s in vc["per_seed"] if s["seed"] == 10)
+        cfg = {c["name"]: c for c in b10["configs"]}
+        check("§5.2.1 v2 seed10 w1.5 TSTR(oracle)", "65.59", cfg["w1.5"]["tstr"])
+        check("§5.2.1 v2 seed10 w1.5 coverage", ".749", cfg["w1.5"]["coverage"])
+        check("§5.2.1 v2 seed10 w1.5 precision", ".842", cfg["w1.5"]["precision"])
+        check("§5.2.1 v2 seed10 w2.5 coverage", ".792", cfg["w2.5"]["coverage"])
+        check("§5.2.1 v2 seed10 w2.5 precision", ".869", cfg["w2.5"]["precision"])
+        check("§5.2.1 v2 seed10 w2.5 TSTR", "56.61", cfg["w2.5"]["tstr"])
+
 
 def verify_table_5_5(tables):
     t = find_table(tables, lambda h, _t: h[0] == "臂" and "TSTR" in h[1])
