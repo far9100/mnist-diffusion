@@ -74,7 +74,7 @@ def chamfer_guidance_grad(x0, feature_fn, exemplar_feats, weight=1.0, term="cove
 def chamfer_guided_ddim_sample(model, schedule, feature_fn, exemplar_feats, shape,
                                num_steps=18, eta=0.0, class_labels=None,
                                guidance_scale=1.0, chamfer_weight=1.0,
-                               term="coverage", generator=None):
+                               term="coverage", guide_every=1, generator=None):
     """把 Chamfer guidance 接進 DDIM 取樣迴圈：每一步對預測的乾淨影像 x0 施加覆蓋位移。
 
     重用 ddpm.DiffusionSchedule 的公開介面（ddim_timesteps、alphas_bar、predict_eps），
@@ -88,7 +88,7 @@ def chamfer_guided_ddim_sample(model, schedule, feature_fn, exemplar_feats, shap
     """
     device = schedule.device
     x = torch.randn(shape, device=device, generator=generator)
-    for t_cur, t_prev in schedule.ddim_timesteps(num_steps):
+    for step_i, (t_cur, t_prev) in enumerate(schedule.ddim_timesteps(num_steps)):
         t = torch.full((shape[0],), t_cur, device=device, dtype=torch.long)
         eps = schedule.predict_eps(model, x, t, class_labels, guidance_scale)
         ab_t = schedule.alphas_bar[t_cur]
@@ -96,8 +96,9 @@ def chamfer_guided_ddim_sample(model, schedule, feature_fn, exemplar_feats, shap
                 else torch.ones((), device=device))
         # 由 x_t 與噪音估計推得的乾淨影像 x0
         x0 = (x - (1.0 - ab_t).sqrt() * eps) / ab_t.sqrt()
-        # Chamfer guidance：把 x0 往覆蓋 exemplar 的方向推（梯度穿過 feature_fn）
-        if chamfer_weight > 0:
+        # Chamfer guidance：把 x0 往覆蓋 exemplar 的方向推（梯度穿過 feature_fn）。
+        # guide_every：每 guide_every 步施加一次（官方 Chamfer G_freq=5；預設 1＝每步，保舊行為）。
+        if chamfer_weight > 0 and (step_i % guide_every == 0):
             with torch.enable_grad():
                 disp = chamfer_guidance_grad(x0, feature_fn, exemplar_feats,
                                              weight=chamfer_weight, term=term)
