@@ -294,7 +294,9 @@ class DiffusionSchedule:
         DDPM（`p_sample`）與 DDIM（`ddim_sample_loop`）的反向過程共用此函式，
         讓 CFG 邏輯只存在於一個地方。
         """
-        if class_labels is not None and guidance_scale > 1.0:
+        # T5b（行為擴充）：條件由 `> 1.0` 改為 `!= 1.0`，使 w<1 也走 CFG 分支（往無條件內插、降低類別
+        # 銳化，供 w<1 網格 scout）；w==1.0 仍落下方純條件分支（逐位不變）、w>1 分支不變。見 CHANGELOG 2026-07-21-08。
+        if class_labels is not None and guidance_scale != 1.0:
             # Classifier-free guidance：條件與無條件一起前傳
             null_labels = torch.full_like(class_labels, model.num_classes)
             x_double = torch.cat([x_t, x_t], dim=0)
