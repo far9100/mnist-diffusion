@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "checkpoint": "ddpm_mnist.pt",
+    "git_commit": "05f0d3d",
+    "sampler": "ddim",
+    "steps": 50,
+    "eta": 0.0,
+    "per_digit": 1000,
+    "tstr_epochs": 20,
+    "fid_note": "MNIST-FID (mnist_cnn.pt features), not Inception-FID"
+  },
+  "real_reference": {
+    "diversity_pixel": 17.913513374328613,
+    "diversity_feat": 14.184785270690918,
+    "pixel_std": 0.3121910810470581,
+    "mean_confidence": 0.9931265115737915
+  },
+  "rows": [
+    {
+      "guidance": 1.0,
+      "fid": 10.1903,
+      "tstr_acc": 97.22,
+      "diversity_pixel": 16.8117,
+      "diversity_feat": 14.8573,
+      "pixel_std": 0.28469,
+      "mean_confidence": 0.9824,
+      "diversity_ratio_feat": 1.0474
+    },
+    {
+      "guidance": 2.0,
+      "fid": 8.8831,
+      "tstr_acc": 95.92,
+      "diversity_pixel": 16.2508,
+      "diversity_feat": 11.3654,
+      "pixel_std": 0.26755,
+      "mean_confidence": 0.99949,
+      "diversity_ratio_feat": 0.8012
+    },
+    {
+      "guidance": 3.0,
+      "fid": 20.5155,
+      "tstr_acc": 95.33,
+      "diversity_pixel": 15.7825,
+      "diversity_feat": 10.295,
+      "pixel_std": 0.2563,
+      "mean_confidence": 0.99994,
+      "diversity_ratio_feat": 0.7258
+    },
+    {
+      "guidance": 5.0,
+      "fid": 38.7435,
+      "tstr_acc": 91.86,
+      "diversity_pixel": 14.8759,
+      "diversity_feat": 9.192,
+      "pixel_std": 0.23587,
+      "mean_confidence": 0.99999,
+      "diversity_ratio_feat": 0.648
+    },
+    {
+      "guidance": 7.0,
+      "fid": 52.1798,
+      "tstr_acc": 87.68,
+      "diversity_pixel": 14.1982,
+      "diversity_feat": 8.5028,
+      "pixel_std": 0.22048,
+      "mean_confidence": 0.99998,
+      "diversity_ratio_feat": 0.5994
+    },
+    {
+      "guidance": 10.0,
+      "fid": 69.165,
+      "tstr_acc": 79.08,
+      "diversity_pixel": 13.4794,
+      "diversity_feat": 7.7767,
+      "pixel_std": 0.2065,
+      "mean_confidence": 0.99989,
+      "diversity_ratio_feat": 0.5482
+    }
+  ],
+  "analysis": {
+    "fid_optimal_guidance": 2.0,
+    "fid_optimal_value": 8.8831,
+    "tstr_optimal_guidance": 1.0,
+    "tstr_optimal_value": 97.22,
+    "fid_and_tstr_optima_differ": true
+  }
+}

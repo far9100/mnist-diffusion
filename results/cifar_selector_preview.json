@@ -1,0 +1,287 @@
+{
+  "metadata": {
+    "dataset": "cifar10",
+    "axis": "CFG guidance (cond+uncond EDM)",
+    "seeds": [
+      0
+    ],
+    "per_class": 500,
+    "guidance_grid": [
+      1.0,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "tstr_epochs": 30,
+    "prdc_feature_space": "Inception-v3 (FID detector)"
+  },
+  "aggregate": {
+    "n_seeds": 1,
+    "per_config": [
+      {
+        "name": "w1",
+        "precision": {
+          "mean": 0.7672000408172608,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.7672000408172608,
+          "max": 0.7672000408172608,
+          "n": 1,
+          "values": [
+            0.7672000408172608
+          ]
+        },
+        "coverage": {
+          "mean": 0.8253000319004059,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8253000319004059,
+          "max": 0.8253000319004059,
+          "n": 1,
+          "values": [
+            0.8253000319004059
+          ]
+        },
+        "tstr": {
+          "mean": 47.5,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 47.5,
+          "max": 47.5,
+          "n": 1,
+          "values": [
+            47.5
+          ]
+        }
+      },
+      {
+        "name": "w1.5",
+        "precision": {
+          "mean": 0.8068000316619873,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8068000316619873,
+          "max": 0.8068000316619873,
+          "n": 1,
+          "values": [
+            0.8068000316619873
+          ]
+        },
+        "coverage": {
+          "mean": 0.8419000446796417,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8419000446796417,
+          "max": 0.8419000446796417,
+          "n": 1,
+          "values": [
+            0.8419000446796417
+          ]
+        },
+        "tstr": {
+          "mean": 49.74,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 49.74,
+          "max": 49.74,
+          "n": 1,
+          "values": [
+            49.74
+          ]
+        }
+      },
+      {
+        "name": "w2",
+        "precision": {
+          "mean": 0.8186000406742096,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8186000406742096,
+          "max": 0.8186000406742096,
+          "n": 1,
+          "values": [
+            0.8186000406742096
+          ]
+        },
+        "coverage": {
+          "mean": 0.8441000401973724,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8441000401973724,
+          "max": 0.8441000401973724,
+          "n": 1,
+          "values": [
+            0.8441000401973724
+          ]
+        },
+        "tstr": {
+          "mean": 49.23,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 49.23,
+          "max": 49.23,
+          "n": 1,
+          "values": [
+            49.23
+          ]
+        }
+      },
+      {
+        "name": "w3",
+        "precision": {
+          "mean": 0.8034000396728516,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8034000396728516,
+          "max": 0.8034000396728516,
+          "n": 1,
+          "values": [
+            0.8034000396728516
+          ]
+        },
+        "coverage": {
+          "mean": 0.8067000329494476,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8067000329494476,
+          "max": 0.8067000329494476,
+          "n": 1,
+          "values": [
+            0.8067000329494476
+          ]
+        },
+        "tstr": {
+          "mean": 48.06,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 48.06,
+          "max": 48.06,
+          "n": 1,
+          "values": [
+            48.06
+          ]
+        }
+      }
+    ],
+    "selection": {
+      "per_seed": [
+        "w2"
+      ],
+      "counts": {
+        "w2": 1
+      },
+      "modal": "w2",
+      "modal_fraction": 1.0
+    },
+    "regret_at_selected": {
+      "mean": 0.5100000000000051,
+      "std": 0.0,
+      "sem": 0.0,
+      "min": 0.5100000000000051,
+      "max": 0.5100000000000051,
+      "n": 1,
+      "values": [
+        0.5100000000000051
+      ]
+    },
+    "rank_per_seed": [
+      2
+    ],
+    "topk_hit_rate": 1.0,
+    "oracle_best_per_seed": [
+      "w1.5"
+    ]
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "real_ref_precision": 0.7742706120014191,
+      "configs": [
+        {
+          "name": "w1",
+          "guidance": 1.0,
+          "precision": 0.7672000408172608,
+          "coverage": 0.8253000319004059,
+          "recall": 0.7201000332832337,
+          "density": 0.9532400846481324,
+          "tstr": 47.5
+        },
+        {
+          "name": "w1.5",
+          "guidance": 1.5,
+          "precision": 0.8068000316619873,
+          "coverage": 0.8419000446796417,
+          "recall": 0.6885000348091126,
+          "density": 1.0957201063632964,
+          "tstr": 49.74
+        },
+        {
+          "name": "w2",
+          "guidance": 2.0,
+          "precision": 0.8186000406742096,
+          "coverage": 0.8441000401973724,
+          "recall": 0.6562000334262847,
+          "density": 1.1626000940799712,
+          "tstr": 49.23
+        },
+        {
+          "name": "w3",
+          "guidance": 3.0,
+          "precision": 0.8034000396728516,
+          "coverage": 0.8067000329494476,
+          "recall": 0.5708000212907791,
+          "density": 1.1107200920581817,
+          "tstr": 48.06
+        }
+      ],
+      "report": {
+        "tau": 0.6968435508012772,
+        "tau_passed_floor": true,
+        "selected": "w2",
+        "oracle_best": "w1.5",
+        "regret_at_selected": 0.5100000000000051,
+        "rank": 2,
+        "n_configs": 4,
+        "topk_hit": true,
+        "topk": 3,
+        "tau_robustness": {
+          "picks": {
+            "0.7672000408172608": "w2",
+            "0.7723400408029557": "w2",
+            "0.7774800407886505": "w2",
+            "0.7826200407743454": "w2",
+            "0.7877600407600402": "w2",
+            "0.7929000407457352": "w2",
+            "0.7980400407314301": "w2",
+            "0.8031800407171249": "w2",
+            "0.8083200407028198": "w2",
+            "0.8134600406885146": "w2",
+            "0.8186000406742096": "w2"
+          },
+          "modal": "w2",
+          "stability": 1.0
+        }
+      }
+    }
+  ],
+  "args": {
+    "cond": "checkpoints/edm-cifar10-32x32-cond-vp.pkl",
+    "uncond": "checkpoints/edm-cifar10-32x32-uncond-vp.pkl",
+    "dataset": "cifar10",
+    "seeds": [
+      0
+    ],
+    "per_class": 500,
+    "real_per_class": 1000,
+    "gen_steps": 8,
+    "batch": 256,
+    "nearest_k": 5,
+    "tau_fraction": 0.9,
+    "tstr_epochs": 30,
+    "tstr_lr": 0.1,
+    "tstr_batch_size": 128,
+    "output": "results/cifar_selector_preview.json",
+    "quick": false,
+    "num_classes": 10
+  }
+}

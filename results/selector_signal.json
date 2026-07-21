@@ -1,0 +1,101 @@
+{
+  "configs": [
+    {
+      "name": "g1",
+      "guidance": 1.0,
+      "precision": 0.9106000483036041,
+      "coverage": 0.8706561028957367,
+      "recall": 0.9107738912105561,
+      "density": 0.8663000643253327,
+      "tstr": 97.22
+    },
+    {
+      "name": "g2",
+      "guidance": 2.0,
+      "precision": 0.9633000612258911,
+      "coverage": 0.8491437673568726,
+      "recall": 0.7985450804233551,
+      "density": 1.0764200687408447,
+      "tstr": 95.92
+    },
+    {
+      "name": "g3",
+      "guidance": 3.0,
+      "precision": 0.965900057554245,
+      "coverage": 0.7332139730453491,
+      "recall": 0.6498465001583099,
+      "density": 1.1265800595283508,
+      "tstr": 95.33
+    },
+    {
+      "name": "g5",
+      "guidance": 5.0,
+      "precision": 0.9624000370502472,
+      "coverage": 0.5533657550811768,
+      "recall": 0.42326203882694247,
+      "density": 1.0897600769996643,
+      "tstr": 91.86
+    },
+    {
+      "name": "g7",
+      "guidance": 7.0,
+      "precision": 0.9487000465393066,
+      "coverage": 0.4399166077375412,
+      "recall": 0.2691840663552284,
+      "density": 1.024200040102005,
+      "tstr": 87.68
+    },
+    {
+      "name": "g10",
+      "guidance": 10.0,
+      "precision": 0.9216000378131867,
+      "coverage": 0.3225249066948891,
+      "recall": 0.170039308257401,
+      "density": 0.8933200597763061,
+      "tstr": 79.08
+    }
+  ],
+  "real_ref_precision": 0.9517168998718262,
+  "report": {
+    "tau": 0.8565452098846436,
+    "tau_passed_floor": true,
+    "selected": "g1",
+    "oracle_best": "g1",
+    "regret_at_selected": 0.0,
+    "rank": 1,
+    "n_configs": 6,
+    "topk_hit": true,
+    "topk": 3,
+    "tau_robustness": {
+      "picks": {
+        "0.9106000483036041": "g1",
+        "0.9161300492286681": "g2",
+        "0.9216600501537323": "g2",
+        "0.9271900510787964": "g2",
+        "0.9327200520038604": "g2",
+        "0.9382500529289246": "g2",
+        "0.9437800538539887": "g2",
+        "0.9493100547790527": "g2",
+        "0.9548400557041168": "g2",
+        "0.960370056629181": "g2",
+        "0.965900057554245": "g3"
+      },
+      "modal": "g2",
+      "stability": 0.8181818181818182
+    }
+  },
+  "args": {
+    "checkpoint": "ddpm_mnist.pt",
+    "cnn": "mnist_cnn.pt",
+    "per_digit": 1000,
+    "batch_size": 256,
+    "fid_per_class": 1000,
+    "nearest_k": 5,
+    "tau_fraction": 0.9,
+    "tstr_json": "results/guidance_study.json",
+    "data_dir": "./data",
+    "output_dir": "results",
+    "seed": 0,
+    "quick": false
+  }
+}

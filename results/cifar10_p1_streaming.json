@@ -1,0 +1,2243 @@
+{
+  "metadata": {
+    "nearest_k": 5,
+    "effective_nearest_k": 5,
+    "argv": "run_p1_streaming.py",
+    "start_timestamp": "2026-07-08 18:22:47",
+    "reconcile_keys": [
+      "precision",
+      "coverage",
+      "coverage_inception",
+      "precision_inception",
+      "char_clean_fid",
+      "near_boundary_frac",
+      "label_noise_excess_mean"
+    ],
+    "tol": 0.0001,
+    "note": "TSTR/recall/density 不對帳/不記錄（§3）；FD-DINOv2 為 C1 新量、不對帳",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070",
+      "python": "3.12.13"
+    },
+    "determinism": {
+      "use_deterministic_algorithms": true,
+      "warn_only": true,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "cublas_workspace_config": ":4096:8"
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 10,
+      "configs": [
+        {
+          "name": "w1",
+          "guidance": 1.0,
+          "gseed": 110000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8126000344753266,
+              "ref": 0.8126000344753266,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6409000307321548,
+              "ref": 0.6409000307321548,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8959000468254089,
+              "ref": 0.8959000468254089,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.7362000405788421,
+              "ref": 0.7362000405788421,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 10.93039776801254,
+              "ref": 10.93039776801254,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.2531999945640564,
+              "ref": 0.2531999945640564,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": 0.04239999471604823,
+              "ref": 0.04239999471604823,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 283.2273478360098,
+          "timing_seconds": {
+            "gen": 397.0304539203644,
+            "dino_feat": 37.45591711997986,
+            "fd_dinov2": 0.19150662422180176,
+            "judge": 0.8085768222808838,
+            "clean_fid": 102.99240756034851,
+            "incep_feat": 22.776889324188232
+          }
+        },
+        {
+          "name": "w1.5",
+          "guidance": 1.5,
+          "gseed": 115000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8384000420570373,
+              "ref": 0.8384000420570373,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7495000302791596,
+              "ref": 0.7495000302791596,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9406000435352325,
+              "ref": 0.9406000435352325,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8106000423431396,
+              "ref": 0.8106000423431396,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 8.76922043891193,
+              "ref": 8.76922043891193,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.11129999905824661,
+              "ref": 0.11129999905824661,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.039600004568696036,
+              "ref": -0.039600004568696036,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 194.75350837317455,
+          "timing_seconds": {
+            "gen": 789.6799767017365,
+            "dino_feat": 39.00919580459595,
+            "fd_dinov2": 0.16254854202270508,
+            "judge": 0.8141598701477051,
+            "clean_fid": 108.89806771278381,
+            "incep_feat": 39.39839577674866
+          }
+        },
+        {
+          "name": "w2",
+          "guidance": 2.0,
+          "gseed": 120000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8568000495433807,
+              "ref": 0.8568000495433807,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7777000367641449,
+              "ref": 0.7777000367641449,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9422000527381897,
+              "ref": 0.9422000527381897,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8496000409126282,
+              "ref": 0.8496000409126282,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 10.181299468096654,
+              "ref": 10.181299468096654,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.06239999830722809,
+              "ref": 0.06239999830722809,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.05770000468334184,
+              "ref": -0.05770000468334184,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 175.2784256790883,
+          "timing_seconds": {
+            "gen": 785.0912029743195,
+            "dino_feat": 38.93978452682495,
+            "fd_dinov2": 0.1639995574951172,
+            "judge": 0.8220221996307373,
+            "clean_fid": 108.10867357254028,
+            "incep_feat": 236.19814229011536
+          }
+        },
+        {
+          "name": "w2.5",
+          "guidance": 2.5,
+          "gseed": 125000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8714000463485718,
+              "ref": 0.8714000463485718,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7893000304698944,
+              "ref": 0.7893000304698944,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9288000464439392,
+              "ref": 0.9288000464439392,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8672000348567963,
+              "ref": 0.8672000348567963,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 12.263893362782142,
+              "ref": 12.263893362782142,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.04780000075697899,
+              "ref": 0.04780000075697899,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.061700004384387296,
+              "ref": -0.061700004384387296,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 178.11168408591402,
+          "timing_seconds": {
+            "gen": 807.72847032547,
+            "dino_feat": 38.98230195045471,
+            "fd_dinov2": 0.16485285758972168,
+            "judge": 0.8210017681121826,
+            "clean_fid": 108.98529624938965,
+            "incep_feat": 39.7940239906311
+          }
+        },
+        {
+          "name": "w3",
+          "guidance": 3.0,
+          "gseed": 130000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8767000377178192,
+              "ref": 0.8767000377178192,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7805000305175781,
+              "ref": 0.7805000305175781,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9166000366210938,
+              "ref": 0.9166000366210938,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8722000360488892,
+              "ref": 0.8722000360488892,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 14.562674997186548,
+              "ref": 14.562674997186548,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03590000048279762,
+              "ref": 0.03590000048279762,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06510000447602944,
+              "ref": -0.06510000447602944,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 186.38642642570767,
+          "timing_seconds": {
+            "gen": 781.9616174697876,
+            "dino_feat": 37.324259519577026,
+            "fd_dinov2": 0.1472339630126953,
+            "judge": 0.7762932777404785,
+            "clean_fid": 103.19836688041687,
+            "incep_feat": 158.33031582832336
+          }
+        },
+        {
+          "name": "w4",
+          "guidance": 4.0,
+          "gseed": 140000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8821000397205353,
+              "ref": 0.8821000397205353,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.746800035238266,
+              "ref": 0.746800035238266,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8765000462532043,
+              "ref": 0.8765000462532043,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8884000360965729,
+              "ref": 0.8884000360965729,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 18.948843097592146,
+              "ref": 18.948843097592146,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03180000185966492,
+              "ref": 0.03180000185966492,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06540000452520327,
+              "ref": -0.06540000452520327,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 222.81404778407205,
+          "timing_seconds": {
+            "gen": 768.488329410553,
+            "dino_feat": 37.34684348106384,
+            "fd_dinov2": 0.150132417678833,
+            "judge": 0.7761669158935547,
+            "clean_fid": 103.3736617565155,
+            "incep_feat": 35.23432540893555
+          }
+        },
+        {
+          "name": "w5",
+          "guidance": 5.0,
+          "gseed": 150000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.872100043296814,
+              "ref": 0.872100043296814,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7045000314712524,
+              "ref": 0.7045000314712524,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8411000490188598,
+              "ref": 0.8411000490188598,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8819000482559204,
+              "ref": 0.8819000482559204,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 22.500439435854048,
+              "ref": 22.500439435854048,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.036400001496076584,
+              "ref": 0.036400001496076584,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06530000448552893,
+              "ref": -0.06530000448552893,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 262.1842490869776,
+          "timing_seconds": {
+            "gen": 775.4123404026031,
+            "dino_feat": 38.12490892410278,
+            "fd_dinov2": 0.16199445724487305,
+            "judge": 0.7955281734466553,
+            "clean_fid": 105.9725592136383,
+            "incep_feat": 244.22123074531555
+          }
+        },
+        {
+          "name": "w6",
+          "guidance": 6.0,
+          "gseed": 160000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8595000386238099,
+              "ref": 0.8595000386238099,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6428000360727311,
+              "ref": 0.6428000360727311,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7944000363349915,
+              "ref": 0.7944000363349915,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8666000425815582,
+              "ref": 0.8666000425815582,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 25.840267050271223,
+              "ref": 25.840267050271223,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.0406000018119812,
+              "ref": 0.0406000018119812,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06480000463640319,
+              "ref": -0.06480000463640319,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 301.9809650839434,
+          "timing_seconds": {
+            "gen": 773.1621823310852,
+            "dino_feat": 38.52520751953125,
+            "fd_dinov2": 0.16445302963256836,
+            "judge": 0.8027288913726807,
+            "clean_fid": 104.5543475151062,
+            "incep_feat": 40.75385355949402
+          }
+        },
+        {
+          "name": "w7",
+          "guidance": 7.0,
+          "gseed": 170000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8472000420093536,
+              "ref": 0.8472000420093536,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6009000241756439,
+              "ref": 0.6009000241756439,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7455000340938568,
+              "ref": 0.7455000340938568,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8583000481128693,
+              "ref": 0.8583000481128693,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 28.622441597115483,
+              "ref": 28.622441597115483,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.04580000042915344,
+              "ref": 0.04580000042915344,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06250000448059292,
+              "ref": -0.06250000448059292,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 338.9505987391567,
+          "timing_seconds": {
+            "gen": 782.4092032909393,
+            "dino_feat": 37.383580923080444,
+            "fd_dinov2": 0.16341948509216309,
+            "judge": 0.7905981540679932,
+            "clean_fid": 106.28143453598022,
+            "incep_feat": 348.22486448287964
+          }
+        },
+        {
+          "name": "w8",
+          "guidance": 8.0,
+          "gseed": 180000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8302000463008881,
+              "ref": 0.8302000463008881,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.5647000193595886,
+              "ref": 0.5647000193595886,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7212000250816345,
+              "ref": 0.7212000250816345,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8573000431060791,
+              "ref": 0.8573000431060791,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 31.38122793176342,
+              "ref": 31.38122793176342,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.05730000138282776,
+              "ref": 0.05730000138282776,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.061500004468020064,
+              "ref": -0.061500004468020064,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 379.353799619842,
+          "timing_seconds": {
+            "gen": 776.7341787815094,
+            "dino_feat": 38.03736114501953,
+            "fd_dinov2": 0.18149137496948242,
+            "judge": 0.7958121299743652,
+            "clean_fid": 109.20360684394836,
+            "incep_feat": 38.571606397628784
+          }
+        }
+      ]
+    },
+    {
+      "seed": 11,
+      "configs": [
+        {
+          "name": "w1",
+          "guidance": 1.0,
+          "gseed": 120000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8080000281333923,
+              "ref": 0.8080000281333923,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.646800035238266,
+              "ref": 0.646800035238266,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8893000483512878,
+              "ref": 0.8893000483512878,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.7346000373363495,
+              "ref": 0.7346000373363495,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 10.911637085385678,
+              "ref": 10.911637085385678,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.25940001010894775,
+              "ref": 0.25940001010894775,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": 0.044899995312094675,
+              "ref": 0.044899995312094675,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 280.4064592127552,
+          "timing_seconds": {
+            "gen": 390.0527379512787,
+            "dino_feat": 38.05005121231079,
+            "fd_dinov2": 0.1636664867401123,
+            "judge": 0.7953586578369141,
+            "clean_fid": 108.02484607696533,
+            "incep_feat": 23.18458104133606
+          }
+        },
+        {
+          "name": "w1.5",
+          "guidance": 1.5,
+          "gseed": 125000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8397000372409821,
+              "ref": 0.8397000372409821,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7487000286579132,
+              "ref": 0.7487000286579132,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9449000537395478,
+              "ref": 0.9449000537395478,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8087000370025634,
+              "ref": 0.8087000370025634,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 8.852327546379342,
+              "ref": 8.852327546379342,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.11240000277757645,
+              "ref": 0.11240000277757645,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.03910000471957029,
+              "ref": -0.03910000471957029,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 193.61108145194567,
+          "timing_seconds": {
+            "gen": 777.6119713783264,
+            "dino_feat": 36.910823822021484,
+            "fd_dinov2": 0.13791394233703613,
+            "judge": 0.7794656753540039,
+            "clean_fid": 104.94289064407349,
+            "incep_feat": 37.414270877838135
+          }
+        },
+        {
+          "name": "w2",
+          "guidance": 2.0,
+          "gseed": 130000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8532000362873078,
+              "ref": 0.8532000362873078,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.781900042295456,
+              "ref": 0.781900042295456,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9418000519275666,
+              "ref": 0.9418000519275666,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8473000466823578,
+              "ref": 0.8473000466823578,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 10.119097229499062,
+              "ref": 10.119097229499062,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.06469999998807907,
+              "ref": 0.06469999998807907,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.056700004554353665,
+              "ref": -0.056700004554353665,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 174.62829591051923,
+          "timing_seconds": {
+            "gen": 757.7218124866486,
+            "dino_feat": 36.89931273460388,
+            "fd_dinov2": 0.1340956687927246,
+            "judge": 0.7582197189331055,
+            "clean_fid": 105.46083307266235,
+            "incep_feat": 159.13367414474487
+          }
+        },
+        {
+          "name": "w2.5",
+          "guidance": 2.5,
+          "gseed": 135000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8774000406265259,
+              "ref": 0.8774000406265259,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7887000381946564,
+              "ref": 0.7887000381946564,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9301000535488129,
+              "ref": 0.9301000535488129,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8655000388622284,
+              "ref": 0.8655000388622284,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 12.054622682444801,
+              "ref": 12.054622682444801,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.0471000000834465,
+              "ref": 0.0471000000834465,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06070000459300355,
+              "ref": -0.06070000459300355,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 175.27986643580516,
+          "timing_seconds": {
+            "gen": 757.7073976993561,
+            "dino_feat": 36.90396070480347,
+            "fd_dinov2": 0.1384730339050293,
+            "judge": 0.7648513317108154,
+            "clean_fid": 102.92284083366394,
+            "incep_feat": 34.624062299728394
+          }
+        },
+        {
+          "name": "w3",
+          "guidance": 3.0,
+          "gseed": 140000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8756000459194183,
+              "ref": 0.8756000459194183,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7777000367641449,
+              "ref": 0.7777000367641449,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9230000436306,
+              "ref": 0.9230000436306,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8775000393390655,
+              "ref": 0.8775000393390655,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 14.521018526556077,
+              "ref": 14.521018526556077,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03790000081062317,
+              "ref": 0.03790000081062317,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06530000455537813,
+              "ref": -0.06530000455537813,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 190.27744209004595,
+          "timing_seconds": {
+            "gen": 757.7374141216278,
+            "dino_feat": 36.886966705322266,
+            "fd_dinov2": 0.1371450424194336,
+            "judge": 0.7748653888702393,
+            "clean_fid": 103.16326427459717,
+            "incep_feat": 164.43499970436096
+          }
+        },
+        {
+          "name": "w4",
+          "guidance": 4.0,
+          "gseed": 150000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8783000349998474,
+              "ref": 0.8783000349998474,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7430000364780426,
+              "ref": 0.7430000364780426,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8813000380992889,
+              "ref": 0.8813000380992889,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8817000448703766,
+              "ref": 0.8817000448703766,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 18.748929914000655,
+              "ref": 18.748929914000655,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03220000118017197,
+              "ref": 0.03220000118017197,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.0641000045798719,
+              "ref": -0.0641000045798719,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 225.03812787263223,
+          "timing_seconds": {
+            "gen": 763.8677358627319,
+            "dino_feat": 37.332417249679565,
+            "fd_dinov2": 0.17115569114685059,
+            "judge": 0.7811415195465088,
+            "clean_fid": 110.08474063873291,
+            "incep_feat": 35.72238206863403
+          }
+        },
+        {
+          "name": "w5",
+          "guidance": 5.0,
+          "gseed": 160000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8707000434398651,
+              "ref": 0.8707000434398651,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6948000311851501,
+              "ref": 0.6948000311851501,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8340000450611115,
+              "ref": 0.8340000450611115,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8790000379085541,
+              "ref": 0.8790000379085541,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 22.515342618678233,
+              "ref": 22.515342618678233,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03739999979734421,
+              "ref": 0.03739999979734421,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06450000447081403,
+              "ref": -0.06450000447081403,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 260.87644766557105,
+          "timing_seconds": {
+            "gen": 765.4891993999481,
+            "dino_feat": 37.186978340148926,
+            "fd_dinov2": 0.15096664428710938,
+            "judge": 0.7869369983673096,
+            "clean_fid": 105.34234070777893,
+            "incep_feat": 161.38667559623718
+          }
+        },
+        {
+          "name": "w6",
+          "guidance": 6.0,
+          "gseed": 170000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8598000407218933,
+              "ref": 0.8598000407218933,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6500000298023224,
+              "ref": 0.6500000298023224,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7974000334739685,
+              "ref": 0.7974000334739685,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8705000460147858,
+              "ref": 0.8705000460147858,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 25.844220141291203,
+              "ref": 25.844220141291203,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03909999877214432,
+              "ref": 0.03909999877214432,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06400000447034837,
+              "ref": -0.06400000447034837,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 301.8862770361652,
+          "timing_seconds": {
+            "gen": 773.0288324356079,
+            "dino_feat": 37.1154088973999,
+            "fd_dinov2": 0.15028786659240723,
+            "judge": 0.7762870788574219,
+            "clean_fid": 107.59930777549744,
+            "incep_feat": 36.86823272705078
+          }
+        },
+        {
+          "name": "w7",
+          "guidance": 7.0,
+          "gseed": 180000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8487000286579132,
+              "ref": 0.8487000286579132,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6111000299453735,
+              "ref": 0.6111000299453735,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7514000415802002,
+              "ref": 0.7514000415802002,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.864400041103363,
+              "ref": 0.864400041103363,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 28.694185729290723,
+              "ref": 28.694185729290723,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.04820000007748604,
+              "ref": 0.04820000007748604,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06340000439528377,
+              "ref": -0.06340000439528377,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 342.73767101977364,
+          "timing_seconds": {
+            "gen": 765.4294559955597,
+            "dino_feat": 37.18780303001404,
+            "fd_dinov2": 0.16211605072021484,
+            "judge": 0.7711045742034912,
+            "clean_fid": 108.10706734657288,
+            "incep_feat": 172.60478925704956
+          }
+        },
+        {
+          "name": "w8",
+          "guidance": 8.0,
+          "gseed": 190000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.837300032377243,
+              "ref": 0.837300032377243,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.5509000211954117,
+              "ref": 0.5509000211954117,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7182000279426575,
+              "ref": 0.7182000279426575,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8468000411987304,
+              "ref": 0.8468000411987304,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 31.373473435378116,
+              "ref": 31.373473435378116,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.05820000171661377,
+              "ref": 0.05820000171661377,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06130000447016211,
+              "ref": -0.06130000447016211,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 382.82886857568155,
+          "timing_seconds": {
+            "gen": 766.3076617717743,
+            "dino_feat": 37.184980630874634,
+            "fd_dinov2": 0.15622854232788086,
+            "judge": 0.796696662902832,
+            "clean_fid": 113.29987907409668,
+            "incep_feat": 40.69697046279907
+          }
+        }
+      ]
+    },
+    {
+      "seed": 12,
+      "configs": [
+        {
+          "name": "w1",
+          "guidance": 1.0,
+          "gseed": 130000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.7965000391006469,
+              "ref": 0.7965000391006469,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6469000339508056,
+              "ref": 0.6469000339508056,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8936000406742096,
+              "ref": 0.8936000406742096,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.7353000342845917,
+              "ref": 0.7353000342845917,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 11.10306632202196,
+              "ref": 11.10306632202196,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.25450000166893005,
+              "ref": 0.25450000166893005,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": 0.044799994736909855,
+              "ref": 0.044799994736909855,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 283.59360560237883,
+          "timing_seconds": {
+            "gen": 381.8955066204071,
+            "dino_feat": 37.46509647369385,
+            "fd_dinov2": 0.15205597877502441,
+            "judge": 0.8031907081604004,
+            "clean_fid": 113.73487091064453,
+            "incep_feat": 22.699788570404053
+          }
+        },
+        {
+          "name": "w1.5",
+          "guidance": 1.5,
+          "gseed": 135000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8440000414848328,
+              "ref": 0.8440000414848328,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7550000429153443,
+              "ref": 0.7550000429153443,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9391000449657441,
+              "ref": 0.9391000449657441,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8085000336170196,
+              "ref": 0.8085000336170196,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 8.851872863641916,
+              "ref": 8.851872863641916,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.11739999800920486,
+              "ref": 0.11739999800920486,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.036300003841519365,
+              "ref": -0.036300003841519365,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 197.19259313813745,
+          "timing_seconds": {
+            "gen": 768.713987827301,
+            "dino_feat": 37.49912190437317,
+            "fd_dinov2": 0.16870903968811035,
+            "judge": 0.7829008102416992,
+            "clean_fid": 116.96306800842285,
+            "incep_feat": 45.50247645378113
+          }
+        },
+        {
+          "name": "w2",
+          "guidance": 2.0,
+          "gseed": 140000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8634000480175018,
+              "ref": 0.8634000480175018,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7717000365257263,
+              "ref": 0.7717000365257263,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.945100051164627,
+              "ref": 0.945100051164627,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.846800047159195,
+              "ref": 0.846800047159195,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 10.24159615923628,
+              "ref": 10.24159615923628,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.06260000169277191,
+              "ref": 0.06260000169277191,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.0578000045833178,
+              "ref": -0.0578000045833178,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 176.395089954588,
+          "timing_seconds": {
+            "gen": 766.2226321697235,
+            "dino_feat": 37.21379041671753,
+            "fd_dinov2": 0.16747331619262695,
+            "judge": 0.7715117931365967,
+            "clean_fid": 109.47626304626465,
+            "incep_feat": 377.10204005241394
+          }
+        },
+        {
+          "name": "w2.5",
+          "guidance": 2.5,
+          "gseed": 145000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8699000477790833,
+              "ref": 0.8699000477790833,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.798900043964386,
+              "ref": 0.798900043964386,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.932200038433075,
+              "ref": 0.932200038433075,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8634000420570374,
+              "ref": 0.8634000420570374,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 12.267448215023705,
+              "ref": 12.267448215023705,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.04360000044107437,
+              "ref": 0.04360000044107437,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06230000458750875,
+              "ref": -0.06230000458750875,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 176.69527702801042,
+          "timing_seconds": {
+            "gen": 767.7629644870758,
+            "dino_feat": 36.9818811416626,
+            "fd_dinov2": 0.1475391387939453,
+            "judge": 0.7711410522460938,
+            "clean_fid": 103.3530969619751,
+            "incep_feat": 44.057106018066406
+          }
+        },
+        {
+          "name": "w3",
+          "guidance": 3.0,
+          "gseed": 150000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8764000415802002,
+              "ref": 0.8764000415802002,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7755000352859497,
+              "ref": 0.7755000352859497,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.9115000367164612,
+              "ref": 0.9115000367164612,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.87540003657341,
+              "ref": 0.87540003657341,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 14.170568379556698,
+              "ref": 14.170568379556698,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03689999878406525,
+              "ref": 0.03689999878406525,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06520000446913765,
+              "ref": -0.06520000446913765,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 189.56367437373092,
+          "timing_seconds": {
+            "gen": 769.1122930049896,
+            "dino_feat": 37.27750515937805,
+            "fd_dinov2": 0.152069091796875,
+            "judge": 0.7769424915313721,
+            "clean_fid": 114.62872576713562,
+            "incep_feat": 389.34699630737305
+          }
+        },
+        {
+          "name": "w4",
+          "guidance": 4.0,
+          "gseed": 160000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8755000472068787,
+              "ref": 0.8755000472068787,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.7461000323295593,
+              "ref": 0.7461000323295593,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8810000479221344,
+              "ref": 0.8810000479221344,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8826000392436981,
+              "ref": 0.8826000392436981,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 18.925582481926767,
+              "ref": 18.925582481926767,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.033399999141693115,
+              "ref": 0.033399999141693115,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06450000451738017,
+              "ref": -0.06450000451738017,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 223.7822288423713,
+          "timing_seconds": {
+            "gen": 765.578010559082,
+            "dino_feat": 37.29531502723694,
+            "fd_dinov2": 0.17432355880737305,
+            "judge": 0.7750599384307861,
+            "clean_fid": 106.52295541763306,
+            "incep_feat": 41.29096508026123
+          }
+        },
+        {
+          "name": "w5",
+          "guidance": 5.0,
+          "gseed": 170000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8647000432014466,
+              "ref": 0.8647000432014466,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.6942000329494477,
+              "ref": 0.6942000329494477,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.8390000522136688,
+              "ref": 0.8390000522136688,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8791000366210937,
+              "ref": 0.8791000366210937,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 22.36276150469365,
+              "ref": 22.36276150469365,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03579999879002571,
+              "ref": 0.03579999879002571,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06440000461740421,
+              "ref": -0.06440000461740421,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 260.14621831430895,
+          "timing_seconds": {
+            "gen": 763.88720703125,
+            "dino_feat": 37.233603715896606,
+            "fd_dinov2": 0.14721989631652832,
+            "judge": 0.7695629596710205,
+            "clean_fid": 104.86688709259033,
+            "incep_feat": 269.78924918174744
+          }
+        },
+        {
+          "name": "w6",
+          "guidance": 6.0,
+          "gseed": 180000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8562000453472137,
+              "ref": 0.8562000453472137,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.650500038266182,
+              "ref": 0.650500038266182,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.794400030374527,
+              "ref": 0.794400030374527,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8797000348567963,
+              "ref": 0.8797000348567963,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 26.05835179557863,
+              "ref": 26.05835179557863,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.03799999877810478,
+              "ref": 0.03799999877810478,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06400000463332982,
+              "ref": -0.06400000463332982,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 303.9092005390039,
+          "timing_seconds": {
+            "gen": 770.5032975673676,
+            "dino_feat": 38.20991897583008,
+            "fd_dinov2": 0.1669769287109375,
+            "judge": 0.7973339557647705,
+            "clean_fid": 109.8303804397583,
+            "incep_feat": 42.39960026741028
+          }
+        },
+        {
+          "name": "w7",
+          "guidance": 7.0,
+          "gseed": 190000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8480000376701355,
+              "ref": 0.8480000376701355,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.5999000310897827,
+              "ref": 0.5999000310897827,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7529000341892242,
+              "ref": 0.7529000341892242,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8583000421524047,
+              "ref": 0.8583000421524047,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 28.98407320106014,
+              "ref": 28.98407320106014,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.04960000142455101,
+              "ref": 0.04960000142455101,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06350000445824118,
+              "ref": -0.06350000445824118,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 344.0052536242338,
+          "timing_seconds": {
+            "gen": 790.9396650791168,
+            "dino_feat": 38.220202922821045,
+            "fd_dinov2": 0.1659388542175293,
+            "judge": 0.7964239120483398,
+            "clean_fid": 109.80572175979614,
+            "incep_feat": 318.5611340999603
+          }
+        },
+        {
+          "name": "w8",
+          "guidance": 8.0,
+          "gseed": 200000000,
+          "reconcile": {
+            "precision": {
+              "got": 0.8393000423908233,
+              "ref": 0.8393000423908233,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage": {
+              "got": 0.5616000294685364,
+              "ref": 0.5616000294685364,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "coverage_inception": {
+              "got": 0.7336000382900238,
+              "ref": 0.7336000382900238,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "precision_inception": {
+              "got": 0.8571000516414642,
+              "ref": 0.8571000516414642,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "char_clean_fid": {
+              "got": 31.235921459298424,
+              "ref": 31.235921459298424,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "near_boundary_frac": {
+              "got": 0.06080000102519989,
+              "ref": 0.06080000102519989,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            },
+            "label_noise_excess_mean": {
+              "got": -0.06210000463621692,
+              "ref": -0.06210000463621692,
+              "abs_delta": 0.0,
+              "rel_delta": 0.0,
+              "bitexact": true,
+              "within_tol": true
+            }
+          },
+          "over_tol": false,
+          "fd_dinov2": 375.89068733872364,
+          "timing_seconds": {
+            "gen": 770.93741106987,
+            "dino_feat": 37.19931483268738,
+            "fd_dinov2": 0.16111397743225098,
+            "judge": 0.7758650779724121,
+            "clean_fid": 107.86033487319946,
+            "incep_feat": 38.279518842697144
+          }
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "stopped_at": null,
+  "total_seconds": 30079.63430428505
+}

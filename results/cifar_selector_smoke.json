@@ -1,0 +1,194 @@
+{
+  "metadata": {
+    "dataset": "cifar10",
+    "axis": "CFG guidance (cond+uncond EDM)",
+    "seeds": [
+      0
+    ],
+    "per_class": 64,
+    "guidance_grid": [
+      1.0,
+      3.0
+    ],
+    "tstr_epochs": 2,
+    "prdc_feature_space": "Inception-v3 (FID detector)"
+  },
+  "aggregate": {
+    "n_seeds": 1,
+    "per_config": [
+      {
+        "name": "w1",
+        "precision": {
+          "mean": 0.8234375,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8234375,
+          "max": 0.8234375,
+          "n": 1,
+          "values": [
+            0.8234375
+          ]
+        },
+        "coverage": {
+          "mean": 0.8124999701976776,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8124999701976776,
+          "max": 0.8124999701976776,
+          "n": 1,
+          "values": [
+            0.8124999701976776
+          ]
+        },
+        "tstr": {
+          "mean": 11.82,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 11.82,
+          "max": 11.82,
+          "n": 1,
+          "values": [
+            11.82
+          ]
+        }
+      },
+      {
+        "name": "w3",
+        "precision": {
+          "mean": 0.85625,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.85625,
+          "max": 0.85625,
+          "n": 1,
+          "values": [
+            0.85625
+          ]
+        },
+        "coverage": {
+          "mean": 0.8099999725818634,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 0.8099999725818634,
+          "max": 0.8099999725818634,
+          "n": 1,
+          "values": [
+            0.8099999725818634
+          ]
+        },
+        "tstr": {
+          "mean": 10.0,
+          "std": 0.0,
+          "sem": 0.0,
+          "min": 10.0,
+          "max": 10.0,
+          "n": 1,
+          "values": [
+            10.0
+          ]
+        }
+      }
+    ],
+    "selection": {
+      "per_seed": [
+        "w1"
+      ],
+      "counts": {
+        "w1": 1
+      },
+      "modal": "w1",
+      "modal_fraction": 1.0
+    },
+    "regret_at_selected": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 1,
+      "values": [
+        0.0
+      ]
+    },
+    "rank_per_seed": [
+      1
+    ],
+    "topk_hit_rate": 1.0,
+    "oracle_best_per_seed": [
+      "w1"
+    ]
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "real_ref_precision": 0.799113792181015,
+      "configs": [
+        {
+          "name": "w1",
+          "guidance": 1.0,
+          "precision": 0.8234375,
+          "coverage": 0.8124999701976776,
+          "recall": 0.7259999752044678,
+          "density": 1.240625011920929,
+          "tstr": 11.82
+        },
+        {
+          "name": "w3",
+          "guidance": 3.0,
+          "precision": 0.85625,
+          "coverage": 0.8099999725818634,
+          "recall": 0.5934999912977219,
+          "density": 1.5515624940395356,
+          "tstr": 10.0
+        }
+      ],
+      "report": {
+        "tau": 0.7192024129629135,
+        "tau_passed_floor": true,
+        "selected": "w1",
+        "oracle_best": "w1",
+        "regret_at_selected": 0.0,
+        "rank": 1,
+        "n_configs": 2,
+        "topk_hit": true,
+        "topk": 3,
+        "tau_robustness": {
+          "picks": {
+            "0.8234375": "w1",
+            "0.8267187500000001": "w3",
+            "0.8300000000000001": "w3",
+            "0.83328125": "w3",
+            "0.8365625": "w3",
+            "0.83984375": "w3",
+            "0.843125": "w3",
+            "0.84640625": "w3",
+            "0.8496874999999999": "w3",
+            "0.8529687499999999": "w3",
+            "0.85625": "w3"
+          },
+          "modal": "w3",
+          "stability": 0.9090909090909091
+        }
+      }
+    }
+  ],
+  "args": {
+    "cond": "checkpoints/edm-cifar10-32x32-cond-vp.pkl",
+    "uncond": "checkpoints/edm-cifar10-32x32-uncond-vp.pkl",
+    "dataset": "cifar10",
+    "seeds": [
+      0
+    ],
+    "per_class": 64,
+    "real_per_class": 200,
+    "batch": 256,
+    "nearest_k": 5,
+    "tau_fraction": 0.9,
+    "tstr_epochs": 2,
+    "tstr_lr": 0.1,
+    "tstr_batch_size": 128,
+    "output": "results/cifar_selector_smoke.json",
+    "quick": true,
+    "num_classes": 10
+  }
+}

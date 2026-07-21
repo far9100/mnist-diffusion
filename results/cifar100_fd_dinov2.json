@@ -1,0 +1,136 @@
+{
+  "per_config": [
+    {
+      "name": "w1",
+      "guidance": 1.0,
+      "gseed": 1122310952079071801,
+      "fd_dinov2": 323.2112735399801,
+      "tstr_seed10": 59.438,
+      "source": "cached",
+      "seconds": 0.8035426139831543
+    },
+    {
+      "name": "w1.5",
+      "guidance": 1.5,
+      "gseed": 573565663341248262,
+      "fd_dinov2": 188.44987389162952,
+      "tstr_seed10": 58.648,
+      "source": "cached",
+      "seconds": 0.7520413398742676
+    },
+    {
+      "name": "w2",
+      "guidance": 2.0,
+      "gseed": 1138946868025918863,
+      "fd_dinov2": 153.8342897023931,
+      "tstr_seed10": 55.438,
+      "source": "generated",
+      "seconds": 3531.6479556560516
+    },
+    {
+      "name": "w2.5",
+      "guidance": 2.5,
+      "gseed": 430754480060137801,
+      "fd_dinov2": 153.60549488120932,
+      "tstr_seed10": 50.656,
+      "source": "cached",
+      "seconds": 0.7939999103546143
+    },
+    {
+      "name": "w3",
+      "guidance": 3.0,
+      "gseed": 805740081990284537,
+      "fd_dinov2": 166.98518526018916,
+      "tstr_seed10": 45.822,
+      "source": "generated",
+      "seconds": 3541.704418897629
+    },
+    {
+      "name": "w4",
+      "guidance": 4.0,
+      "gseed": 455667822668024192,
+      "fd_dinov2": 200.54639000549196,
+      "tstr_seed10": 35.896,
+      "source": "generated",
+      "seconds": 3471.985997438431
+    },
+    {
+      "name": "w5",
+      "guidance": 5.0,
+      "gseed": 894881760595988216,
+      "fd_dinov2": 236.7165198220523,
+      "tstr_seed10": 27.472,
+      "source": "generated",
+      "seconds": 3535.2178404331207
+    },
+    {
+      "name": "w6",
+      "guidance": 6.0,
+      "gseed": 1028546129950636160,
+      "fd_dinov2": 268.7226220796856,
+      "tstr_seed10": 23.363999999999997,
+      "source": "generated",
+      "seconds": 3518.146158218384
+    },
+    {
+      "name": "w7",
+      "guidance": 7.0,
+      "gseed": 274184270809551615,
+      "fd_dinov2": 299.07627282299836,
+      "tstr_seed10": 18.582,
+      "source": "generated",
+      "seconds": 3430.6111319065094
+    },
+    {
+      "name": "w8",
+      "guidance": 8.0,
+      "gseed": 453611785575802558,
+      "fd_dinov2": 324.7027241169717,
+      "tstr_seed10": 15.553999999999998,
+      "source": "generated",
+      "seconds": 3430.087376356125
+    }
+  ],
+  "which_fid_dinov2": {
+    "fd_dinov2_argmin": "w2.5",
+    "tstr_argmax_seed10": "w1",
+    "separation_step": 3,
+    "separated_gt1": true,
+    "rule": "FD-DINOv2 argmin 與 seed-10 TSTR argmax 相隔 > 1 格才算分離（D6）"
+  },
+  "status": "complete",
+  "metadata": {
+    "analysis": "cifar100_fd_dinov2",
+    "source": "results/cifar100_cfg_confirmatory.json",
+    "asset": "results/p1_assets_cifar100",
+    "seed": 10,
+    "num_classes": 100,
+    "grid": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0
+    ],
+    "per_class": 500,
+    "steps": 50,
+    "eta": 0.0,
+    "batch": 128,
+    "gen_seed_formula": "cifar100_gseed sha256[:15]",
+    "acceleration": "cudnn.benchmark=True、非嚴格決定性、batch 加大（FD-DINOv2 為全集分佈量，不需逐位決定性；已快取之 w1/w1.5/w2.5 為 regen 決定性 batch=250，混用不影響分佈量）",
+    "note": "which-FID 之 DINOv2 空間補算（單 seed 10，exploratory）；生成路徑沿 regen（同模型／guidance／cifar100_gseed）；w1/w1.5/w2.5 之 gen 特徵載自落盤快取。FD-DINOv2 為全集分佈距離。",
+    "start_timestamp": "2026-07-18 22:10:50",
+    "argv": "run_cifar100_fd_dinov2.py --batch 128",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070"
+    }
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "datasets": {
+    "CIFAR-10": {
+      "dataset": "CIFAR-10",
+      "n_seeds": 3,
+      "per_seed": [
+        {
+          "seed": 10,
+          "tstr_argmax": "w2",
+          "tstr_argmax_tstr": 61.16,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 58.71,
+          "paired_diff": 2.45,
+          "sep_step": 1
+        },
+        {
+          "seed": 11,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 67.52,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 67.24,
+          "paired_diff": 0.28,
+          "sep_step": 1
+        },
+        {
+          "seed": 12,
+          "tstr_argmax": "w1.5",
+          "tstr_argmax_tstr": 65.94,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 65.94,
+          "paired_diff": 0.0,
+          "sep_step": 0
+        }
+      ],
+      "paired_diff_per_seed": [
+        2.45,
+        0.28,
+        0.0
+      ],
+      "grid_step_caliber": {
+        "sep_step_per_seed": [
+          1,
+          1,
+          0
+        ],
+        "separated_seeds_gt1": 0,
+        "n_seeds": 3,
+        "rule": "C1 口徑：FID-argmin 與 TSTR-argmax 相隔 > 1 格才算分離"
+      },
+      "paired_test_posthoc": {
+        "mean_diff": 0.91,
+        "sd": 1.341,
+        "se": 0.7742,
+        "t": 1.1754,
+        "df": 2,
+        "p_two_sided": 0.3608274890209235,
+        "ci95": [
+          -2.4212,
+          4.2412
+        ],
+        "sign_test": {
+          "n_positive": 2,
+          "n_negative": 0,
+          "n_zero": 1,
+          "n_nonzero": 2,
+          "p_two_sided": 0.5
+        }
+      },
+      "_source": {
+        "confirmatory": "results/cifar10_cfg_confirmatory.json",
+        "cross_check_duel": "results/cifar10_c6_fidmin_duel.json"
+      }
+    },
+    "CIFAR-100": {
+      "dataset": "CIFAR-100",
+      "n_seeds": 8,
+      "per_seed": [
+        {
+          "seed": 10,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.438,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 58.648,
+          "paired_diff": 0.79,
+          "sep_step": 1
+        },
+        {
+          "seed": 11,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.882,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 58.734,
+          "paired_diff": 1.15,
+          "sep_step": 1
+        },
+        {
+          "seed": 12,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.976,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 59.522,
+          "paired_diff": 0.45,
+          "sep_step": 1
+        },
+        {
+          "seed": 13,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.168,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 58.302,
+          "paired_diff": 0.87,
+          "sep_step": 1
+        },
+        {
+          "seed": 14,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.728,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 59.054,
+          "paired_diff": 0.67,
+          "sep_step": 1
+        },
+        {
+          "seed": 15,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.704,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 58.976,
+          "paired_diff": 0.73,
+          "sep_step": 1
+        },
+        {
+          "seed": 16,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.914,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 59.008,
+          "paired_diff": 0.91,
+          "sep_step": 1
+        },
+        {
+          "seed": 17,
+          "tstr_argmax": "w1",
+          "tstr_argmax_tstr": 59.468,
+          "fid_argmin": "w1.5",
+          "fid_argmin_tstr": 58.948,
+          "paired_diff": 0.52,
+          "sep_step": 1
+        }
+      ],
+      "paired_diff_per_seed": [
+        0.79,
+        1.15,
+        0.45,
+        0.87,
+        0.67,
+        0.73,
+        0.91,
+        0.52
+      ],
+      "grid_step_caliber": {
+        "sep_step_per_seed": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "separated_seeds_gt1": 0,
+        "n_seeds": 8,
+        "rule": "C1 口徑：FID-argmin 與 TSTR-argmax 相隔 > 1 格才算分離"
+      },
+      "paired_test_posthoc": {
+        "mean_diff": 0.7607,
+        "sd": 0.2216,
+        "se": 0.0783,
+        "t": 9.7113,
+        "df": 7,
+        "p_two_sided": 2.5942429030618466e-05,
+        "ci95": [
+          0.5755,
+          0.946
+        ],
+        "sign_test": {
+          "n_positive": 8,
+          "n_negative": 0,
+          "n_zero": 0,
+          "n_nonzero": 8,
+          "p_two_sided": 0.0078125
+        }
+      },
+      "_source": {
+        "confirmatory": "results/cifar100_cfg_confirmatory.json",
+        "cross_check_duel": "results/cifar100_c6_fidmin_duel.json"
+      }
+    }
+  },
+  "metadata": {
+    "analysis": "c1_paired_stats",
+    "status": "post-hoc",
+    "note": "凍結格步口徑為路由依據不回改；配對檢定為 post-hoc 補充解讀，不改任何凍結判決。",
+    "sources": {
+      "CIFAR-10": {
+        "confirmatory": "results/cifar10_cfg_confirmatory.json",
+        "cross_check_duel": "results/cifar10_c6_fidmin_duel.json"
+      },
+      "CIFAR-100": {
+        "confirmatory": "results/cifar100_cfg_confirmatory.json",
+        "cross_check_duel": "results/cifar100_c6_fidmin_duel.json"
+      }
+    },
+    "cross_check_passed": true,
+    "reconciled_against_output": true,
+    "start_timestamp": "2026-07-19 18:28:23",
+    "argv": "run_c1_paired_stats.py",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "numpy": "2.4.2",
+      "scipy": "1.18.0"
+    }
+  }
+}

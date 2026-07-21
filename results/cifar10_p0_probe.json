@@ -1,0 +1,141 @@
+{
+  "cell": {
+    "seed": 10,
+    "w": 1.0,
+    "gseed": 110000000
+  },
+  "metadata": {
+    "nearest_k": 5,
+    "effective_nearest_k": 5,
+    "tau_fraction": 0.9,
+    "batch": 250,
+    "per_class": 1000,
+    "real_per_class": 1000,
+    "argv": "run_p0_probe.py",
+    "start_timestamp": "2026-07-08 17:36:18",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070",
+      "python": "3.12.13"
+    },
+    "determinism": {
+      "use_deterministic_algorithms": true,
+      "warn_only": true,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "cublas_workspace_config": ":4096:8"
+    }
+  },
+  "input_sources": {
+    "per_class": "JSON",
+    "real_per_class": "JSON",
+    "steps": "JSON",
+    "eta": "JSON",
+    "threshold": "JSON",
+    "judge_floor": "JSON",
+    "num_classes": "DRV",
+    "real_ref_seed": "DRV",
+    "nearest_k": "NEW",
+    "batch": "NEW",
+    "ckpt": "NEW",
+    "judge_ckpt": "NEW"
+  },
+  "new_inputs": [
+    "nearest_k",
+    "batch",
+    "ckpt",
+    "judge_ckpt"
+  ],
+  "path_A_generation": {
+    "bitexact": true,
+    "max_abs_diff": 0.0
+  },
+  "scalar_reconcile_vs_frozen_JSON": {
+    "precision": {
+      "got": 0.8126000344753266,
+      "ref": 0.8126000344753266,
+      "abs_delta": 0.0,
+      "rel_delta": 0.0,
+      "bitexact": true,
+      "within_tol": true,
+      "k_dependent": true
+    },
+    "coverage": {
+      "got": 0.6409000307321548,
+      "ref": 0.6409000307321548,
+      "abs_delta": 0.0,
+      "rel_delta": 0.0,
+      "bitexact": true,
+      "within_tol": true,
+      "k_dependent": true
+    },
+    "coverage_inception": {
+      "got": 0.8959000468254089,
+      "ref": 0.8959000468254089,
+      "abs_delta": 0.0,
+      "rel_delta": 0.0,
+      "bitexact": true,
+      "within_tol": true,
+      "k_dependent": true
+    },
+    "precision_inception": {
+      "got": 0.7362000405788421,
+      "ref": 0.7362000405788421,
+      "abs_delta": 0.0,
+      "rel_delta": 0.0,
+      "bitexact": true,
+      "within_tol": true,
+      "k_dependent": true
+    },
+    "char_clean_fid": {
+      "got": 10.93039776801254,
+      "ref": 10.93039776801254,
+      "abs_delta": 0.0,
+      "rel_delta": 0.0,
+      "bitexact": true,
+      "within_tol": true,
+      "k_dependent": false
+    },
+    "near_boundary_frac": {
+      "got": 0.2531999945640564,
+      "ref": 0.2531999945640564,
+      "abs_delta": 0.0,
+      "rel_delta": 0.0,
+      "bitexact": true,
+      "within_tol": true,
+      "k_dependent": false
+    },
+    "label_noise_excess_mean": {
+      "got": 0.04239999471604823,
+      "ref": 0.04239999471604823,
+      "abs_delta": 0.0,
+      "rel_delta": 0.0,
+      "bitexact": true,
+      "within_tol": true,
+      "k_dependent": false
+    }
+  },
+  "verdict": "ALL_BITEXACT",
+  "k_sweep": null,
+  "timing_seconds": {
+    "gen_1": 541.2816920280457,
+    "gen_2": 517.2712821960449,
+    "dino_feat": 37.73905158042908,
+    "judge": 0.8443729877471924,
+    "clean_fid": 104.35800909996033,
+    "incep_feat": 23.332610607147217
+  },
+  "storage_bytes_cell": {
+    "dino_feat.pt": 30721591,
+    "img_uint8.pt": 30721591,
+    "incep_feat.pt": 81921598,
+    "judge_out.pt": 121909,
+    "labels.pt": 161693,
+    "real_dino_feat.pt": 30721626,
+    "real_incep_feat.pt": 81921633
+  },
+  "storage_bytes_cell_total": 256291641,
+  "storage_estimate_30cell_GB": 7.689
+}

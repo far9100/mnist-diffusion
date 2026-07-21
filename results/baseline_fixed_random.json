@@ -1,0 +1,446 @@
+{
+  "datasets": {
+    "MNIST": {
+      "dataset": "MNIST",
+      "grid": [
+        "g1",
+        "g2",
+        "g3",
+        "g5",
+        "g7",
+        "g10"
+      ],
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "n_seeds": 3,
+      "oracle_tstr_per_seed": [
+        97.21,
+        97.22,
+        97.47
+      ],
+      "fixed_w": {
+        "g1": {
+          "regret_per_seed": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_regret": 0.0
+        },
+        "g2": {
+          "regret_per_seed": [
+            0.91,
+            1.01,
+            1.15
+          ],
+          "mean_regret": 1.02
+        },
+        "g3": {
+          "regret_per_seed": [
+            2.41,
+            2.18,
+            2.27
+          ],
+          "mean_regret": 2.29
+        },
+        "g5": {
+          "regret_per_seed": [
+            4.96,
+            4.9,
+            5.1
+          ],
+          "mean_regret": 4.99
+        },
+        "g7": {
+          "regret_per_seed": [
+            8.44,
+            8.47,
+            8.44
+          ],
+          "mean_regret": 8.45
+        },
+        "g10": {
+          "regret_per_seed": [
+            18.79,
+            17.67,
+            19.92
+          ],
+          "mean_regret": 18.79
+        }
+      },
+      "random_feasible": {
+        "regret_per_seed": [
+          5.92,
+          5.7,
+          6.15
+        ],
+        "mean_regret": 5.92,
+        "feasible_size_per_seed": [
+          6,
+          6,
+          6
+        ],
+        "tau_per_seed": [
+          0.8565,
+          0.8666,
+          0.854
+        ],
+        "note": "可行集 = {precision >= 該 seed report.tau}；期望 regret 為可行集 TSTR 解析平均。"
+      },
+      "_source": "results/selector_signal_multiseed.json"
+    },
+    "CIFAR-10": {
+      "dataset": "CIFAR-10",
+      "grid": [
+        "w1",
+        "w1.5",
+        "w2",
+        "w2.5",
+        "w3",
+        "w4",
+        "w5",
+        "w6",
+        "w7",
+        "w8"
+      ],
+      "seeds": [
+        10,
+        11,
+        12
+      ],
+      "n_seeds": 3,
+      "oracle_tstr_per_seed": [
+        61.16,
+        67.52,
+        65.94
+      ],
+      "fixed_w": {
+        "w1": {
+          "regret_per_seed": [
+            0.67,
+            0.0,
+            4.47
+          ],
+          "mean_regret": 1.71
+        },
+        "w1.5": {
+          "regret_per_seed": [
+            2.45,
+            0.28,
+            0.0
+          ],
+          "mean_regret": 0.91
+        },
+        "w2": {
+          "regret_per_seed": [
+            0.0,
+            4.74,
+            6.4
+          ],
+          "mean_regret": 3.71
+        },
+        "w2.5": {
+          "regret_per_seed": [
+            0.54,
+            5.03,
+            5.49
+          ],
+          "mean_regret": 3.69
+        },
+        "w3": {
+          "regret_per_seed": [
+            8.9,
+            15.14,
+            11.33
+          ],
+          "mean_regret": 11.79
+        },
+        "w4": {
+          "regret_per_seed": [
+            13.39,
+            23.25,
+            16.37
+          ],
+          "mean_regret": 17.67
+        },
+        "w5": {
+          "regret_per_seed": [
+            15.16,
+            25.72,
+            21.43
+          ],
+          "mean_regret": 20.77
+        },
+        "w6": {
+          "regret_per_seed": [
+            20.02,
+            28.72,
+            28.58
+          ],
+          "mean_regret": 25.77
+        },
+        "w7": {
+          "regret_per_seed": [
+            25.2,
+            31.75,
+            29.5
+          ],
+          "mean_regret": 28.82
+        },
+        "w8": {
+          "regret_per_seed": [
+            29.1,
+            34.15,
+            31.0
+          ],
+          "mean_regret": 31.42
+        }
+      },
+      "random_feasible": {
+        "regret_per_seed": [
+          11.54,
+          18.75,
+          16.68
+        ],
+        "mean_regret": 15.66,
+        "feasible_size_per_seed": [
+          10,
+          9,
+          9
+        ],
+        "tau_per_seed": [
+          0.7979,
+          0.8114,
+          0.8056
+        ],
+        "note": "可行集 = {precision >= 該 seed report.tau}；期望 regret 為可行集 TSTR 解析平均。"
+      },
+      "_source": "results/cifar10_cfg_confirmatory.json"
+    },
+    "CIFAR-100": {
+      "dataset": "CIFAR-100",
+      "grid": [
+        "w1",
+        "w1.5",
+        "w2",
+        "w2.5",
+        "w3",
+        "w4",
+        "w5",
+        "w6",
+        "w7",
+        "w8"
+      ],
+      "seeds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "n_seeds": 8,
+      "oracle_tstr_per_seed": [
+        59.438,
+        59.882,
+        59.976,
+        59.168,
+        59.728,
+        59.704,
+        59.914,
+        59.468
+      ],
+      "fixed_w": {
+        "w1": {
+          "regret_per_seed": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_regret": 0.0
+        },
+        "w1.5": {
+          "regret_per_seed": [
+            0.79,
+            1.15,
+            0.45,
+            0.87,
+            0.67,
+            0.73,
+            0.91,
+            0.52
+          ],
+          "mean_regret": 0.76
+        },
+        "w2": {
+          "regret_per_seed": [
+            4.0,
+            4.51,
+            4.32,
+            3.64,
+            4.81,
+            4.42,
+            4.31,
+            4.14
+          ],
+          "mean_regret": 4.27
+        },
+        "w2.5": {
+          "regret_per_seed": [
+            8.78,
+            9.52,
+            8.5,
+            8.43,
+            8.62,
+            9.79,
+            9.15,
+            8.75
+          ],
+          "mean_regret": 8.94
+        },
+        "w3": {
+          "regret_per_seed": [
+            13.62,
+            14.37,
+            14.85,
+            14.01,
+            14.38,
+            15.61,
+            14.61,
+            13.73
+          ],
+          "mean_regret": 14.4
+        },
+        "w4": {
+          "regret_per_seed": [
+            23.54,
+            23.9,
+            24.6,
+            23.02,
+            23.96,
+            24.31,
+            24.33,
+            23.4
+          ],
+          "mean_regret": 23.88
+        },
+        "w5": {
+          "regret_per_seed": [
+            31.97,
+            31.68,
+            31.59,
+            31.36,
+            31.46,
+            31.59,
+            32.19,
+            31.42
+          ],
+          "mean_regret": 31.66
+        },
+        "w6": {
+          "regret_per_seed": [
+            36.07,
+            37.83,
+            36.84,
+            35.73,
+            36.78,
+            37.31,
+            37.09,
+            36.81
+          ],
+          "mean_regret": 36.81
+        },
+        "w7": {
+          "regret_per_seed": [
+            40.86,
+            40.91,
+            41.61,
+            40.45,
+            40.8,
+            40.86,
+            41.1,
+            40.51
+          ],
+          "mean_regret": 40.89
+        },
+        "w8": {
+          "regret_per_seed": [
+            43.88,
+            43.86,
+            44.09,
+            43.42,
+            43.66,
+            43.99,
+            43.99,
+            43.37
+          ],
+          "mean_regret": 43.78
+        }
+      },
+      "random_feasible": {
+        "regret_per_seed": [
+          22.61,
+          23.08,
+          22.98,
+          22.32,
+          22.79,
+          23.18,
+          23.08,
+          22.52
+        ],
+        "mean_regret": 22.82,
+        "feasible_size_per_seed": [
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9
+        ],
+        "tau_per_seed": [
+          0.7943,
+          0.795,
+          0.7985,
+          0.7945,
+          0.7959,
+          0.7911,
+          0.7979,
+          0.7947
+        ],
+        "note": "可行集 = {precision >= 該 seed report.tau}；期望 regret 為可行集 TSTR 解析平均。"
+      },
+      "_source": "results/cifar100_cfg_confirmatory.json"
+    }
+  },
+  "metadata": {
+    "analysis": "baseline_fixed_random",
+    "status": "derived",
+    "prereg_ref": "D5：固定 w 與隨機可行點 baseline",
+    "harking_guard": "fixed-w 對網格每一個 w 都報整欄 per-seed regret，不預先挑點。",
+    "sources": {
+      "MNIST": "results/selector_signal_multiseed.json",
+      "CIFAR-10": "results/cifar10_cfg_confirmatory.json",
+      "CIFAR-100": "results/cifar100_cfg_confirmatory.json"
+    },
+    "reconciled_against_output": true,
+    "start_timestamp": "2026-07-19 18:31:14",
+    "argv": "run_baseline_fixed_random.py",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  }
+}

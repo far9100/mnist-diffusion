@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "dataset": "cifar100",
+    "num_classes": 100,
+    "axis": "CFG guidance (self-trained model)",
+    "steps": 50,
+    "eta": 0.0,
+    "guidance_grid": [
+      1.0,
+      1.5,
+      2.0,
+      3.0,
+      5.0,
+      8.0
+    ],
+    "per_class": 200,
+    "tstr_epochs": 15,
+    "near_boundary_threshold": 0.36222460865974426,
+    "coverage_feature": "DINOv2 primary + Inception cross-check",
+    "start_timestamp": "2026-07-10T18:25:31.689266+00:00",
+    "end_timestamp": "2026-07-10T21:02:51.858134+00:00",
+    "argv": [
+      "run_cifar_cfg_scout.py",
+      "--dataset",
+      "cifar100",
+      "--per-class",
+      "200",
+      "--real-per-class",
+      "200"
+    ],
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  },
+  "rows": [
+    {
+      "guidance": 1.0,
+      "precision_dino": 0.8191999810934066,
+      "coverage_dino": 0.5540999872982502,
+      "coverage_inception": 0.8571499788761139,
+      "precision_inception": 0.7304499834775925,
+      "tstr": 49.45,
+      "label_noise_frac": 0.3418999910354614,
+      "near_boundary_frac": 0.2575500011444092
+    },
+    {
+      "guidance": 1.5,
+      "precision_dino": 0.8602499812841415,
+      "coverage_dino": 0.7258999845385552,
+      "coverage_inception": 0.9383999788761139,
+      "precision_inception": 0.8410499781370163,
+      "tstr": 48.07,
+      "label_noise_frac": 0.1339000016450882,
+      "near_boundary_frac": 0.11469999700784683
+    },
+    {
+      "guidance": 2.0,
+      "precision_dino": 0.8804499793052674,
+      "coverage_dino": 0.7805499821901322,
+      "coverage_inception": 0.9360499787330627,
+      "precision_inception": 0.8790999817848205,
+      "tstr": 41.38,
+      "label_noise_frac": 0.06859999895095825,
+      "near_boundary_frac": 0.06485000252723694
+    },
+    {
+      "guidance": 3.0,
+      "precision_dino": 0.8900499808788299,
+      "coverage_dino": 0.7702499806880951,
+      "coverage_inception": 0.8897499763965606,
+      "precision_inception": 0.8929499799013138,
+      "tstr": 34.69,
+      "label_noise_frac": 0.03240000084042549,
+      "near_boundary_frac": 0.03669999912381172
+    },
+    {
+      "guidance": 5.0,
+      "precision_dino": 0.8765999794006347,
+      "coverage_dino": 0.6633999848365784,
+      "coverage_inception": 0.7782999816536903,
+      "precision_inception": 0.880249981880188,
+      "tstr": 20.42,
+      "label_noise_frac": 0.029500000178813934,
+      "near_boundary_frac": 0.03474999964237213
+    },
+    {
+      "guidance": 8.0,
+      "precision_dino": 0.8507499817013741,
+      "coverage_dino": 0.5424999895691872,
+      "coverage_inception": 0.6622999849915504,
+      "precision_inception": 0.852849982380867,
+      "tstr": 12.6,
+      "label_noise_frac": 0.06790000200271606,
+      "near_boundary_frac": 0.07599999755620956
+    }
+  ],
+  "verdict": {
+    "sweet_spot_guidance": 1.0,
+    "coverage_peak": 0.7805499821901322,
+    "coverage_peak_guidance": 2.0,
+    "coverage_collapse_guidance": 5.0
+  },
+  "args": {
+    "dataset": "cifar100",
+    "ckpt": null,
+    "judge": null,
+    "guidance": [
+      1.0,
+      1.5,
+      2.0,
+      3.0,
+      5.0,
+      8.0
+    ],
+    "per_class": 200,
+    "real_per_class": 200,
+    "steps": 50,
+    "eta": 0.0,
+    "batch": 250,
+    "nearest_k": 5,
+    "threshold": 0.36222460865974426,
+    "tstr_epochs": 15,
+    "seed": 0,
+    "no_inception": false,
+    "output": null,
+    "quick": false
+  }
+}

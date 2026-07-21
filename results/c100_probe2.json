@@ -1,0 +1,36 @@
+{
+  "gate": "cifar100_base_model_fid",
+  "ckpt": "checkpoints/cifar100_cfg.pt",
+  "epoch": null,
+  "num_classes": 100,
+  "num": 200,
+  "per_class": 2,
+  "steps": 50,
+  "eta": 0.0,
+  "guidance": 1.0,
+  "seed": 0,
+  "batch": 250,
+  "ref_name": "c100_probe2",
+  "real_num_for_ref": 200,
+  "clean_fid": 154.4190896534525,
+  "gate_threshold": 20.0,
+  "passed": false,
+  "start_timestamp": "2026-07-10T16:41:31.579432+00:00",
+  "end_timestamp": "2026-07-10T16:42:16.010304+00:00",
+  "argv": [
+    "cifar100_base_gate.py",
+    "--num",
+    "200",
+    "--real-num",
+    "200",
+    "--ref-name",
+    "c100_probe2",
+    "--output",
+    "results/c100_probe2.json"
+  ],
+  "env": {
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "cudnn": 91900
+  }
+}
