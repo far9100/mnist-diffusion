@@ -286,6 +286,9 @@ def verify_table_5_3(tables):
         check("§5.2.1 v2 seed10 w2.5 coverage", ".792", cfg["w2.5"]["coverage"])
         check("§5.2.1 v2 seed10 w2.5 precision", ".869", cfg["w2.5"]["precision"])
         check("§5.2.1 v2 seed10 w2.5 TSTR", "56.61", cfg["w2.5"]["tstr"])
+    if os.path.exists(os.path.join(RES, "cifar100_prdc_vitl14_seed10.json")):
+        t11 = load("cifar100_prdc_vitl14_seed10.json")["backbone_dependence"]
+        check("§6.3 T11 ViT-L which-FID 分離格步", "3", t11["vitl_fd_vs_tstr_separation_step"])
 
 
 def verify_table_5_5(tables):
