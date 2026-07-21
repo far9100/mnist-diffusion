@@ -11,6 +11,15 @@ git 歷史，可以 `git log -- records/` 查閱。
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-22
+
+- `2026-07-22-01` test — 任務書 fix_tasks T11（B1）ViT-L/14 PRDC 真跑完成（CIFAR-100 seed10 全 10 config、
+  8 格 GPU regen＋2 快取，約 9.4h）：`results/cifar100_prdc_vitl14_seed10.json`。which-FID 與 coverage 排序對
+  DINOv2 backbone **穩健**——ViT-L（1024 維）與 ViT-B（768 維）之 coverage-argmax 皆 w2.5、FD-argmin 皆 w2.5、
+  FD-argmin 與 TSTR-argmax（w1）皆相隔 3 格判分離；絕對值隨 backbone 改變（ViT-L coverage 系統性低約 0.15、
+  FD 較高）但排序不變。故 Pareto 失明與 which-FID 診斷不依賴特定 DINOv2 尺寸（回應 Stein et al. 之 ViT-L
+  建議）。整合 §6.3；verifier 增 1 條（ViT-L 分離格步 3），重跑 OK 368／MISMATCH 0；凍結未動（commit a814b94 之記錄）。
+
 ## 2026-07-21
 
 - `2026-07-21-01` proofread — 任務書 fix_tasks T7.5（A5）H3 主張降級：把「Chamfer 增益不見於 coverage」於
