@@ -137,11 +137,13 @@ def resolve_protocol(args, threshold_cli):
     return []
 
 
-def gen_seed(dataset, seed, w):
+def gen_seed(dataset, seed, w, formula="legacy"):
     """(seed, w) → 生成種子。CIFAR-100 用無碰撞 hash 公式（D9 datasets/cifar100_gseed.py）；
-    CIFAR-10 沿用原 (seed+w)×1e7 公式以保凍結資料之逐位重現（該公式已知在 CIFAR-10 網格有退化
-    碰撞，見 R-2026-07-06-05 §1.12，但 CIFAR-10 confirmatory 已用它跑完並定稿，不改）。"""
-    if dataset == "cifar100":
+    CIFAR-10 預設沿用原 (seed+w)×1e7 公式以保凍結 v1 之逐位重現（該公式已知在 CIFAR-10 網格有退化
+    碰撞，見 R-2026-07-06-05 §1.12：30 cell 退化為 14 個 gseed、26 cell 共用 latent，破壞 seed 獨立性；
+    但 CIFAR-10 confirmatory v1 已用它跑完並定稿，不改）。T3：`--gseed-formula hash` 時 CIFAR-10 亦改走
+    無碰撞 hash（confirmatory v2 用）；CIFAR-100 一律 hash、不受此參數影響。"""
+    if dataset == "cifar100" or formula == "hash":
         return gseed_hash(seed, w)
     return seed * 10_000_000 + int(w * 1000) * 10_000
 
@@ -202,7 +204,7 @@ def real_ref_precision(real_dino, real_labels, nearest_k, device, seed, num_clas
 def measure(model, schedule, judge, real_imgs, real_dino, real_labels, test_loader,
             detector, judge_floor, w, args, device, seed, do_fid=True):
     nc = args.num_classes
-    g = gen_seed(args.dataset, seed, w)
+    g = gen_seed(args.dataset, seed, w, getattr(args, "gseed_formula", "legacy"))
     gen, gen_labels = generate_balanced(model, schedule, args.per_class, device, args.steps,
                                         args.eta, guidance=w, num_classes=nc, batch=args.batch, seed=g)
     gen_dino = dinov2_features((gen + 1) / 2, device)
@@ -294,6 +296,10 @@ def main():
     p.add_argument("--tstr-seeded", action="store_true",
                    help="T6b：每 rep 以 sha256(tstr_<ds>_<seed>_<w>_<rep>) 衍生種子跑 run_tstr，"
                         "使 TSTR 進入可對帳集（凍結 v1 不加此旗標、行為不變；T3 v2 啟用）")
+    p.add_argument("--gseed-formula", choices=["legacy", "hash"], default="legacy",
+                   help="T3：CIFAR-10 生成種子公式。legacy＝(seed*1e7+int(w*1e3)*1e4)（凍結 v1、"
+                        "網格 30 cell 退化為 14 gseed／26 cell 共用）；hash＝sha256[:15]（無碰撞、"
+                        "confirmatory v2 用）。CIFAR-100 一律 hash、不受此旗標影響。")
     p.add_argument("--judge-json", default=None, help="預設 results/<dataset>_judge.json")
     p.add_argument("--no-inception", action="store_true")
     p.add_argument("--no-fid", action="store_true",
@@ -455,7 +461,10 @@ def main():
                         "selector_signal_key": signal_key,
                         "reps": args.reps,
                         "gen_seed_formula": ("cifar100_gseed sha256[:15]" if args.dataset == "cifar100"
-                                             else "(seed*1e7 + int(w*1e3)*1e4)"),
+                                             else ("cifar100_gseed sha256[:15]"
+                                                   if args.gseed_formula == "hash"
+                                                   else "(seed*1e7 + int(w*1e3)*1e4)")),
+                        "gseed_formula_choice": getattr(args, "gseed_formula", "legacy"),
                         "steps": args.steps, "eta": args.eta, "guidance_grid": args.guidance,
                         "seeds": args.seeds, "per_class": args.per_class,
                         "real_per_class": args.real_per_class,
