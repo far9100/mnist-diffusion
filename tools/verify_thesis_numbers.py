@@ -289,6 +289,15 @@ def verify_table_5_3(tables):
     if os.path.exists(os.path.join(RES, "cifar100_prdc_vitl14_seed10.json")):
         t11 = load("cifar100_prdc_vitl14_seed10.json")["backbone_dependence"]
         check("§6.3 T11 ViT-L which-FID 分離格步", "3", t11["vitl_fd_vs_tstr_separation_step"])
+    if os.path.exists(os.path.join(RES, "cifar100_h3_duel_v2_dinov2.json")):
+        t8 = load("cifar100_h3_duel_v2_dinov2.json")
+        bi = next(a for a in t8["arms"] if a["term"] == "chamfer")
+        check("§5.6.1 T8 雙向 TSTR", "62.22", bi["tstr_mean"])
+        check("§5.6.1 T8 雙向 cov224", "0.460", bi["coverage_dinov2_224"])
+        check("§5.6.1 T8 雙向 cov112", "0.853", bi["coverage_guide_112"])
+        uni = next(a for a in t8["arms"] if a["term"] == "coverage")
+        check("§5.6.1 T8 單向 TSTR", "61.79", uni["tstr_mean"])
+        check("§5.6.1 T8 單向 cov224", "0.462", uni["coverage_dinov2_224"])
 
 
 def verify_table_5_5(tables):
