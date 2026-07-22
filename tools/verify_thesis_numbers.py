@@ -298,6 +298,11 @@ def verify_table_5_3(tables):
         uni = next(a for a in t8["arms"] if a["term"] == "coverage")
         check("§5.6.1 T8 單向 TSTR", "61.79", uni["tstr_mean"])
         check("§5.6.1 T8 單向 cov224", "0.462", uni["coverage_dinov2_224"])
+    if os.path.exists(os.path.join(RES, "cifar100_subunity_scout.json")):
+        sc = load("cifar100_subunity_scout.json")
+        scc = {c["name"]: c for c in next(s for s in sc["per_seed"] if s["seed"] == 10)["configs"]}
+        check("§6.3 T5b w0.5 TSTR", "42.74", scc["w0.5"]["tstr"])
+        check("§6.3 T5b w0.75 TSTR", "55.80", scc["w0.75"]["tstr"])
 
 
 def verify_table_5_5(tables):
