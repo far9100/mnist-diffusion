@@ -25,7 +25,9 @@ data/*
 samples/
 samples_cifar/
 generated/
-results/
+# results/：追蹤 results/*.json（凍結與衍生數字約 1.8MB、對外可重現），其餘大檔（子目錄資產、快取、圖、log、jsonl）續排除
+results/*
+!results/*.json
 
 # VAR experiment outputs
 samples_vqvae/

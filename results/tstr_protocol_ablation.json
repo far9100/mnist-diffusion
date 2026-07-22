@@ -1,0 +1,123 @@
+{
+  "analysis": "tstr_protocol_ablation",
+  "seed": 10,
+  "cells": {
+    "w1": {
+      "source": "cached",
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            60.26,
+            59.49,
+            60.26,
+            59.71,
+            60.1
+          ],
+          "mean": 59.96,
+          "sigma_cls": 0.311
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            61.08,
+            62.22,
+            60.88,
+            61.12,
+            61.38
+          ],
+          "mean": 61.34,
+          "sigma_cls": 0.47
+        }
+      ]
+    },
+    "w1.5": {
+      "source": "regen",
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            58.93,
+            60.1,
+            58.69,
+            57.63,
+            57.95
+          ],
+          "mean": 58.66,
+          "sigma_cls": 0.862
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            61.39,
+            61.32,
+            61.78,
+            61.79,
+            61.3
+          ],
+          "mean": 61.52,
+          "sigma_cls": 0.222
+        }
+      ]
+    },
+    "w2.5": {
+      "source": "cached",
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            50.71,
+            49.62,
+            50.52,
+            51.19,
+            50.36
+          ],
+          "mean": 50.48,
+          "sigma_cls": 0.512
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            56.02,
+            56.46,
+            55.64,
+            55.74,
+            55.99
+          ],
+          "mean": 55.97,
+          "sigma_cls": 0.285
+        }
+      ]
+    }
+  },
+  "missing": [],
+  "rank_by_epochs": {
+    "15": [
+      "w1",
+      "w1.5",
+      "w2.5"
+    ],
+    "50": [
+      "w1.5",
+      "w1",
+      "w2.5"
+    ]
+  },
+  "rank_stable": false,
+  "note": "σ_cls 隨 epochs 是否縮、排序是否穩——回應「噪聲地板為協定內生」。",
+  "metadata": {
+    "start_timestamp": "2026-07-22 12:46:50",
+    "argv": "run_tstr_protocol.py --generate-missing",
+    "reps": 5,
+    "epochs": [
+      15,
+      50
+    ],
+    "tstr_seeded": "sha256 決定性（T6b）",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "arms": {
+    "fidmin": {
+      "config": "w1.5",
+      "tstr_seed10": 58.648,
+      "tstr_8seed_mean": 58.899,
+      "note": "凍結 confirmatory（重生成已證逐位重現）"
+    },
+    "caf_v2": {
+      "config": "w1.5",
+      "tstr_seed10": 58.648,
+      "note": "CIFAR-100 上與 FID-min 同選 w1.5，兩臂同一份"
+    },
+    "chamfer": {
+      "guidance_scale": 1.0,
+      "chamfer_weight": 1.0,
+      "feature_space": "dinov2",
+      "exemplars_per_class": 16,
+      "tstr_reps": [
+        61.39,
+        61.29,
+        60.87
+      ],
+      "tstr_mean": 61.18,
+      "coverage_dinov2": 0.439,
+      "precision_dinov2": 0.7852,
+      "gen_seconds": 6083.9
+    }
+  },
+  "duel": {
+    "chamfer_minus_vanilla_seed10": 2.54,
+    "vanilla_ties_or_beats_chamfer": false
+  },
+  "metadata": {
+    "analysis": "cifar100_h3_duel",
+    "source": "results/cifar100_cfg_confirmatory.json",
+    "seed": 10,
+    "chamfer_features": "dinov2",
+    "per_class": 500,
+    "num_classes": 100,
+    "steps": 50,
+    "eta": 0.0,
+    "nearest_k": 5,
+    "tstr_epochs": 15,
+    "reps": 3,
+    "note": "matched-budget（各 5 萬張、真實參考 500/class）；Chamfer 臂逐類對同類 exemplar 導引；vanilla 臂用凍結 confirmatory w1.5；exploratory、禁因果。dinov2 特徵＝任務無關公平對比，judge 特徵＝任務對齊對照。",
+    "start_timestamp": "2026-07-17 22:30:33",
+    "argv": "run_cifar100_h3_duel.py --chamfer-features dinov2 --batch 96",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070"
+    }
+  }
+}

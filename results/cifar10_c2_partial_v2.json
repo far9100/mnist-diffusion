@@ -1,0 +1,25 @@
+{
+  "input": "results/cifar10_cfg_confirmatory_v2.json",
+  "n_configs": 10,
+  "alpha": 0.05,
+  "c2a": {
+    "rho": 0.5263897252028967,
+    "perm_p_greater": 0.05749425057494251,
+    "ci95": [
+      0.2547744832612031,
+      0.6835406857296118
+    ],
+    "pass": false
+  },
+  "c2b": {
+    "rho": -0.1737871790771535,
+    "perm_p_two_sided": 0.6265373462653735,
+    "ci95": [
+      -0.32821466067746663,
+      0.14646290063406558
+    ],
+    "pass": true
+  },
+  "verdict_pass": false,
+  "note": "偏相關依 2026-07-05-13；n=10 功效有限，C2b 不顯著為 absence of evidence。"
+}

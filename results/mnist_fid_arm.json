@@ -1,0 +1,253 @@
+{
+  "per_seed": [
+    {
+      "seed": 0,
+      "configs": [
+        {
+          "name": "g1",
+          "guidance": 1.0,
+          "mnist_fid": 11.0349,
+          "tstr": 97.21,
+          "clean_fid": 11.3397
+        },
+        {
+          "name": "g2",
+          "guidance": 2.0,
+          "mnist_fid": 8.6126,
+          "tstr": 96.3,
+          "clean_fid": 7.6468
+        },
+        {
+          "name": "g3",
+          "guidance": 3.0,
+          "mnist_fid": 20.4737,
+          "tstr": 94.8,
+          "clean_fid": 10.7519
+        },
+        {
+          "name": "g5",
+          "guidance": 5.0,
+          "mnist_fid": 39.2409,
+          "tstr": 92.25,
+          "clean_fid": 21.6566
+        },
+        {
+          "name": "g7",
+          "guidance": 7.0,
+          "mnist_fid": 51.8389,
+          "tstr": 88.77,
+          "clean_fid": 33.3429
+        },
+        {
+          "name": "g10",
+          "guidance": 10.0,
+          "mnist_fid": 69.4031,
+          "tstr": 78.42,
+          "clean_fid": 48.0939
+        }
+      ],
+      "oracle": "g1",
+      "oracle_tstr": 97.21,
+      "fidmin_mnist": "g2",
+      "fidmin_mnist_regret": 0.91,
+      "sep_step_mnist": 1,
+      "fidmin_clean": "g2",
+      "fidmin_clean_regret": 0.91,
+      "sep_step_clean": 1
+    },
+    {
+      "seed": 1,
+      "configs": [
+        {
+          "name": "g1",
+          "guidance": 1.0,
+          "mnist_fid": 10.5344,
+          "tstr": 97.22,
+          "clean_fid": 11.2506
+        },
+        {
+          "name": "g2",
+          "guidance": 2.0,
+          "mnist_fid": 8.64,
+          "tstr": 96.21,
+          "clean_fid": 7.7189
+        },
+        {
+          "name": "g3",
+          "guidance": 3.0,
+          "mnist_fid": 20.2526,
+          "tstr": 95.04,
+          "clean_fid": 10.8809
+        },
+        {
+          "name": "g5",
+          "guidance": 5.0,
+          "mnist_fid": 39.1709,
+          "tstr": 92.32,
+          "clean_fid": 21.8376
+        },
+        {
+          "name": "g7",
+          "guidance": 7.0,
+          "mnist_fid": 52.8379,
+          "tstr": 88.75,
+          "clean_fid": 33.5537
+        },
+        {
+          "name": "g10",
+          "guidance": 10.0,
+          "mnist_fid": 69.4987,
+          "tstr": 79.55,
+          "clean_fid": 48.0949
+        }
+      ],
+      "oracle": "g1",
+      "oracle_tstr": 97.22,
+      "fidmin_mnist": "g2",
+      "fidmin_mnist_regret": 1.01,
+      "sep_step_mnist": 1,
+      "fidmin_clean": "g2",
+      "fidmin_clean_regret": 1.01,
+      "sep_step_clean": 1
+    },
+    {
+      "seed": 2,
+      "configs": [
+        {
+          "name": "g1",
+          "guidance": 1.0,
+          "mnist_fid": 11.2325,
+          "tstr": 97.47,
+          "clean_fid": 11.4993
+        },
+        {
+          "name": "g2",
+          "guidance": 2.0,
+          "mnist_fid": 8.7404,
+          "tstr": 96.32,
+          "clean_fid": 7.5236
+        },
+        {
+          "name": "g3",
+          "guidance": 3.0,
+          "mnist_fid": 20.4154,
+          "tstr": 95.2,
+          "clean_fid": 10.8014
+        },
+        {
+          "name": "g5",
+          "guidance": 5.0,
+          "mnist_fid": 38.2532,
+          "tstr": 92.37,
+          "clean_fid": 21.6057
+        },
+        {
+          "name": "g7",
+          "guidance": 7.0,
+          "mnist_fid": 52.5349,
+          "tstr": 89.03,
+          "clean_fid": 33.6159
+        },
+        {
+          "name": "g10",
+          "guidance": 10.0,
+          "mnist_fid": 68.8384,
+          "tstr": 77.55,
+          "clean_fid": 48.2933
+        }
+      ],
+      "oracle": "g1",
+      "oracle_tstr": 97.47,
+      "fidmin_mnist": "g2",
+      "fidmin_mnist_regret": 1.15,
+      "sep_step_mnist": 1,
+      "fidmin_clean": "g2",
+      "fidmin_clean_regret": 1.15,
+      "sep_step_clean": 1
+    }
+  ],
+  "aggregate": {
+    "mnist": {
+      "fidmin_regret_mean": 1.02,
+      "fidmin_regret_per_seed": [
+        0.91,
+        1.01,
+        1.15
+      ],
+      "sep_steps": [
+        1,
+        1,
+        1
+      ],
+      "separated_seeds_gt1": 0,
+      "fidmin_per_seed": [
+        "g2",
+        "g2",
+        "g2"
+      ],
+      "oracle_per_seed": [
+        "g1",
+        "g1",
+        "g1"
+      ]
+    },
+    "clean": {
+      "fidmin_regret_mean": 1.02,
+      "fidmin_regret_per_seed": [
+        0.91,
+        1.01,
+        1.15
+      ],
+      "sep_steps": [
+        1,
+        1,
+        1
+      ],
+      "separated_seeds_gt1": 0,
+      "fidmin_per_seed": [
+        "g2",
+        "g2",
+        "g2"
+      ],
+      "oracle_per_seed": [
+        "g1",
+        "g1",
+        "g1"
+      ]
+    }
+  },
+  "metadata": {
+    "analysis": "mnist_fid_arm",
+    "status": "derived",
+    "sampler": "ddim",
+    "steps": 50,
+    "eta": 0.0,
+    "grid": [
+      1.0,
+      2.0,
+      3.0,
+      5.0,
+      7.0,
+      10.0
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "per_digit": 1000,
+    "fid_per_class": 1000,
+    "mnist_fid_space": "mnist_cnn.pt penultimate 256-d (classifier-Fréchet)",
+    "clean_fid_space": "Inception (cleanfid)",
+    "tstr_source": "results/selector_signal_multiseed.json",
+    "gen_cache": "results/mnist_gen_cache",
+    "gen_subseed_formula": "seed*1000+int(g*10)",
+    "start_timestamp": "2026-07-20 01:48:31",
+    "argv": "run_mnist_fid_arm.py",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  }
+}

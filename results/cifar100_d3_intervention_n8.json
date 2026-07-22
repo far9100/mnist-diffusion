@@ -1,0 +1,51 @@
+{
+  "c3_coverage_matched": {
+    "w2.5_base_coverage": 0.6998000314831734,
+    "w1_target_coverage": 0.4808200216293335,
+    "target_cov_source": "regenerated w1 cell (cross-env)",
+    "n_pruned_to_match": 13606,
+    "matched_coverage": 0.4808000224083662,
+    "w1_frozen_tstr": 59.438,
+    "w2.5_frozen_tstr": 50.656,
+    "tstr_w2.5_cov_matched": [
+      45.94,
+      44.65,
+      48.66,
+      47.02,
+      46.48,
+      45.07,
+      47.59,
+      44.98
+    ],
+    "tstr_w2.5_rand_pruned": [
+      48.13,
+      47.51,
+      44.88,
+      46.21,
+      46.68,
+      47.33,
+      47.44,
+      44.87
+    ]
+  },
+  "metadata": {
+    "analysis": "cifar100_d3_intervention_c3",
+    "source": "results/cifar100_cfg_confirmatory.json",
+    "asset": "results/p1_assets_cifar100",
+    "seed": 10,
+    "num_classes": 100,
+    "n_retrain": 8,
+    "tstr_epochs": 15,
+    "nearest_k": 5,
+    "rand_seed": 20260709,
+    "note": "分支三機制複製之介入證據（exploratory，禁因果）；剪枝規則沿 CIFAR-10 C3；target_cov 由重生成 w1 cell cross-env 現算；N 死（少重訓）。",
+    "start_timestamp": "2026-07-18 17:22:51",
+    "argv": "run_cifar100_d3_intervention.py --n-retrain 8 --output results/cifar100_d3_intervention_n8.json",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070"
+    }
+  }
+}

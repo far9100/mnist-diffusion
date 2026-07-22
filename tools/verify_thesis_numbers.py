@@ -270,6 +270,54 @@ def verify_table_5_3(tables):
             check(f"表5.3 {ds} fixed-w2 regret", row[6], fixed_at(ds, 2.0))
             check(f"表5.3 {ds} random-feasible regret", row[7], base[ds]["random_feasible"]["mean_regret"])
 
+    # §5.2.1 無碰撞重跑 v2（新檔；v1 保留於對帳集，此處加 v2 頭條數字之對帳）
+    if os.path.exists(os.path.join(RES, "cifar10_c6_fidmin_duel_v2.json")):
+        v2 = load("cifar10_c6_fidmin_duel_v2.json")
+        check("§5.2.1 v2 FID-min regret 均值", "0.00", v2["fidmin_regret_mean"])
+        check("§5.2.1 v2 CaF regret 均值", "6.70", v2["caf_regret_mean"])
+        s10 = next(p for p in v2["per_seed"] if p["seed"] == 10)
+        check("§5.2.1 v2 seed10 CaF regret", "8.99", s10["caf_regret"])
+        vc = load("cifar10_cfg_confirmatory_v2.json")
+        b10 = next(s for s in vc["per_seed"] if s["seed"] == 10)
+        cfg = {c["name"]: c for c in b10["configs"]}
+        check("§5.2.1 v2 seed10 w1.5 TSTR(oracle)", "65.59", cfg["w1.5"]["tstr"])
+        check("§5.2.1 v2 seed10 w1.5 coverage", ".749", cfg["w1.5"]["coverage"])
+        check("§5.2.1 v2 seed10 w1.5 precision", ".842", cfg["w1.5"]["precision"])
+        check("§5.2.1 v2 seed10 w2.5 coverage", ".792", cfg["w2.5"]["coverage"])
+        check("§5.2.1 v2 seed10 w2.5 precision", ".869", cfg["w2.5"]["precision"])
+        check("§5.2.1 v2 seed10 w2.5 TSTR", "56.61", cfg["w2.5"]["tstr"])
+    if os.path.exists(os.path.join(RES, "cifar100_prdc_vitl14_seed10.json")):
+        t11 = load("cifar100_prdc_vitl14_seed10.json")["backbone_dependence"]
+        check("§6.3 T11 ViT-L which-FID 分離格步", "3", t11["vitl_fd_vs_tstr_separation_step"])
+    if os.path.exists(os.path.join(RES, "cifar100_h3_duel_v2_dinov2.json")):
+        t8 = load("cifar100_h3_duel_v2_dinov2.json")
+        bi = next(a for a in t8["arms"] if a["term"] == "chamfer")
+        check("§5.6.1 T8 雙向 TSTR", "62.22", bi["tstr_mean"])
+        check("§5.6.1 T8 雙向 cov224", "0.460", bi["coverage_dinov2_224"])
+        check("§5.6.1 T8 雙向 cov112", "0.853", bi["coverage_guide_112"])
+        uni = next(a for a in t8["arms"] if a["term"] == "coverage")
+        check("§5.6.1 T8 單向 TSTR", "61.79", uni["tstr_mean"])
+        check("§5.6.1 T8 單向 cov224", "0.462", uni["coverage_dinov2_224"])
+    if os.path.exists(os.path.join(RES, "cifar100_subunity_scout.json")):
+        sc = load("cifar100_subunity_scout.json")
+        scc = {c["name"]: c for c in next(s for s in sc["per_seed"] if s["seed"] == 10)["configs"]}
+        check("§6.3 T5b w0.5 TSTR", "42.74", scc["w0.5"]["tstr"])
+        check("§6.3 T5b w0.75 TSTR", "55.80", scc["w0.75"]["tstr"])
+    if os.path.exists(os.path.join(RES, "tstr_real_ceiling.json")):
+        cl = load("tstr_real_ceiling.json")["by_dataset"]
+        cat = lambda ds, ep: next(b["mean"] for b in cl[ds]["by_epochs"] if b["epochs"] == ep)
+        check("§5.4.3 T9 real ceiling C100@15", "70.75", cat("cifar100", 15))
+        check("§5.4.3 T9 real ceiling C10@15", "64.78", cat("cifar10", 15))
+    if os.path.exists(os.path.join(RES, "tstr_protocol_ablation.json")):
+        ab = load("tstr_protocol_ablation.json")["cells"]
+        aat = lambda cell, ep: next(b["mean"] for b in ab[cell]["by_epochs"] if b["epochs"] == ep)
+        check("§5.4.3 T9 ablation w1@15", "59.96", aat("w1", 15))
+        check("§5.4.3 T9 ablation w1.5@50", "61.52", aat("w1.5", 50))
+    if os.path.exists(os.path.join(RES, "cifar100_margin_intervention.json")):
+        mi = load("cifar100_margin_intervention.json")["levels"]
+        check("§5.5 T10 margin diff n13606", "-1.03", mi["13606"]["diff_rand_minus_margin"])
+        check("§5.5 T10 margin diff n6803", "-0.87", mi["6803"]["diff_rand_minus_margin"])
+
 
 def verify_table_5_5(tables):
     t = find_table(tables, lambda h, _t: h[0] == "臂" and "TSTR" in h[1])

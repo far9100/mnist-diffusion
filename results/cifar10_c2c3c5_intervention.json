@@ -1,0 +1,62 @@
+{
+  "c2_boundary_pruning": {
+    "w1.5": {
+      "n_total": 10000,
+      "n_near_boundary_removed": 1113,
+      "frozen_full_tstr": 58.71,
+      "tstr_nb_removed": [
+        68.58,
+        61.52
+      ],
+      "tstr_rand_removed": [
+        61.23,
+        61.06
+      ]
+    },
+    "w2.5": {
+      "n_total": 10000,
+      "n_near_boundary_removed": 478,
+      "frozen_full_tstr": 60.62,
+      "tstr_nb_removed": [
+        55.12,
+        58.4
+      ],
+      "tstr_rand_removed": [
+        54.58,
+        59.11
+      ]
+    }
+  },
+  "c3_coverage_matched": {
+    "w2.5_base_coverage": 0.7893000304698944,
+    "w1_target_coverage": 0.6409000307321548,
+    "n_pruned_to_match": 1794,
+    "matched_coverage": 0.6408000349998474,
+    "w1_frozen_tstr": 60.49,
+    "w2.5_frozen_tstr": 60.62,
+    "tstr_w2.5_cov_matched": [
+      50.3,
+      51.33
+    ],
+    "tstr_w2.5_rand_pruned": [
+      55.45,
+      50.57
+    ]
+  },
+  "c5_purity_filter": {
+    "n_total": 10000,
+    "tstr_original": [
+      65.0,
+      67.52
+    ],
+    "tstr_high_purity_low_margin": [
+      47.45,
+      43.35
+    ],
+    "tstr_low_purity_high_margin": [
+      44.44,
+      50.66
+    ]
+  },
+  "note": "exploratory（C0）；gen/特徵/margin 取自 P1 落盤禁重生成；每情境 2 重訓 N 死；因果措辭禁；判定於各 C record 對號入座事前判定。"
+}

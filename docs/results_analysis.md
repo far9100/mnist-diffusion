@@ -237,9 +237,9 @@ branch 4 需機制不複製，皆被資料排除。作者 2026-07-17 簽核（[C
   `cifar100_regen_reconcile.json` rel 全 0（[CHANGELOG 2026-07-18-11](../CHANGELOG.md#2026-07-18)）。
 - **H3 matched-budget 對照**（matched-budget 三臂，seed 10）：vanilla w1.5（＝FID-min＝CaF-v2）TSTR 58.65；
   Chamfer 任務無關 DINOv2 特徵 61.18（+2.54pp）、任務對齊 judge 特徵 61.75（+3.11pp），皆勝 vanilla
-  全網格 oracle w1（59.66），但 DINOv2 coverage 反低（0.44–0.48 < 0.643）。此 coverage 反低讀數因本文
-  Chamfer 為單向簡化、單 seed 而存疑（官方雙向實作報告 coverage 上升 0.603→0.912、方向相反），待雙向公平
-  化後方可定論（`cifar100_h3_duel_dinov2.json`、`_judge.json`，[CHANGELOG 2026-07-18-01](../CHANGELOG.md#2026-07-18)）。
+  全網格 oracle w1（59.66），但 DINOv2-224 coverage 反低（0.44–0.48 < 0.643）。此反低讀數為量測解析度相依
+  （thesis §5.6.1 之雙向公平化重跑證非單向簡化假影〔雙向與單向皆低@224〕、於 112 導引空間 coverage 反高
+  約 0.85）（`cifar100_h3_duel_dinov2.json`、`_judge.json`、`_v2_dinov2.json`，[CHANGELOG 2026-07-18-01](../CHANGELOG.md#2026-07-18)）。
 
 ## 未來工作（本論文範圍外）
 

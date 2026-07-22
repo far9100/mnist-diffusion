@@ -1,0 +1,11 @@
+{
+  "ckpt": "checkpoints/cifar10_cfg.pt",
+  "epoch": null,
+  "steps": 20,
+  "eta": 0.0,
+  "guidance": 1.0,
+  "num": 100,
+  "clean_fid": 151.9374476330379,
+  "fd_dinov2": 1783.4547319589187,
+  "usable_band_5_15": false
+}

@@ -1,0 +1,7 @@
+{
+  "fid": 1.848395467459942,
+  "num_images": 50000,
+  "network": "checkpoints/edm-cifar10-32x32-cond-vp.pkl",
+  "ref": "checkpoints/cifar10-32x32.npz",
+  "paper_reference": 1.79
+}

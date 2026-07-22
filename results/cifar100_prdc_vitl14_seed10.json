@@ -1,0 +1,148 @@
+{
+  "analysis": "prdc_vitl14_seed10",
+  "dataset": "cifar100",
+  "seed": 10,
+  "feature_space": "DINOv2 dinov2_vitl14 (1024-d CLS, 224px)",
+  "num_classes": 100,
+  "per_class": 500,
+  "missing_cells": [],
+  "regenerated_cells": [
+    "w1.5",
+    "w2",
+    "w3",
+    "w4",
+    "w5",
+    "w6",
+    "w7",
+    "w8"
+  ],
+  "complete": true,
+  "configs": [
+    {
+      "name": "w1",
+      "precision": 0.7192600341141224,
+      "coverage": 0.3311000153049827,
+      "recall": 0.5117800231277942,
+      "density": 0.7116280440241098,
+      "fd_vitl14": 436.0086193663028,
+      "coverage_vitb": 0.4808200216293335,
+      "fd_vitb": 323.2112735399801
+    },
+    {
+      "name": "w1.5",
+      "precision": 0.7720200383663177,
+      "coverage": 0.4792000232636929,
+      "recall": 0.4693200197815895,
+      "density": 0.8228600545227528,
+      "fd_vitl14": 272.27280441714856,
+      "coverage_vitb": 0.6422400313615799,
+      "fd_vitb": 188.44987389162952
+    },
+    {
+      "name": "w2",
+      "precision": 0.801320039331913,
+      "coverage": 0.5416200256347656,
+      "recall": 0.40528001822531223,
+      "density": 0.8979760614037514,
+      "fd_vitl14": 216.821617026701,
+      "coverage_vitb": 0.6957000324130058,
+      "fd_vitb": 153.8342897023931
+    },
+    {
+      "name": "w2.5",
+      "precision": 0.8145200371742248,
+      "coverage": 0.5583200263977051,
+      "recall": 0.3520600168406963,
+      "density": 0.9412080700695514,
+      "fd_vitl14": 205.23928468213535,
+      "coverage_vitb": 0.6998000314831734,
+      "fd_vitb": 153.60549488120932
+    },
+    {
+      "name": "w3",
+      "precision": 0.8190800362825393,
+      "coverage": 0.5431000247597695,
+      "recall": 0.2998600130528212,
+      "density": 0.9334560576081276,
+      "fd_vitl14": 214.97369212579997,
+      "coverage_vitb": 0.6812800303101539,
+      "fd_vitb": 166.98518526018916
+    },
+    {
+      "name": "w4",
+      "precision": 0.8241800352931022,
+      "coverage": 0.49108002573251724,
+      "recall": 0.23040001165121793,
+      "density": 0.929808065444231,
+      "fd_vitl14": 247.23025854988418,
+      "coverage_vitb": 0.6147600296139717,
+      "fd_vitb": 200.54639000549196
+    },
+    {
+      "name": "w5",
+      "precision": 0.8284400418400765,
+      "coverage": 0.44988002225756646,
+      "recall": 0.17564000867307186,
+      "density": 0.9165080532431602,
+      "fd_vitl14": 284.43371813985914,
+      "coverage_vitb": 0.5590200272202491,
+      "fd_vitb": 236.7165198220523
+    },
+    {
+      "name": "w6",
+      "precision": 0.8266200396418572,
+      "coverage": 0.40974002070724963,
+      "recall": 0.14690000646747647,
+      "density": 0.8969240549206734,
+      "fd_vitl14": 316.4112502576536,
+      "coverage_vitb": 0.507360023111105,
+      "fd_vitb": 268.7226220796856
+    },
+    {
+      "name": "w7",
+      "precision": 0.8213800394535065,
+      "coverage": 0.3740000165253878,
+      "recall": 0.12590000537456944,
+      "density": 0.8761920610070228,
+      "fd_vitl14": 349.4001410490341,
+      "coverage_vitb": 0.4676400242745876,
+      "fd_vitb": 299.07627282299836
+    },
+    {
+      "name": "w8",
+      "precision": 0.8235400399565697,
+      "coverage": 0.3498200155049562,
+      "recall": 0.09978000425035134,
+      "density": 0.8673280631005764,
+      "fd_vitl14": 374.1846009710712,
+      "coverage_vitb": 0.4333200205862522,
+      "fd_vitb": 324.7027241169717
+    }
+  ],
+  "backbone_dependence": {
+    "coverage_argmax_vitl": "w2.5",
+    "coverage_argmax_vitb": "w2.5",
+    "coverage_argmax_agrees": true,
+    "fd_argmin_vitl": "w2.5",
+    "fd_argmin_vitb": "w2.5",
+    "fd_argmin_agrees": true,
+    "tstr_argmax_seed10": "w1",
+    "vitl_fd_vs_tstr_separation_step": 3,
+    "vitl_which_fid_separated_gt1": true,
+    "cells_compared": 10,
+    "complete_grid": true
+  },
+  "metadata": {
+    "status": "derived + GPU regen of missing cells",
+    "nearest_k": 5,
+    "model_name": "dinov2_vitl14",
+    "note": "最小版＝w1／w2.5 兩快取格；全 10 格需 --generate-missing（GPU regen）。",
+    "start_timestamp": "2026-07-21 21:53:01",
+    "argv": "run_prdc_vitl14_seed10.py --generate-missing --output results/cifar100_prdc_vitl14_seed10.json",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  }
+}

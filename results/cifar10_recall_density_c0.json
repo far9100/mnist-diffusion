@@ -1,0 +1,119 @@
+{
+  "per_config": {
+    "w1": {
+      "recall": 0.5791000247001648,
+      "density": 1.0152534047762554,
+      "precision": 0.805700033903122,
+      "coverage": 0.6448666999737421
+    },
+    "w1.5": {
+      "recall": 0.5551333606243134,
+      "density": 1.0568600694338481,
+      "precision": 0.8407000402609507,
+      "coverage": 0.7510667006174724
+    },
+    "w2": {
+      "recall": 0.527700028816859,
+      "density": 1.1060200730959575,
+      "precision": 0.8578000446160634,
+      "coverage": 0.7771000385284423
+    },
+    "w2.5": {
+      "recall": 0.4929333567619324,
+      "density": 1.1381600757439931,
+      "precision": 0.8729000449180603,
+      "coverage": 0.792300037542979
+    },
+    "w3": {
+      "recall": 0.45906669000784556,
+      "density": 1.142533407608668,
+      "precision": 0.8762333750724792,
+      "coverage": 0.7779000341892243
+    },
+    "w4": {
+      "recall": 0.39813334941864015,
+      "density": 1.124433406194051,
+      "precision": 0.8786333739757538,
+      "coverage": 0.7453000346819559
+    },
+    "w5": {
+      "recall": 0.35460001627604165,
+      "density": 1.068780078490575,
+      "precision": 0.8691667099793752,
+      "coverage": 0.69783336520195
+    },
+    "w6": {
+      "recall": 0.3211000129580498,
+      "density": 0.9936000585556031,
+      "precision": 0.8585000415643056,
+      "coverage": 0.6477667013804118
+    },
+    "w7": {
+      "recall": 0.28676667710145315,
+      "density": 0.9346600810686747,
+      "precision": 0.8479667027791341,
+      "coverage": 0.6039666950702667
+    },
+    "w8": {
+      "recall": 0.24726668000221252,
+      "density": 0.8853800545136133,
+      "precision": 0.8356000403563182,
+      "coverage": 0.5590666900078456
+    }
+  },
+  "cstar": "w2.5",
+  "oracles": [
+    "w2",
+    "w1.5",
+    "w1"
+  ],
+  "nondominating_signal": true,
+  "metadata": {
+    "analysis": "c0_recall_density_pareto",
+    "feature_source": "results/p1_assets",
+    "confirmatory": "results/cifar10_cfg_confirmatory.json",
+    "seeds": [
+      10,
+      11,
+      12
+    ],
+    "guidance_grid": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0
+    ],
+    "num_classes": 10,
+    "nearest_k": 5,
+    "effective_nearest_k": 5,
+    "cross_seed_reduction": "statistics.mean",
+    "pareto_axes": [
+      "precision",
+      "coverage"
+    ],
+    "signal_candidates": [
+      "recall",
+      "density"
+    ],
+    "signal_verdict": {
+      "recall": true,
+      "density": false
+    },
+    "rule": "非支配訊號 s：對每個 oracle o 皆 s(c*) < s(o)，CaF-v2 才可能選到 oracle",
+    "precision_coverage_bitexact_vs_confirmatory": true,
+    "reconciled_against_frozen": true,
+    "start_timestamp": "2026-07-11 12:00:33",
+    "argv": "run_c0_recall_density.py",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  }
+}

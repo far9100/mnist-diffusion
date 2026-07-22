@@ -1,0 +1,91 @@
+{
+  "cells": [
+    {
+      "w": 1.0,
+      "gseed": 1122310952079071801,
+      "reconcile": {
+        "precision": {
+          "got": 0.7799800354242324,
+          "ref": 0.7799800354242324,
+          "abs_delta": 0.0,
+          "rel_delta": 0.0,
+          "within_tol": true
+        },
+        "coverage": {
+          "got": 0.4808200216293335,
+          "ref": 0.4808200216293335,
+          "abs_delta": 0.0,
+          "rel_delta": 0.0,
+          "within_tol": true
+        },
+        "near_boundary_frac": {
+          "got": 0.25957998633384705,
+          "ref": 0.25957998633384705,
+          "abs_delta": 0.0,
+          "rel_delta": 0.0,
+          "within_tol": true
+        }
+      },
+      "over_tol": false,
+      "gen_seconds": 2135.740294456482
+    },
+    {
+      "w": 2.5,
+      "gseed": 430754480060137801,
+      "reconcile": {
+        "precision": {
+          "got": 0.8516000378131866,
+          "ref": 0.8516000378131866,
+          "abs_delta": 0.0,
+          "rel_delta": 0.0,
+          "within_tol": true
+        },
+        "coverage": {
+          "got": 0.6998000314831734,
+          "ref": 0.6998000314831734,
+          "abs_delta": 0.0,
+          "rel_delta": 0.0,
+          "within_tol": true
+        },
+        "near_boundary_frac": {
+          "got": 0.04611999914050102,
+          "ref": 0.04611999914050102,
+          "abs_delta": 0.0,
+          "rel_delta": 0.0,
+          "within_tol": true
+        }
+      },
+      "over_tol": false,
+      "gen_seconds": 4041.969061613083
+    }
+  ],
+  "all_within_tol": true,
+  "metadata": {
+    "analysis": "regen_cifar100_cells",
+    "source": "results/cifar100_cfg_confirmatory.json",
+    "seed": 10,
+    "ws": [
+      1.0,
+      2.5
+    ],
+    "reconcile_keys": [
+      "precision",
+      "coverage",
+      "near_boundary_frac"
+    ],
+    "tol": 0.0001,
+    "nearest_k": 5,
+    "start_timestamp": "2026-07-17 18:15:59",
+    "argv": "regen_cifar100_cells.py",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070"
+    },
+    "determinism": {
+      "use_deterministic_algorithms": true,
+      "cublas_workspace_config": ":4096:8"
+    }
+  }
+}

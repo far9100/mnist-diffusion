@@ -1,0 +1,293 @@
+{
+  "metadata": {
+    "dataset": "cifar10",
+    "axis": "CFG guidance (self-trained)",
+    "steps": 50,
+    "eta": 0.0,
+    "guidance_grid": [
+      1.0,
+      3.0
+    ],
+    "seeds": [
+      0,
+      1
+    ],
+    "per_class": 32,
+    "near_boundary_threshold": 0.9525,
+    "coverage_feature": "DINOv2 primary + Inception cross-check"
+  },
+  "aggregate": {
+    "n_seeds": 2,
+    "per_config": [
+      {
+        "name": "w1",
+        "precision": {
+          "mean": 0.878125,
+          "std": 0.004419417382415906,
+          "sem": 0.003124999999999989,
+          "min": 0.875,
+          "max": 0.88125,
+          "n": 2,
+          "values": [
+            0.88125,
+            0.875
+          ]
+        },
+        "coverage": {
+          "mean": 0.74453125,
+          "std": 0.03866990209613932,
+          "sem": 0.027343749999999997,
+          "min": 0.7171875,
+          "max": 0.771875,
+          "n": 2,
+          "values": [
+            0.771875,
+            0.7171875
+          ]
+        },
+        "tstr": {
+          "mean": 9.805,
+          "std": 0.049497474683058526,
+          "sem": 0.035000000000000135,
+          "min": 9.77,
+          "max": 9.84,
+          "n": 2,
+          "values": [
+            9.77,
+            9.84
+          ]
+        },
+        "label_noise_frac": {
+          "mean": 0.12187499925494194,
+          "std": 0.026516505348166745,
+          "sem": 0.01875000074505806,
+          "min": 0.10312499850988388,
+          "max": 0.140625,
+          "n": 2,
+          "values": [
+            0.10312499850988388,
+            0.140625
+          ]
+        },
+        "near_boundary_frac": {
+          "mean": 0.25312499701976776,
+          "std": 0.013258239503193213,
+          "sem": 0.009374991059303284,
+          "min": 0.24375000596046448,
+          "max": 0.26249998807907104,
+          "n": 2,
+          "values": [
+            0.26249998807907104,
+            0.24375000596046448
+          ]
+        }
+      },
+      {
+        "name": "w3",
+        "precision": {
+          "mean": 0.965625,
+          "std": 0.004419417382415906,
+          "sem": 0.003124999999999989,
+          "min": 0.9625,
+          "max": 0.96875,
+          "n": 2,
+          "values": [
+            0.96875,
+            0.9625
+          ]
+        },
+        "coverage": {
+          "mean": 0.8734375000000001,
+          "std": 0.004419417382415906,
+          "sem": 0.003124999999999989,
+          "min": 0.8703125,
+          "max": 0.8765625,
+          "n": 2,
+          "values": [
+            0.8765625,
+            0.8703125
+          ]
+        },
+        "tstr": {
+          "mean": 10.165,
+          "std": 0.23334523779156074,
+          "sem": 0.16500000000000004,
+          "min": 10.0,
+          "max": 10.33,
+          "n": 2,
+          "values": [
+            10.33,
+            10.0
+          ]
+        },
+        "label_noise_frac": {
+          "mean": 0.004687500069849193,
+          "std": 0.0022097087241351866,
+          "sem": 0.0015625000232830644,
+          "min": 0.0031250000465661287,
+          "max": 0.0062500000931322575,
+          "n": 2,
+          "values": [
+            0.0062500000931322575,
+            0.0031250000465661287
+          ]
+        },
+        "near_boundary_frac": {
+          "mean": 0.04843750037252903,
+          "std": 0.0022097092180435674,
+          "sem": 0.0015625003725290296,
+          "min": 0.046875,
+          "max": 0.05000000074505806,
+          "n": 2,
+          "values": [
+            0.05000000074505806,
+            0.046875
+          ]
+        }
+      }
+    ],
+    "selection": {
+      "per_seed": [
+        "w3",
+        "w3"
+      ],
+      "modal": "w3",
+      "modal_fraction": 1.0
+    },
+    "regret_at_selected": {
+      "mean": 0.0,
+      "std": 0.0,
+      "sem": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "n": 2,
+      "values": [
+        0.0,
+        0.0
+      ]
+    },
+    "rank_per_seed": [
+      1,
+      1
+    ],
+    "topk_hit_rate": 1.0,
+    "oracle_best_per_seed": [
+      "w3",
+      "w3"
+    ]
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "ref_precision": 0.9442161560058594,
+      "configs": [
+        {
+          "name": "w1",
+          "guidance": 1.0,
+          "precision": 0.88125,
+          "coverage": 0.771875,
+          "coverage_inception": 0.7859375,
+          "precision_inception": 0.7,
+          "tstr": 9.77,
+          "label_noise_frac": 0.10312499850988388,
+          "near_boundary_frac": 0.26249998807907104
+        },
+        {
+          "name": "w3",
+          "guidance": 3.0,
+          "precision": 0.96875,
+          "coverage": 0.8765625,
+          "coverage_inception": 0.9296875,
+          "precision_inception": 0.921875,
+          "tstr": 10.33,
+          "label_noise_frac": 0.0062500000931322575,
+          "near_boundary_frac": 0.05000000074505806
+        }
+      ],
+      "report": {
+        "tau": 0.8497945404052735,
+        "tau_passed_floor": true,
+        "selected": "w3",
+        "oracle_best": "w3",
+        "regret_at_selected": 0.0,
+        "rank": 1,
+        "n_configs": 2,
+        "topk_hit": true,
+        "topk": 3,
+        "tau_robustness": {
+          "picks": {
+            "0.88125": "w3",
+            "0.89": "w3",
+            "0.8987499999999999": "w3",
+            "0.9075": "w3",
+            "0.91625": "w3",
+            "0.925": "w3",
+            "0.93375": "w3",
+            "0.9425": "w3",
+            "0.95125": "w3",
+            "0.96": "w3",
+            "0.96875": "w3"
+          },
+          "modal": "w3",
+          "stability": 1.0
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "ref_precision": 0.9278791069984436,
+      "configs": [
+        {
+          "name": "w1",
+          "guidance": 1.0,
+          "precision": 0.875,
+          "coverage": 0.7171875,
+          "coverage_inception": 0.7625,
+          "precision_inception": 0.746875,
+          "tstr": 9.84,
+          "label_noise_frac": 0.140625,
+          "near_boundary_frac": 0.24375000596046448
+        },
+        {
+          "name": "w3",
+          "guidance": 3.0,
+          "precision": 0.9625,
+          "coverage": 0.8703125,
+          "coverage_inception": 0.921875,
+          "precision_inception": 0.921875,
+          "tstr": 10.0,
+          "label_noise_frac": 0.0031250000465661287,
+          "near_boundary_frac": 0.046875
+        }
+      ],
+      "report": {
+        "tau": 0.8350911962985992,
+        "tau_passed_floor": true,
+        "selected": "w3",
+        "oracle_best": "w3",
+        "regret_at_selected": 0.0,
+        "rank": 1,
+        "n_configs": 2,
+        "topk_hit": true,
+        "topk": 3,
+        "tau_robustness": {
+          "picks": {
+            "0.875": "w3",
+            "0.88375": "w3",
+            "0.8925": "w3",
+            "0.90125": "w3",
+            "0.91": "w3",
+            "0.91875": "w3",
+            "0.9275": "w3",
+            "0.93625": "w3",
+            "0.9450000000000001": "w3",
+            "0.95375": "w3",
+            "0.9625": "w3"
+          },
+          "modal": "w3",
+          "stability": 1.0
+        }
+      }
+    }
+  ]
+}

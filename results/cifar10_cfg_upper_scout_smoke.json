@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "axis": "CFG guidance (self-trained)",
+    "coverage_feature": "DINOv2",
+    "steps": 50,
+    "eta": 0.0,
+    "per_class": 32,
+    "bottom_x": 0.02,
+    "w_max": 20.0,
+    "seed": 0,
+    "note": "coverage-only upper scout; data NOT used in confirmatory statistics"
+  },
+  "rows": [
+    {
+      "guidance": 8.0,
+      "coverage": 0.759375
+    },
+    {
+      "guidance": 20.0,
+      "coverage": 0.4953125
+    }
+  ],
+  "deltas": [
+    0.26406250000000003
+  ],
+  "bottomed": false,
+  "collapse_boundary_w": null,
+  "grid_upper_w": null
+}

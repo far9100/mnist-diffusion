@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "dataset": "cifar10",
+    "axis": "CFG guidance (self-trained model)",
+    "steps": 50,
+    "eta": 0.0,
+    "guidance_grid": [
+      1.0,
+      8.0
+    ],
+    "per_class": 32,
+    "tstr_epochs": 2,
+    "near_boundary_threshold": 0.9525,
+    "coverage_feature": "DINOv2 primary + Inception cross-check"
+  },
+  "rows": [
+    {
+      "guidance": 1.0,
+      "precision_dino": 0.884375,
+      "coverage_dino": 0.784375,
+      "coverage_inception": null,
+      "precision_inception": null,
+      "tstr": 10.01,
+      "label_noise_frac": 0.12812499701976776,
+      "near_boundary_frac": 0.25312501192092896
+    },
+    {
+      "guidance": 8.0,
+      "precision_dino": 0.975,
+      "coverage_dino": 0.759375,
+      "coverage_inception": null,
+      "precision_inception": null,
+      "tstr": 10.0,
+      "label_noise_frac": 0.0062500000931322575,
+      "near_boundary_frac": 0.07187499850988388
+    }
+  ],
+  "verdict": {
+    "sweet_spot_guidance": 1.0,
+    "coverage_peak": 0.784375,
+    "coverage_collapse_guidance": null,
+    "sweet_spot_matches_proxy_1p5": false
+  },
+  "args": {
+    "ckpt": "checkpoints/cifar10_cfg.pt",
+    "judge": "checkpoints/cifar10_judge.pt",
+    "guidance": [
+      1.0,
+      8.0
+    ],
+    "per_class": 32,
+    "real_per_class": 64,
+    "steps": 50,
+    "eta": 0.0,
+    "batch": 250,
+    "nearest_k": 5,
+    "threshold": 0.9525,
+    "tstr_epochs": 2,
+    "seed": 0,
+    "no_inception": true,
+    "output": "results/cifar10_cfg_scout_smoke.json",
+    "quick": true
+  }
+}
