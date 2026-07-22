@@ -720,7 +720,16 @@ coverage-matched TSTR 45.75、等計數隨機剪枝 45.86（差 −0.11pp，`res
 同向。（重生成之合成集對 confirmatory seed-10 逐位重現，`results/cifar100_regen_reconcile.json`
 rel_delta 全 0。）
 
-即：雙段機制為觀察性複製，但 coverage 承載效用之因果宣稱在兩資料集皆未經介入證實。機制可
+**介入證據二**：margin-pruning（近邊界供給之直接介入）。C3 剪的是 coverage、非機制鏈的中介量本身；本文
+另跑一個直接介入——於 w2.5 移除 judge margin 最低（最近邊界）的樣本，對照等計數隨機移除、N=8 重訓
+（`results/cifar100_margin_intervention.json`）。若 near-boundary 供給承載效用，移除低 margin 樣本應比隨機
+掉更多 TSTR（差 rand−margin > 0）。實測相反且微弱：n=13606 差 −1.03pp（SE 0.46、CI [−1.93, −0.12]、
+MDE 1.29）、n=6803 差 −0.87pp（SE 0.42、CI [−1.70, −0.05]、MDE 1.18）——移除低 margin 樣本反而略**提升**
+TSTR（近邊界的低 margin 合成樣本於高 guidance 的 w2.5 多為含糊／可能誤標者，移除近乎清理）。兩檔位方向
+一致、幅度皆小於 MDE，故 near-boundary 供給承載效用之因果宣稱同樣未獲此直接介入支持。
+
+即：雙段機制為觀察性複製，但 coverage／near-boundary 承載效用之因果宣稱在兩資料集、兩種介入
+（coverage-matched 與 margin-pruning）皆未經證實。機制可
 量測，不等於便宜代理能選中效用最優——機制解釋「效用為何隨 guidance 這樣變」，不保證「哪個代理能
 選中最優」。
 

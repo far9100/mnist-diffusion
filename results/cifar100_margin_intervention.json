@@ -1,0 +1,97 @@
+{
+  "analysis": "cifar100_margin_intervention",
+  "seed": 10,
+  "config": "w2.5",
+  "w2.5_frozen_tstr": 50.656,
+  "levels": {
+    "13606": {
+      "n_requested": 13606,
+      "n_removed": 13606,
+      "tstr_margin_pruned": [
+        46.34,
+        47.29,
+        48.81,
+        45.74,
+        48.13,
+        48.23,
+        47.7,
+        48.61
+      ],
+      "tstr_rand_pruned": [
+        47.92,
+        46.34,
+        47.15,
+        46.52,
+        45.81,
+        46.77,
+        45.7,
+        46.41
+      ],
+      "mean_margin_pruned": 47.61,
+      "mean_rand_pruned": 46.58,
+      "diff_rand_minus_margin": -1.03,
+      "se": 0.462,
+      "t": -2.229,
+      "ci95": [
+        -1.93,
+        -0.12
+      ],
+      "mde": 1.292
+    },
+    "6803": {
+      "n_requested": 6803,
+      "n_removed": 6803,
+      "tstr_margin_pruned": [
+        48.61,
+        50.38,
+        48.9,
+        50.35,
+        48.14,
+        49.92,
+        49.08,
+        50.71
+      ],
+      "tstr_rand_pruned": [
+        47.32,
+        49.19,
+        48.35,
+        48.26,
+        48.54,
+        48.58,
+        49.27,
+        49.61
+      ],
+      "mean_margin_pruned": 49.51,
+      "mean_rand_pruned": 48.64,
+      "diff_rand_minus_margin": -0.87,
+      "se": 0.421,
+      "t": -2.068,
+      "ci95": [
+        -1.7,
+        -0.05
+      ],
+      "mde": 1.18
+    }
+  },
+  "interpretation": "差為正且 > MDE：移除近邊界（低 margin）樣本比隨機掉更多 TSTR，支持 near-boundary 供給承載效用（介入式）；差 ≈0 且有功效（|diff|<MDE）：有功效之 null，未支持。",
+  "metadata": {
+    "asset": "results/p1_assets_cifar100",
+    "source": "results/cifar100_cfg_confirmatory.json",
+    "num_classes": 100,
+    "n_retrain": 8,
+    "tstr_epochs": 15,
+    "per_class_floor": 6,
+    "rand_seed": 20260721,
+    "tstr_seeded": "sha256 決定性（T6b）",
+    "mde_convention": "2.8×SE（(1.96+0.84)、80% power）",
+    "note": "near-boundary 供給之直接介入（中介量），對照 D3 之 coverage-matched 介入；exploratory、禁因果。§5.5 併述兩介入。",
+    "start_timestamp": "2026-07-22 18:29:03",
+    "argv": "run_cifar100_margin_intervention.py --n-retrain 8 --levels 13606 6803",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070"
+    }
+  }
+}
