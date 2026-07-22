@@ -11,7 +11,11 @@ Usage:
 """
 
 import os as _os, sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); import _pathfix  # noqa: E402  路徑墊片，見 src/_pathfix.py
+# 本檔已停放 attic/var_mini/（VAR-mini 旁支，與研究主線無關；見 docs/code_map.md）。先接回 src/_pathfix
+# （供 train 等扁平 import），再把 attic/ 補上（供 `import var`——var 套件亦已移入 attic/）。
+_ROOT = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+_sys.path.insert(0, _os.path.join(_ROOT, "src")); import _pathfix  # noqa: E402  路徑墊片，見 src/_pathfix.py
+_sys.path.insert(0, _os.path.join(_ROOT, "attic"))  # 供 `import var`（已停放 attic/）
 
 import argparse
 import os

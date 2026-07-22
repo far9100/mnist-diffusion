@@ -81,10 +81,11 @@ class ResNet18(nn.Module):
 class _AugmentedTensorDataset(torch.utils.data.Dataset):
     """帶有訓練時 CIFAR 資料增強（random crop + 水平翻轉）的 TensorDataset。"""
 
-    def __init__(self, images, labels, augment=True):
+    def __init__(self, images, labels, augment=True, generator=None):
         self.images = images
         self.labels = labels
         self.augment = augment
+        self.gen = generator   # 提供時增強用此 CPU Generator（決定性）；None 則用全域 RNG（現行行為）
 
     def __len__(self):
         return self.images.size(0)
@@ -92,19 +93,24 @@ class _AugmentedTensorDataset(torch.utils.data.Dataset):
     def __getitem__(self, i):
         img = self.images[i]
         if self.augment:
-            if torch.rand(1).item() < 0.5:
+            g = self.gen
+            if torch.rand(1, generator=g).item() < 0.5:
                 img = torch.flip(img, dims=[2])
             pad = F.pad(img.unsqueeze(0), (4, 4, 4, 4), mode="reflect").squeeze(0)
-            top = torch.randint(0, 9, (1,)).item()
-            left = torch.randint(0, 9, (1,)).item()
+            top = torch.randint(0, 9, (1,), generator=g).item()
+            left = torch.randint(0, 9, (1,), generator=g).item()
             img = pad[:, top:top + 32, left:left + 32]
         return img, self.labels[i]
 
 
 def train_classifier(model, images, labels, device, epochs=30, lr=0.1,
-                     batch_size=128, augment=True, weight_decay=5e-4, verbose=False):
-    ds = _AugmentedTensorDataset(images, labels, augment=augment)
-    loader = DataLoader(ds, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
+                     batch_size=128, augment=True, weight_decay=5e-4, verbose=False, seed=None):
+    # seed 非 None：以 CPU Generator 控制 DataLoader shuffle 與增強，使 TSTR 可決定性重現（凍結 v1
+    # 走 seed=None，行為與本次改動前一致，保住對帳語意）。CUDA 上殘留 cuDNN 非決定性另議、不由此保證。
+    gen = torch.Generator().manual_seed(seed) if seed is not None else None
+    ds = _AugmentedTensorDataset(images, labels, augment=augment, generator=gen)
+    loader = DataLoader(ds, batch_size=batch_size, shuffle=True, num_workers=0,
+                        drop_last=False, generator=gen)
     opt = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9,
                           weight_decay=weight_decay, nesterov=True)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
@@ -145,11 +151,17 @@ def evaluate(model, loader, device, num_classes=10):
 
 
 def run_tstr(images, labels, real_test_loader, device, num_classes=10,
-             epochs=30, lr=0.1, batch_size=128, augment=True):
-    """在 generated 的 (images,labels) 上訓練一個全新 ResNet；在真實測試 loader 上評估。"""
+             epochs=30, lr=0.1, batch_size=128, augment=True, seed=None):
+    """在 generated 的 (images,labels) 上訓練一個全新 ResNet；在真實測試 loader 上評估。
+
+    seed 非 None 時：`torch.manual_seed(seed)` 控制模型權重初始化，並把 seed 傳入 train_classifier
+    控制 shuffle 與增強；seed=None 維持現行未種子化行為（凍結對帳語意不變）。
+    """
+    if seed is not None:
+        torch.manual_seed(seed)
     model = ResNet18(num_classes=num_classes).to(device)
     train_classifier(model, images, labels, device, epochs=epochs, lr=lr,
-                     batch_size=batch_size, augment=augment)
+                     batch_size=batch_size, augment=augment, seed=seed)
     overall, per_class = evaluate(model, real_test_loader, device, num_classes)
     return overall, per_class
 
@@ -162,6 +174,16 @@ def _self_check():
     assert m.features(x).shape == (4, 512)
     print(f"ResNet18-CIFAR OK on {device}: logits {tuple(m(x).shape)}, feat {tuple(m.features(x).shape)}, "
           f"params={sum(p.numel() for p in m.parameters())/1e6:.1f}M")
+
+    # T6b：seeded TSTR 決定性——CPU 上同 seed 兩次逐位相同（CUDA 因 cuDNN 非決定性不保證，故測 CPU）。
+    cpu = torch.device("cpu")
+    imgs, labs = torch.randn(64, 3, 32, 32), torch.randint(0, 10, (64,))
+    tl = DataLoader(torch.utils.data.TensorDataset(torch.randn(20, 3, 32, 32),
+                                                   torch.randint(0, 10, (20,))), batch_size=10)
+    a, _ = run_tstr(imgs, labs, tl, cpu, epochs=2, seed=7)
+    b, _ = run_tstr(imgs, labs, tl, cpu, epochs=2, seed=7)
+    assert a == b, f"seeded run_tstr 非決定性：{a} vs {b}"
+    print(f"T6b seeded-TSTR determinism OK (seed=7 兩次 → {a:.4f} == {b:.4f} on CPU)")
 
 
 if __name__ == "__main__":

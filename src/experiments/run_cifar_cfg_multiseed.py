@@ -211,8 +211,15 @@ def measure(model, schedule, judge, real_imgs, real_dino, real_labels, test_load
                                           nearest_k=args.nearest_k, num_classes=nc)
     # TSTR reps（D4：n_rep 個獨立 from-scratch 分類器，消 σ_cls 分類器訓練變異；均值餵 selector）。
     tstr_reps = []
-    for _ in range(args.reps):
-        t, _ = run_tstr(gen, gen_labels, test_loader, device, num_classes=nc, epochs=args.tstr_epochs)
+    for rep in range(args.reps):
+        # T6b：--tstr-seeded 時每個 rep 給決定性衍生種子（凍結 v1 走 seed=None、不受影響；T3 v2 啟用）。
+        rep_seed = None
+        if getattr(args, "tstr_seeded", False):
+            import hashlib
+            rep_seed = int(hashlib.sha256(
+                f"tstr_{args.dataset}_{seed}_{w:g}_{rep}".encode()).hexdigest()[:15], 16)
+        t, _ = run_tstr(gen, gen_labels, test_loader, device, num_classes=nc,
+                        epochs=args.tstr_epochs, seed=rep_seed)
         tstr_reps.append(t)
     tstr = sum(tstr_reps) / len(tstr_reps)
     margins, preds = compute_margins(judge, gen, device)
@@ -284,6 +291,9 @@ def main():
                         "（confirmatory 須用凍結 judge json 值，勿由 CLI 帶入）")
     p.add_argument("--tau-fraction", type=float, default=None)
     p.add_argument("--tstr-epochs", type=int, default=None)
+    p.add_argument("--tstr-seeded", action="store_true",
+                   help="T6b：每 rep 以 sha256(tstr_<ds>_<seed>_<w>_<rep>) 衍生種子跑 run_tstr，"
+                        "使 TSTR 進入可對帳集（凍結 v1 不加此旗標、行為不變；T3 v2 啟用）")
     p.add_argument("--judge-json", default=None, help="預設 results/<dataset>_judge.json")
     p.add_argument("--no-inception", action="store_true")
     p.add_argument("--no-fid", action="store_true",

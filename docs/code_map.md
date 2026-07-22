@@ -5,7 +5,7 @@
 所有 Python 腳本依類別收於 `src/`。扁平 import（`import metrics_features` 等）由 `src/_pathfix.py`
 墊片維持——它在被 import 時把專案根與各 `src/` 子資料夾補回 `sys.path`，故 import 語句不變。
 腳本一律**從專案根目錄**以 `python src/<類別>/<檔>.py` 執行（相對路徑參數如 `--output results/...`
-以專案根為 cwd）。既有套件 `datasets/`、`var/` 與工具 `tools/` 留在根目錄。
+以專案根為 cwd）。既有套件 `datasets/` 與工具 `tools/` 留在根目錄；VAR-mini 旁支已停放 `attic/`。
 
 ## src/core/ — 被 import 的共用函式庫（Gen-2 研究主線）
 
@@ -46,7 +46,7 @@ driver（confirmatory／scout／裁決）：
 
 gate／重生成／訓練：
 
-- `phase1_edm_repro.py` — 正確性 gate：重現 EDM CIFAR-10 條件式 FID（約 1.79）。
+- `phase1_edm_repro.py` — 正確性 gate：重現 EDM CIFAR-10 條件式 FID（本專案單次評估 1.848、官方 min-of-3 為 1.79，口徑不同）。
 - `validate_metrics.py` — 量測堆疊在真實 CIFAR-10 上的數值驗證。
 - `cifar100_base_gate.py` — CIFAR-100 base-model FID gate（D 包第一閘）。
 - `regen_cifar100_cells.py` — 重生成 CIFAR-100 confirmatory 的兩個 cell，供 D3 介入臂。
@@ -62,12 +62,6 @@ gate／重生成／訓練：
 - `analyze_distribution.py` — 合成分佈診斷（mode collapse / drift）。
 - `test_classifier.py` — CNN 評估器健全性檢查。
 
-## src/var_mini/ — VAR-mini 旁支（僅 smoke）
-
-- `train_vqvae.py` — Stage 1：多尺度殘差 VQ-VAE。
-- `train_var.py` — Stage 2：scale-wise transformer。
-- `inference_var.py` — VAR-mini 推論（輸出與 TSTR pipeline 同格式）。
-
 ## src/figures/ — 論文製圖
 
 - `make_thesis_figures.py` — 由 `results/*.json` 產生碩論所需的 6 張發表級圖（純畫既有數字）。
@@ -75,3 +69,14 @@ gate／重生成／訓練：
 ## src/_pathfix.py
 
 - sys.path 墊片，維持 src/ 下腳本的扁平 import，並輸出專案根路徑 `ROOT`。
+
+## attic/ — 停放旁支（VAR-mini，與研究主線無關）
+
+VAR-mini：MNIST 上的兩階段生成（多尺度殘差 VQ-VAE + scale-wise transformer），已裁定停放、僅
+smoke 權重、不列入論文（見 CHANGELOG）。程式移出主線改置 `attic/`；其墊片改為先接回 `src/_pathfix`
+再把 `attic/` 補上 `sys.path`（供 `import var`）。從專案根以 `python attic/var_mini/<檔>.py` 執行。
+
+- `attic/var/` — VAR-mini 套件：vqvae、transformer、sample。
+- `attic/var_mini/train_vqvae.py` — Stage 1：多尺度殘差 VQ-VAE。
+- `attic/var_mini/train_var.py` — Stage 2：scale-wise transformer。
+- `attic/var_mini/inference_var.py` — VAR-mini 推論（輸出與 TSTR pipeline 同格式）。

@@ -88,11 +88,17 @@ def dry_run(d):
 
 
 def main():
-    p = argparse.ArgumentParser(description="重生成 CIFAR-100 seed10 w1/w2.5 兩 cell（D3 介入臂用）。")
+    global WS
+    p = argparse.ArgumentParser(description="重生成 CIFAR-100 seed10 cells（預設 w1/w2.5 供 D3；"
+                                            "--guidance 可指定其他 cell，T1c 用其補 w1.5/w2/w3-w8）。")
     p.add_argument("--ckpt", default="checkpoints/cifar100_cfg.pt")
     p.add_argument("--judge", default="checkpoints/cifar100_judge.pt")
+    p.add_argument("--guidance", type=float, nargs="+", default=None,
+                   help="要重生成的 guidance 列表（預設 WS=[1.0,2.5]）；決定性 hash gseed、逐 cell 對帳凍結 confirmatory。")
     p.add_argument("--dry-run", action="store_true", help="不載模型、不生成、不碰 GPU；只驗流程與 gseed")
     args = p.parse_args()
+    if args.guidance:
+        WS = args.guidance
     start_timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
     d = json.load(open(CONF, encoding="utf-8"))

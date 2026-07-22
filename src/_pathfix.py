@@ -6,7 +6,7 @@
 找得到。把檔案依類別搬進 src/<類別>/ 後，sys.path[0] 變成該子資料夾，扁平 import 會失效。
 
 本墊片在被 import 時，把「專案根」與「每個 src/<類別>/」都補回 sys.path，扁平 import 即照舊
-可解析（根供 datasets/、var/ 這類套件；各 src 子資料夾供扁平模組——所有模組 basename 全域唯一，
+可解析（根供 datasets/ 這類套件，var/ 已停放 attic/；各 src 子資料夾供扁平模組——所有模組 basename 全域唯一，
 不會碰撞）。每個搬移檔在 docstring 之後、其他 import 之前 `import _pathfix` 一次即可。
 """
 

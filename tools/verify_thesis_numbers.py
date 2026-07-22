@@ -241,19 +241,34 @@ def verify_table_5_3(tables):
     c10 = load("cifar10_c6_fidmin_duel.json")
     c100 = load("cifar100_c6_fidmin_duel.json")
     mnist = load("selector_signal_multiseed.json")
-    # 欄序：資料集 | TSTR-oracle | coverage 選擇器選中 | coverage 選擇器 regret | FID-min regret | 可靠代理
+    base = load("baseline_fixed_random.json")["datasets"]  # T2：D5 baseline
+    # 欄序：資料集 | TSTR-oracle | coverage 選擇器選中 | coverage 選擇器 regret | FID-min regret
+    #        | fixed-w1 regret | fixed-w2 regret | random-feasible regret | 可靠代理
     reg = {
         "MNIST": mnist["aggregate"]["regret_at_selected"]["mean"],
         "CIFAR-10": c10["caf_regret_mean"],
         "CIFAR-100": c100["caf_regret_mean"],
     }
     fidmin = {"CIFAR-10": c10["fidmin_regret_mean"], "CIFAR-100": c100["fidmin_regret_mean"]}
+    if os.path.exists(os.path.join(RES, "mnist_fid_arm.json")):  # T1a：MNIST 實測 FID-min
+        fidmin["MNIST"] = load("mnist_fid_arm.json")["aggregate"]["mnist"]["fidmin_regret_mean"]
+
+    def fixed_at(ds, guid):
+        """該資料集固定於某 guidance（1.0=fixed-w1、2.0=fixed-w2）的平均 regret；MNIST 網格用 g 命名。"""
+        d = base[ds]
+        name = next(n for n in d["grid"] if gnum(n) == guid)
+        return d["fixed_w"][name]["mean_regret"]
+
     for row in t[1:]:
         ds = row[0].strip()
         if ds in reg:
             check(f"表5.3 {ds} coverage選擇器 regret", row[3], reg[ds])
         if ds in fidmin:
             check(f"表5.3 {ds} FID-min regret", row[4], fidmin[ds])
+        if ds in base:
+            check(f"表5.3 {ds} fixed-w1 regret", row[5], fixed_at(ds, 1.0))
+            check(f"表5.3 {ds} fixed-w2 regret", row[6], fixed_at(ds, 2.0))
+            check(f"表5.3 {ds} random-feasible regret", row[7], base[ds]["random_feasible"]["mean_regret"])
 
 
 def verify_table_5_5(tables):
@@ -382,6 +397,62 @@ def verify_inline():
     oracle_tstr = max(c["tstr_seed10"] for c in fd["per_config"])
     check("內文 FD-DINOv2 選擇器 regret 8.8", "8.8",
           oracle_tstr - fpc[wf["fd_dinov2_argmin"]]["tstr_seed10"])
+
+    # C1 配對統計（§5.4.1，post-hoc；來源 c1_paired_stats.json）
+    cps = load("c1_paired_stats.json")["datasets"]
+    check("內文 C1 CIFAR-100 配對均值 0.76", "0.76", cps["CIFAR-100"]["paired_test_posthoc"]["mean_diff"])
+    check("內文 C1 CIFAR-100 配對 t=9.71", "9.71", cps["CIFAR-100"]["paired_test_posthoc"]["t"])
+    check("內文 C1 CIFAR-10 配對均值 0.91", "0.91", cps["CIFAR-10"]["paired_test_posthoc"]["mean_diff"])
+    check("內文 C1 CIFAR-10 配對 t=1.18", "1.18", cps["CIFAR-10"]["paired_test_posthoc"]["t"])
+
+    # τ 靈敏度（§6.3，post-hoc；來源 tau_sensitivity.json）
+    ts = load("tau_sensitivity.json")["datasets"]["CIFAR-100"]["settings"]
+    check("內文 τ tau_frac0.85 regret 0.00", "0.00", ts["tau_frac_0.85"]["mean_regret"])
+    check("內文 τ tau_frac0.90 regret 0.76", "0.76", ts["tau_frac_0.90"]["mean_regret"])
+    check("內文 τ tau_frac0.95 regret 5.40", "5.40", ts["tau_frac_0.95"]["mean_regret"])
+    check("內文 τ no_floor regret 0.00", "0.00", ts["no_floor"]["mean_regret"])
+    check("內文 τ no_floor 勝 FID-min 0.76", "0.76", ts["no_floor"]["beats_fidmin_by_pp"])
+
+    # 配平校準（§5.4.1，seed 10，需快取特徵；缺檔則 available=False，略過）
+    mc = load("tau_sensitivity.json")["datasets"]["CIFAR-100"].get("matched_calibration_seed10", {})
+    if mc.get("available"):
+        pcw1 = next(pc for pc in mc["per_config"] if pc["name"] == "w1")
+        check("內文 配平 w1 precision 500v500 0.78", "0.78", pcw1["precision_500v500"])
+        check("內文 配平 w1 precision 250v250 0.8106", "0.8106", pcw1["precision_250v250"])
+        check_str("內文 配平 500v500 選 w1.5", "w1.5", mc["selection_500v500"]["selected"])
+        check_str("內文 配平 250v250 選 w1", "w1", mc["selection_250v250_matched"]["selected"])
+
+    # T1a/T1b MNIST 臂（§5.3／§6.1；來源 mnist_fid_arm.json、mnist_dinov2_stack.json）
+    if os.path.exists(os.path.join(RES, "mnist_fid_arm.json")):
+        mfa = load("mnist_fid_arm.json")["aggregate"]["mnist"]
+        check("內文 T1a MNIST FID-min regret 1.02", "1.02", mfa["fidmin_regret_mean"])
+        mds = load("mnist_dinov2_stack.json")["aggregate"]
+        check("內文 T1b DINOv2 CaF(coverage) regret 1.02", "1.02", mds["caf"]["regret_mean"])
+        check("內文 T1b DINOv2 CaF-v2(recall) regret 0.0", "0.0", mds["caf_v2"]["regret_mean"])
+        cf = load("mnist_fid_arm.json")["aggregate"].get("clean")   # T1a clean-fid 第二讀數
+        if cf:
+            check("內文 T1a clean-fid regret 1.02", "1.02", cf["fidmin_regret_mean"])
+    # T1c CIFAR judge 特徵堆疊（§6.1 六格 2×2；來源 cifar_judgefeat_stack.json）
+    if os.path.exists(os.path.join(RES, "cifar_judgefeat_stack.json")):
+        jfd = load("cifar_judgefeat_stack.json")["datasets"]
+        jf10 = jfd.get("cifar10", {})
+        if jf10.get("complete") and jf10.get("reports"):
+            check("內文 T1c CIFAR-10 judge CaF regret 2.45", "2.45", jf10["reports"]["caf"]["regret_at_selected"])
+        jf100 = jfd.get("cifar100", {})
+        if jf100.get("complete") and jf100.get("reports"):
+            check("內文 T1c CIFAR-100 judge CaF regret 0.79", "0.79", jf100["reports"]["caf"]["regret_at_selected"])
+            # 2×2 之 CIFAR-100 DINOv2 coverage-CaF（signal=coverage，由凍結 confirmatory 重算）
+            for _p in (os.path.join(ROOT, "src"), os.path.join(ROOT, "src", "core")):
+                if _p not in sys.path:
+                    sys.path.insert(0, _p)
+            from selector import select_caf, auto_tau
+            c100 = load("cifar100_cfg_confirmatory.json")
+            regs = []
+            for b in c100["per_seed"]:
+                oracle = max(b["configs"], key=lambda c: c["tstr"])
+                sel, _ = select_caf(b["configs"], auto_tau(b["ref_precision"], 0.9), signal_key="coverage")
+                regs.append(oracle["tstr"] - sel["tstr"])
+            check("內文 2×2 CIFAR-100 DINOv2 coverage-CaF 6.10", "6.10", sum(regs) / len(regs))
 
 
 def main():

@@ -1,4 +1,4 @@
-"""H3 三臂 matched-budget 對決：FID-min／CaF-v2／Chamfer（分支三護城河對決）。
+"""H3 三臂 matched-budget 對照：FID-min／CaF-v2／Chamfer（分支三診斷）。
 
 預註冊 D5/D7：在 matched-budget 下比 FID-min、CaF-v2、簡化 Chamfer 三臂之下游 TSTR。CIFAR-100 上
 CaF-v2 與 FID-min 逐 seed 同選 w1.5（`2026-07-16-01`），故此兩臂＝vanilla w1.5；Chamfer 臂為新生成。
