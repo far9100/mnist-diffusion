@@ -303,6 +303,16 @@ def verify_table_5_3(tables):
         scc = {c["name"]: c for c in next(s for s in sc["per_seed"] if s["seed"] == 10)["configs"]}
         check("§6.3 T5b w0.5 TSTR", "42.74", scc["w0.5"]["tstr"])
         check("§6.3 T5b w0.75 TSTR", "55.80", scc["w0.75"]["tstr"])
+    if os.path.exists(os.path.join(RES, "tstr_real_ceiling.json")):
+        cl = load("tstr_real_ceiling.json")["by_dataset"]
+        cat = lambda ds, ep: next(b["mean"] for b in cl[ds]["by_epochs"] if b["epochs"] == ep)
+        check("§5.4.3 T9 real ceiling C100@15", "70.75", cat("cifar100", 15))
+        check("§5.4.3 T9 real ceiling C10@15", "64.78", cat("cifar10", 15))
+    if os.path.exists(os.path.join(RES, "tstr_protocol_ablation.json")):
+        ab = load("tstr_protocol_ablation.json")["cells"]
+        aat = lambda cell, ep: next(b["mean"] for b in ab[cell]["by_epochs"] if b["epochs"] == ep)
+        check("§5.4.3 T9 ablation w1@15", "59.96", aat("w1", 15))
+        check("§5.4.3 T9 ablation w1.5@50", "61.52", aat("w1.5", 50))
 
 
 def verify_table_5_5(tables):

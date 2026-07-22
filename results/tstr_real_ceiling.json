@@ -1,0 +1,79 @@
+{
+  "analysis": "tstr_real_ceiling",
+  "by_dataset": {
+    "cifar100": {
+      "per_class": 500,
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            71.22,
+            70.28,
+            71.8,
+            69.45,
+            71.01
+          ],
+          "mean": 70.75,
+          "sigma_cls": 0.813
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            76.17,
+            76.43,
+            76.33,
+            75.66,
+            76.49
+          ],
+          "mean": 76.22,
+          "sigma_cls": 0.298
+        }
+      ]
+    },
+    "cifar10": {
+      "per_class": 1000,
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            64.96,
+            69.41,
+            61.86,
+            64.25,
+            63.41
+          ],
+          "mean": 64.78,
+          "sigma_cls": 2.536
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            81.74,
+            77.29,
+            77.81,
+            80.84,
+            79.64
+          ],
+          "mean": 79.46,
+          "sigma_cls": 1.707
+        }
+      ]
+    }
+  },
+  "note": "train-on-real 上限；表 5.2/5.4 加一行 ceiling。",
+  "metadata": {
+    "start_timestamp": "2026-07-22 12:46:50",
+    "argv": "run_tstr_protocol.py --generate-missing",
+    "reps": 5,
+    "epochs": [
+      15,
+      50
+    ],
+    "tstr_seeded": "sha256 決定性（T6b）",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  }
+}
