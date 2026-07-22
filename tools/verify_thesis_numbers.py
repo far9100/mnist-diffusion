@@ -317,6 +317,11 @@ def verify_table_5_3(tables):
         mi = load("cifar100_margin_intervention.json")["levels"]
         check("§5.5 T10 margin diff n13606", "-1.03", mi["13606"]["diff_rand_minus_margin"])
         check("§5.5 T10 margin diff n6803", "-0.87", mi["6803"]["diff_rand_minus_margin"])
+    if os.path.exists(os.path.join(RES, "cifar100_h3_duel_v2_dinov2_sweep.json")):
+        sw = load("cifar100_h3_duel_v2_dinov2_sweep.json")["arms"]
+        sw3 = next(a for a in sw if a["term"] == "chamfer" and abs(a["weight"] - 0.3) < 1e-9)
+        check("§5.6.1 sweep bidir w0.3 TSTR", "60.89", sw3["tstr_mean"])
+        check("§5.6.1 sweep bidir w0.3 cov224", "0.488", sw3["coverage_dinov2_224"])
 
 
 def verify_table_5_5(tables):

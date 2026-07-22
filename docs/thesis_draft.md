@@ -804,7 +804,14 @@ Chamfer（`term=chamfer`）＋官方 G_freq=5 導引頻率、與 vanilla 對稱 
 
 故「便宜 coverage 是否追蹤 Chamfer 的效用」取決於量測解析度：於導引解析度追蹤、於 224 不追蹤。§5.6 之
 攻擊句降級為此條件敘述。matched-budget 口徑：張數相等（各 5 萬），FLOPs 不等——Chamfer 臂另加導引反傳
-（本重跑約 21,750 TFLOPs 對 vanilla 約 15,000，見 metadata）。單 seed、weight 1.0、exploratory。
+（本重跑約 21,750 TFLOPs 對 vanilla 約 15,000，見 metadata）。單 seed、exploratory。
+
+**weight 掃描（robustness）**。將雙向 Chamfer 掃 weight {0.05, 0.1, 0.3, 1.0}
+（`results/cifar100_h3_duel_v2_dinov2_sweep.json`）：cov@224 於**每個** weight 皆低（0.46–0.49、遠低於
+vanilla 0.642）、cov@112 皆高（0.85–0.88），TSTR 增益隨 weight 遞增（+0.74／+0.67／+2.24／+3.03pp）。即
+「cov@224 反低而 cov@112 反高」之量測解析度落差非 weight 1.0 特例、於整個 weight 範圍穩健；雙向 cov@224
+於任一 weight 皆未上升。（導引生成含非決定性反傳，weight 1.0 之 TSTR 於本掃描 61.68、於前段 MVP 62.22，
+差約 0.5pp、落在 σ_cls 內。）
 
 ---
 

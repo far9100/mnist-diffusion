@@ -11,6 +11,15 @@ git 歷史，可以 `git log -- records/` 查閱。
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-23
+
+- `2026-07-23-01` test — 完整版 fix_tasks T8 全 weight 掃描（seed10、weights {0.05,0.1,0.3,1.0}、雙向＋單向
+  ablation、G_freq=5）＋§5.6.1 robustness：`results/cifar100_h3_duel_v2_dinov2_sweep.json`。cov@224 於每個
+  weight 皆低（0.46–0.49 << vanilla 0.642）、cov@112 皆高（0.85–0.88）、TSTR 增益隨 weight 遞增
+  （+0.74／+0.67／+2.24／+3.03pp）；即量測解析度落差非 weight 1.0 特例、於整個範圍穩健，雙向 cov@224 於任一
+  weight 皆未上升。導引生成非決定性使 weight 1.0 TSTR 本掃描 61.68 vs MVP 62.22（差 ~0.5pp、σ_cls 內）。
+  §5.6.1 增 weight 掃描段；verifier 增 2 條，重跑 OK 383／MISMATCH 0；凍結與 MVP 結果未動。
+
 ## 2026-07-22
 
 - `2026-07-22-01` test — 任務書 fix_tasks T11（B1）ViT-L/14 PRDC 真跑完成（CIFAR-100 seed10 全 10 config、
