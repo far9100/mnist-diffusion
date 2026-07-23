@@ -1,0 +1,112 @@
+{
+  "analysis": "tstr_protocol_ablation",
+  "seed": 10,
+  "cells": {
+    "w1": {
+      "source": "cached",
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            58.77,
+            59.1,
+            59.89
+          ],
+          "mean": 59.25,
+          "sigma_cls": 0.47
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            60.21,
+            61.27,
+            61.54
+          ],
+          "mean": 61.01,
+          "sigma_cls": 0.574
+        }
+      ]
+    },
+    "w1.5": {
+      "source": "regen",
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            58.46,
+            57.38,
+            58.74
+          ],
+          "mean": 58.19,
+          "sigma_cls": 0.586
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            60.98,
+            61.6,
+            61.08
+          ],
+          "mean": 61.22,
+          "sigma_cls": 0.272
+        }
+      ]
+    },
+    "w2.5": {
+      "source": "cached",
+      "by_epochs": [
+        {
+          "epochs": 15,
+          "reps": [
+            51.44,
+            50.88,
+            51.42
+          ],
+          "mean": 51.25,
+          "sigma_cls": 0.259
+        },
+        {
+          "epochs": 50,
+          "reps": [
+            55.65,
+            55.86,
+            55.57
+          ],
+          "mean": 55.69,
+          "sigma_cls": 0.122
+        }
+      ]
+    }
+  },
+  "missing": [],
+  "rank_by_epochs": {
+    "15": [
+      "w1",
+      "w1.5",
+      "w2.5"
+    ],
+    "50": [
+      "w1.5",
+      "w1",
+      "w2.5"
+    ]
+  },
+  "rank_stable": false,
+  "note": "σ_cls 隨 epochs 是否縮、排序是否穩——回應「噪聲地板為協定內生」。",
+  "metadata": {
+    "start_timestamp": "2026-07-23 12:06:17",
+    "argv": "run_tstr_protocol.py --ablation --arch wrn16_4 --reps 3 --epochs 15 50 --generate-missing --ablation-output results/tstr_protocol_ablation_wrn.json",
+    "reps": 3,
+    "epochs": [
+      15,
+      50
+    ],
+    "arch": "wrn16_4",
+    "tstr_seeded": "sha256 決定性（T6b）",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  }
+}

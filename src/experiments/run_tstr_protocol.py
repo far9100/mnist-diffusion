@@ -46,12 +46,12 @@ def _seed(tag, epochs, rep):
     return int(hashlib.sha256(f"tstr9_{tag}_{epochs}_{rep}".encode()).hexdigest()[:15], 16)
 
 
-def tstr_block(imgs, labels, test_loader, device, nc, epochs, reps, tag):
+def tstr_block(imgs, labels, test_loader, device, nc, epochs, reps, tag, arch="resnet18"):
     """跑 reps 次 TSTR（決定性種子），回 mean / std（σ_cls 代理）/ 各 rep。"""
     vals = []
     for r in range(reps):
         ov, _ = run_tstr(imgs, labels, test_loader, device, num_classes=nc,
-                         epochs=epochs, seed=_seed(tag, epochs, r))
+                         epochs=epochs, seed=_seed(tag, epochs, r), arch=arch)
         vals.append(round(ov, 2))
         if device.type == "cuda":
             torch.cuda.empty_cache()
@@ -105,7 +105,7 @@ def _load_cell_images(name, generate_missing, device):
     return torch.cat(imgs), torch.cat(labs), "regen"
 
 
-def run_ablation(cells, epochs_list, reps, device, generate_missing):
+def run_ablation(cells, epochs_list, reps, device, generate_missing, arch="resnet18"):
     tl = build_test_loader("cifar100")
     out = {"seed": 10, "cells": {}, "missing": []}
     for name in cells:
@@ -117,7 +117,7 @@ def run_ablation(cells, epochs_list, reps, device, generate_missing):
         print(f"  [ablation] {name} ({src}) {tuple(imgs.shape)}", flush=True)
         out["cells"][name] = {"source": src,
                               "by_epochs": [tstr_block(imgs, labs, tl, device, NC["cifar100"], e, reps,
-                                                       f"abl_{name}") for e in epochs_list]}
+                                                       f"abl_{name}_{arch}", arch=arch) for e in epochs_list]}
     # 排序穩定：各 epochs 下 cell 的 TSTR-mean 排序是否一致
     ranks = {}
     for e_idx, e in enumerate(epochs_list):
@@ -139,6 +139,8 @@ def main():
     p.add_argument("--generate-missing", action="store_true", help="ablation 缺格（w1.5）以 hash gseed regen")
     p.add_argument("--ceiling-output", default="results/tstr_real_ceiling.json")
     p.add_argument("--ablation-output", default="results/tstr_protocol_ablation.json")
+    p.add_argument("--arch", choices=["resnet18", "wrn16_4"], default="resnet18",
+                   help="ablation 之 TSTR 分類器架構（T9 第二架構穩健性用 wrn16_4；ceiling 恆 resnet18）")
     args = p.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -149,7 +151,7 @@ def main():
     start_timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     meta = {"start_timestamp": start_timestamp, "argv": " ".join(sys.argv), "reps": args.reps,
-            "epochs": args.epochs, "tstr_seeded": "sha256 決定性（T6b）",
+            "epochs": args.epochs, "arch": args.arch, "tstr_seeded": "sha256 決定性（T6b）",
             "env": {"torch": torch.__version__, "cuda": torch.version.cuda,
                     "cudnn": torch.backends.cudnn.version() if torch.cuda.is_available() else None}}
 
@@ -163,7 +165,7 @@ def main():
     if args.ablation:
         print("########## TSTR epochs 消融（σ_cls 是否協定內生） ##########")
         res = {"analysis": "tstr_protocol_ablation", **run_ablation(args.cells, args.epochs, args.reps,
-                                                                    device, args.generate_missing),
+                                                                    device, args.generate_missing, args.arch),
                "note": "σ_cls 隨 epochs 是否縮、排序是否穩——回應「噪聲地板為協定內生」。", "metadata": meta}
         json.dump(res, open(args.ablation_output, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
         print(f"Wrote {args.ablation_output}")

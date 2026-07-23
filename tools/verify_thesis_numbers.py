@@ -318,6 +318,11 @@ def verify_table_5_3(tables):
         aat = lambda cell, ep: next(b["mean"] for b in ab[cell]["by_epochs"] if b["epochs"] == ep)
         check("§5.4.3 T9 ablation w1@15", "59.96", aat("w1", 15))
         check("§5.4.3 T9 ablation w1.5@50", "61.52", aat("w1.5", 50))
+    if os.path.exists(os.path.join(RES, "tstr_protocol_ablation_wrn.json")):
+        wr = load("tstr_protocol_ablation_wrn.json")["cells"]
+        wat = lambda cell, ep: next(b["mean"] for b in wr[cell]["by_epochs"] if b["epochs"] == ep)
+        check("§5.4.3 T9 WRN w1@15", "59.25", wat("w1", 15))
+        check("§5.4.3 T9 WRN w1.5@50", "61.22", wat("w1.5", 50))
     if os.path.exists(os.path.join(RES, "cifar100_margin_intervention.json")):
         mi = load("cifar100_margin_intervention.json")["levels"]
         check("§5.5 T10 margin diff n13606", "-1.03", mi["13606"]["diff_rand_minus_margin"])
