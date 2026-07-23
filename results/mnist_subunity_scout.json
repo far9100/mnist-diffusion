@@ -1,0 +1,238 @@
+{
+  "metadata": {
+    "analysis": "mnist_subunity_scout",
+    "status": "exploratory",
+    "off_protocol": true,
+    "dataset": "mnist",
+    "axis": "CFG guidance (self-trained DDPM)",
+    "subunity_grid": [
+      0.5,
+      0.75
+    ],
+    "reference_config": "g1",
+    "sampler": "ddim",
+    "steps": 50,
+    "eta": 0.0,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "per_digit": 1000,
+    "fid_per_class": 1000,
+    "nearest_k": 5,
+    "tstr_epochs": 20,
+    "tstr_lr": 0.001,
+    "tstr_batch_size": 64,
+    "prdc_feature_space": "mnist_cnn.pt penultimate (judge CNN)",
+    "cfg_condition": "ddpm.predict_eps guidance_scale != 1.0 (w<1 走 CFG 分支，見 CHANGELOG 2026-07-21-08)",
+    "reference_source": "results/selector_signal_multiseed.json",
+    "gen_cache": "results/mnist_gen_cache",
+    "gen_subseed_formula": "seed*1000+int(round(g*10))",
+    "tstr_seed_formula": "same subseed before each TSTR (scout 可重現)",
+    "start_timestamp": "2026-07-23 20:10:32",
+    "end_timestamp": "2026-07-23 20:25:49",
+    "argv": "run_mnist_subunity_scout.py --seeds 0 1 2",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    }
+  },
+  "aggregate": {
+    "n_seeds": 3,
+    "per_config": [
+      {
+        "name": "g0.5",
+        "tstr": {
+          "mean": 92.62666666666667,
+          "std": 2.8965554255586654,
+          "min": 89.3,
+          "max": 94.59,
+          "n": 3,
+          "values": [
+            89.3,
+            94.59,
+            93.99
+          ]
+        },
+        "precision": {
+          "mean": 0.6045666962862015,
+          "std": 0.00984699494779085,
+          "min": 0.5932000309228898,
+          "max": 0.6105000257492066,
+          "n": 3,
+          "values": [
+            0.6100000321865082,
+            0.6105000257492066,
+            0.5932000309228898
+          ]
+        },
+        "coverage": {
+          "mean": 0.43084585294127464,
+          "std": 0.272095090095737,
+          "min": 0.11668488755822182,
+          "max": 0.5915185391902924,
+          "n": 3,
+          "values": [
+            0.11668488755822182,
+            0.5915185391902924,
+            0.5843341320753097
+          ]
+        }
+      },
+      {
+        "name": "g0.75",
+        "tstr": {
+          "mean": 95.21333333333332,
+          "std": 3.00027220987252,
+          "min": 91.75,
+          "max": 97.02,
+          "n": 3,
+          "values": [
+            91.75,
+            96.87,
+            97.02
+          ]
+        },
+        "precision": {
+          "mean": 0.8300778210163117,
+          "std": 0.0018986359775650787,
+          "min": 0.8283333778381348,
+          "max": 0.8321000456809997,
+          "n": 3,
+          "values": [
+            0.8283333778381348,
+            0.8298000395298004,
+            0.8321000456809997
+          ]
+        },
+        "coverage": {
+          "mean": 0.5792617509762447,
+          "std": 0.3632907254492464,
+          "min": 0.1598152369260788,
+          "max": 0.7943345487117768,
+          "n": 3,
+          "values": [
+            0.1598152369260788,
+            0.7836354672908783,
+            0.7943345487117768
+          ]
+        }
+      },
+      {
+        "name": "g1",
+        "tstr": {
+          "mean": 97.3,
+          "std": 0.14730919862656391,
+          "min": 97.21,
+          "max": 97.47,
+          "n": 3,
+          "values": [
+            97.21,
+            97.22,
+            97.47
+          ]
+        },
+        "precision": null,
+        "coverage": null
+      }
+    ],
+    "tstr_mean_by_name": {
+      "g0.5": 92.62666666666667,
+      "g0.75": 95.21333333333332,
+      "g1": 97.3
+    },
+    "all_subunity_below_w1_all_seeds": true,
+    "monotone_up_to_w1_all_seeds": true
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "configs": [
+        {
+          "name": "g0.5",
+          "guidance": 0.5,
+          "precision": 0.6100000321865082,
+          "coverage": 0.11668488755822182,
+          "recall": 0.9547619104385376,
+          "density": 0.46866671144962313,
+          "tstr": 89.3
+        },
+        {
+          "name": "g0.75",
+          "guidance": 0.75,
+          "precision": 0.8283333778381348,
+          "coverage": 0.1598152369260788,
+          "recall": 0.9375316560268402,
+          "density": 0.6610000550746917,
+          "tstr": 91.75
+        },
+        {
+          "name": "g1",
+          "guidance": 1.0,
+          "tstr": 97.21,
+          "frozen_reference": true
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "configs": [
+        {
+          "name": "g0.5",
+          "guidance": 0.5,
+          "precision": 0.6105000257492066,
+          "coverage": 0.5915185391902924,
+          "recall": 0.93731849193573,
+          "density": 0.40964002907276154,
+          "tstr": 94.59
+        },
+        {
+          "name": "g0.75",
+          "guidance": 0.75,
+          "precision": 0.8298000395298004,
+          "coverage": 0.7836354672908783,
+          "recall": 0.9269000113010406,
+          "density": 0.6920800507068634,
+          "tstr": 96.87
+        },
+        {
+          "name": "g1",
+          "guidance": 1.0,
+          "tstr": 97.22,
+          "frozen_reference": true
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "configs": [
+        {
+          "name": "g0.5",
+          "guidance": 0.5,
+          "precision": 0.5932000309228898,
+          "coverage": 0.5843341320753097,
+          "recall": 0.944323593378067,
+          "density": 0.393700011074543,
+          "tstr": 93.99
+        },
+        {
+          "name": "g0.75",
+          "guidance": 0.75,
+          "precision": 0.8321000456809997,
+          "coverage": 0.7943345487117768,
+          "recall": 0.9324714779853821,
+          "density": 0.6888800501823426,
+          "tstr": 97.02
+        },
+        {
+          "name": "g1",
+          "guidance": 1.0,
+          "tstr": 97.47,
+          "frozen_reference": true
+        }
+      ]
+    }
+  ]
+}

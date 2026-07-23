@@ -1,0 +1,627 @@
+{
+  "purpose": "論文重現包清單（權重 sha256 + P1 資產盤點）",
+  "generated_at": "2026-07-23 20:17:11",
+  "root_note": "路徑相對 repo 根目錄",
+  "checkpoints": [
+    {
+      "path": "checkpoints/cifar10_cfg.pt",
+      "bytes": 766404321,
+      "sha256": "571435b1d4024fc6b925e80782431018826cf057a50b3a67ac6e107b238d3856"
+    },
+    {
+      "path": "checkpoints/cifar100_cfg.pt",
+      "bytes": 766771756,
+      "sha256": "c26373f37ab79f4c2f5774718871e740243d6094b1d48588bc51179aabc9888b"
+    },
+    {
+      "path": "checkpoints/cifar10_judge.pt",
+      "bytes": 44775563,
+      "sha256": "ff1de40d25728e97fb39982d8dd50cb21602944c71c5786ce5c335f1d0c601bc"
+    },
+    {
+      "path": "checkpoints/cifar100_judge.pt",
+      "bytes": 44960395,
+      "sha256": "da8190bebce0ff850cdb92266e73ffbc465fea5e40a99899a0cc91cad2b33bf5"
+    },
+    {
+      "path": "ddpm_mnist.pt",
+      "bytes": 49412178,
+      "sha256": "82068c06b9a4d38d7d75dc29a98fd3ee57e442546007c6a889d0ac3d2aa0040a"
+    },
+    {
+      "path": "mnist_cnn.pt",
+      "bytes": 2491606,
+      "sha256": "923b175b66589a2221927212982ca1ae83ebd1a13d496ec7ecb7ad7aed92bcc3"
+    },
+    {
+      "path": "inception-2015-12-05.pt",
+      "bytes": 95607719,
+      "sha256": "f58cb9b6ec323ed63459aa4fb441fe750cfe39fafad6da5cb504a16f19e958f4"
+    }
+  ],
+  "missing_checkpoints": [],
+  "p1_assets": [
+    {
+      "dir": "results/p1_assets",
+      "files": 122,
+      "bytes": 1880201141,
+      "entries": [
+        {
+          "path": "results/p1_assets/real_dino_feat.pt",
+          "bytes": 30721626
+        },
+        {
+          "path": "results/p1_assets/real_labels.pt",
+          "bytes": 81605
+        },
+        {
+          "path": "results/p1_assets/seed10_w1.5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w1.5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w1.5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w1.5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w1/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w1/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w1/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w1/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w2.5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w2.5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w2.5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w2.5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w2/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w2/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w2/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w2/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w3/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w3/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w3/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w3/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w4/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w4/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w4/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w4/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w6/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w6/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w6/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w6/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w7/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w7/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w7/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w7/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed10_w8/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w8/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed10_w8/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed10_w8/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w1.5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w1.5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w1.5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w1.5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w1/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w1/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w1/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w1/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w2.5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w2.5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w2.5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w2.5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w2/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w2/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w2/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w2/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w3/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w3/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w3/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w3/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w4/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w4/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w4/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w4/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w6/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w6/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w6/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w6/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w7/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w7/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w7/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w7/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed11_w8/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w8/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed11_w8/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed11_w8/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w1.5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w1.5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w1.5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w1.5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w1/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w1/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w1/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w1/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w2.5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w2.5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w2.5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w2.5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w2/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w2/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w2/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w2/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w3/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w3/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w3/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w3/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w4/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w4/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w4/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w4/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w5/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w5/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w5/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w5/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w6/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w6/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w6/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w6/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w7/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w7/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w7/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w7/labels.pt",
+          "bytes": 81506
+        },
+        {
+          "path": "results/p1_assets/seed12_w8/dino_feat.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w8/img_uint8.pt",
+          "bytes": 30721591
+        },
+        {
+          "path": "results/p1_assets/seed12_w8/judge_out.pt",
+          "bytes": 121909
+        },
+        {
+          "path": "results/p1_assets/seed12_w8/labels.pt",
+          "bytes": 81506
+        }
+      ]
+    },
+    {
+      "dir": "results/p1_assets_cifar100",
+      "files": 18,
+      "bytes": 1999229153,
+      "entries": [
+        {
+          "path": "results/p1_assets_cifar100/real_dino_feat.pt",
+          "bytes": 153601626
+        },
+        {
+          "path": "results/p1_assets_cifar100/real_labels.pt",
+          "bytes": 401605
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w1.5/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w1/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w1/img_uint8.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w1/judge_out.pt",
+          "bytes": 601909
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w1/labels.pt",
+          "bytes": 401506
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w2.5/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w2.5/img_uint8.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w2.5/judge_out.pt",
+          "bytes": 601909
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w2.5/labels.pt",
+          "bytes": 401506
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w2/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w3/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w4/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w5/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w6/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w7/dino_feat.pt",
+          "bytes": 153601591
+        },
+        {
+          "path": "results/p1_assets_cifar100/seed10_w8/dino_feat.pt",
+          "bytes": 153601591
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "checkpoint_bytes": 1770423538,
+    "asset_bytes": 3879430294,
+    "checkpoint_human": "1.6 GiB",
+    "asset_human": "3.6 GiB"
+  },
+  "assets_hashed": false,
+  "argv": "tools/make_release_bundle.py"
+}

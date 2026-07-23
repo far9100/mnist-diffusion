@@ -308,6 +308,12 @@ def verify_table_5_3(tables):
             check("§6.3 T5b w0.75 seed11", "56.36", by_seed[11]["w0.75"])
         if 12 in by_seed:
             check("§6.3 T5b w0.75 seed12", "56.35", by_seed[12]["w0.75"])
+    if os.path.exists(os.path.join(RES, "mnist_subunity_scout.json")):
+        ms = load("mnist_subunity_scout.json")
+        mpc = {c["name"]: (c["tstr"]["mean"] if c["tstr"] else None) for c in ms["aggregate"]["per_config"]}
+        check("§6.3 T5b-MNIST g0.5 TSTR", "92.63", mpc["g0.5"])
+        check("§6.3 T5b-MNIST g0.75 TSTR", "95.21", mpc["g0.75"])
+        check("§6.3 T5b-MNIST g1 ref", "97.30", mpc["g1"])
     if os.path.exists(os.path.join(RES, "tstr_real_ceiling.json")):
         cl = load("tstr_real_ceiling.json")["by_dataset"]
         cat = lambda ds, ep: next(b["mean"] for b in cl[ds]["by_epochs"] if b["epochs"] == ep)
