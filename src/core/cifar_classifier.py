@@ -78,6 +78,54 @@ class ResNet18(nn.Module):
         return self.linear(self.features(x))
 
 
+class _WRNBasicBlock(nn.Module):
+    """WideResNet 之 pre-activation basic block（BN-ReLU-Conv ×2 + 捷徑）。"""
+
+    def __init__(self, in_planes, out_planes, stride):
+        super().__init__()
+        self.bn1 = nn.BatchNorm2d(in_planes)
+        self.conv1 = nn.Conv2d(in_planes, out_planes, 3, stride, 1, bias=False)
+        self.bn2 = nn.BatchNorm2d(out_planes)
+        self.conv2 = nn.Conv2d(out_planes, out_planes, 3, 1, 1, bias=False)
+        self.equal = (in_planes == out_planes and stride == 1)
+        self.shortcut = None if self.equal else nn.Conv2d(in_planes, out_planes, 1, stride, 0, bias=False)
+
+    def forward(self, x):
+        o = F.relu(self.bn1(x))
+        s = x if self.equal else self.shortcut(o)
+        o = self.conv1(o)
+        o = self.conv2(F.relu(self.bn2(o)))
+        return o + s
+
+
+class WideResNet16_4(nn.Module):
+    """WRN-16-4（depth 16、widen 4；CIFAR 標準第二架構，供 T9 驗 cell 排序之架構穩健性）。"""
+
+    def __init__(self, num_classes=10, depth=16, widen=4):
+        super().__init__()
+        n = (depth - 4) // 6                       # 每個 stage 的 block 數（depth 16 → 2）
+        widths = [16, 16 * widen, 32 * widen, 64 * widen]   # [16, 64, 128, 256]
+        self.conv1 = nn.Conv2d(3, widths[0], 3, 1, 1, bias=False)
+        self.block1 = self._make(widths[0], widths[1], n, 1)
+        self.block2 = self._make(widths[1], widths[2], n, 2)
+        self.block3 = self._make(widths[2], widths[3], n, 2)
+        self.bn = nn.BatchNorm2d(widths[3])
+        self.linear = nn.Linear(widths[3], num_classes)
+
+    def _make(self, in_p, out_p, n, stride):
+        return nn.Sequential(*[_WRNBasicBlock(in_p if i == 0 else out_p, out_p, stride if i == 0 else 1)
+                               for i in range(n)])
+
+    def features(self, x):
+        o = self.conv1(x)
+        o = self.block3(self.block2(self.block1(o)))
+        o = F.relu(self.bn(o))
+        return F.adaptive_avg_pool2d(o, 1).flatten(1)   # (N, 256)
+
+    def forward(self, x):
+        return self.linear(self.features(x))
+
+
 class _AugmentedTensorDataset(torch.utils.data.Dataset):
     """帶有訓練時 CIFAR 資料增強（random crop + 水平翻轉）的 TensorDataset。"""
 
@@ -151,7 +199,7 @@ def evaluate(model, loader, device, num_classes=10):
 
 
 def run_tstr(images, labels, real_test_loader, device, num_classes=10,
-             epochs=30, lr=0.1, batch_size=128, augment=True, seed=None):
+             epochs=30, lr=0.1, batch_size=128, augment=True, seed=None, arch="resnet18"):
     """在 generated 的 (images,labels) 上訓練一個全新 ResNet；在真實測試 loader 上評估。
 
     seed 非 None 時：`torch.manual_seed(seed)` 控制模型權重初始化，並把 seed 傳入 train_classifier
@@ -159,7 +207,8 @@ def run_tstr(images, labels, real_test_loader, device, num_classes=10,
     """
     if seed is not None:
         torch.manual_seed(seed)
-    model = ResNet18(num_classes=num_classes).to(device)
+    model = (WideResNet16_4(num_classes=num_classes) if arch == "wrn16_4"
+             else ResNet18(num_classes=num_classes)).to(device)
     train_classifier(model, images, labels, device, epochs=epochs, lr=lr,
                      batch_size=batch_size, augment=augment, seed=seed)
     overall, per_class = evaluate(model, real_test_loader, device, num_classes)
