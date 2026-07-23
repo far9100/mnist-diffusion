@@ -303,6 +303,11 @@ def verify_table_5_3(tables):
         scc = {c["name"]: c for c in next(s for s in sc["per_seed"] if s["seed"] == 10)["configs"]}
         check("§6.3 T5b w0.5 TSTR", "42.74", scc["w0.5"]["tstr"])
         check("§6.3 T5b w0.75 TSTR", "55.80", scc["w0.75"]["tstr"])
+        by_seed = {s["seed"]: {c["name"]: c["tstr"] for c in s["configs"]} for s in sc["per_seed"]}
+        if 11 in by_seed:
+            check("§6.3 T5b w0.75 seed11", "56.36", by_seed[11]["w0.75"])
+        if 12 in by_seed:
+            check("§6.3 T5b w0.75 seed12", "56.35", by_seed[12]["w0.75"])
     if os.path.exists(os.path.join(RES, "tstr_real_ceiling.json")):
         cl = load("tstr_real_ceiling.json")["by_dataset"]
         cat = lambda ds, ep: next(b["mean"] for b in cl[ds]["by_epochs"] if b["epochs"] == ep)
