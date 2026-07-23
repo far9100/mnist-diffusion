@@ -195,6 +195,52 @@ uv run python src/experiments/train_cifar.py --epochs 1000 --batch-size 128
 
 各腳本的完整參數以 `--help` 為準。
 
+## 重現指南（從權重到每張表）
+
+論文的每個數字都能指到一個 `results/*.json`（已隨 repo 追蹤），且每個 JSON 的 `metadata.argv`
+逐字記錄了產生它的完整指令——**要重現任一數字，最可靠的作法是照該檔 `metadata.argv` 重跑**。下面
+給出從權重到主要表格的指令序列作為導引。
+
+### 一、取得權重與資產
+
+權重與 P1 特徵/影像資產不進 git（權重約 1.6GiB、P1 資產約 3.6GiB）。以打包工具產生清單與 sha256：
+
+```bash
+uv run python tools/make_release_bundle.py          # 產生 results/release_bundle_manifest.json 與 docs/release_bundle.md
+```
+
+依 `docs/release_bundle.md` 從 Zenodo/HuggingFace 下載後，用 manifest 的 sha256 逐檔核對。權重放
+`checkpoints/`（`cifar10_cfg.pt`、`cifar100_cfg.pt`、`cifar10_judge.pt`、`cifar100_judge.pt`）與
+repo 根（`ddpm_mnist.pt`、`mnist_cnn.pt`、`inception-2015-12-05.pt`）。
+
+### 二、對帳（不需 GPU，先做）
+
+```bash
+uv run python tools/verify_thesis_numbers.py        # 論文每格對 results/*.json 逐位核對，OK/MISMATCH
+uv run python src/experiments/run_c6_fidmin_duel.py --no-write   # 凍結 confirmatory 的 FID-min duel 重算對帳
+```
+
+### 三、從權重到主要表格（各指令的完整參數見該 driver docstring 與 `metadata.argv`）
+
+- **表 5.1／5.2 CIFAR confirmatory**（主結果，GPU 高）：
+  ```bash
+  uv run python src/experiments/run_cifar_cfg_multiseed.py --dataset cifar100 --output results/cifar100_cfg_confirmatory.json
+  uv run python src/experiments/run_cifar_cfg_multiseed.py --guidance 1 1.5 2 2.5 3 4 5 6 7 8 \
+      --seeds 10 11 12 --per-class 1000 --real-per-class 1000 --output results/cifar10_cfg_confirmatory.json
+  ```
+  CIFAR-10 無碰撞重跑 v2 見 `docs/amendment_cifar10_v2.md`（`--gseed-formula hash --reps 5 --tstr-seeded`）。
+- **表 5.3 選擇器反轉（三資料集）**：MNIST 兩臂 `run_mnist_fid_arm.py`、`run_mnist_dinov2_stack.py`；
+  judge 特徵堆疊 `run_cifar_judgefeat_stack.py`；固定 w／隨機可行 baseline `run_baseline_fixed_random.py`。
+- **表 5.4／§5.4 TSTR 協定**：real 上限與 epochs 消融 `run_tstr_protocol.py --ceiling`／`--ablation`。
+- **表 5.5／§5.5 介入**：coverage-matched `run_cifar100_d3_intervention.py`、margin-pruning
+  `run_cifar100_margin_intervention.py`。
+- **§5.6 H3 matched-budget**：`run_cifar100_h3_duel_v2.py`（雙向 Chamfer、G_freq=5、weight 掃描）。
+- **§6.3 補充**：τ 靈敏度 `run_tau_sensitivity.py`、C1 配對統計 `run_c1_paired_stats.py`、
+  ViT-L/14 複算 `run_prdc_vitl14_seed10.py`、w<1 scout `run_cifar_cfg_multiseed.py --off-protocol
+  --guidance 0.5 0.75 ...`（CIFAR-100）與 `run_mnist_subunity_scout.py`（MNIST）。
+
+Gen-1 MNIST sandbox 的 CaF 訊號與 EDM 量測錨點見上節「重現指令」。
+
 ## 記錄與慣例
 
 對外的更新歷史是 `CHANGELOG.md`，依日期倒序列點，逐條記錄每一次計畫與更新的結論。實驗結果分析、
