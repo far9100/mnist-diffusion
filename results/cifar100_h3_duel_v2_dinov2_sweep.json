@@ -1,0 +1,195 @@
+{
+  "analysis": "cifar100_h3_duel_v2",
+  "seed": 10,
+  "chamfer_features": "dinov2",
+  "vanilla_w15": {
+    "tstr_seed10": 58.648,
+    "tstr_reps_frozen": [
+      59.11,
+      59.34,
+      57.7,
+      58.41,
+      58.68
+    ],
+    "tstr_8seed_mean": 58.899,
+    "coverage_dinov2_224": 0.6422400313615799,
+    "est_tflops": 15000.0,
+    "note": "凍結 confirmatory、對稱 rep 對比"
+  },
+  "arms": [
+    {
+      "term": "chamfer",
+      "direction": "bidirectional",
+      "weight": 0.05,
+      "guide_every": 5,
+      "feature_space": "dinov2",
+      "tstr_reps": [
+        59.48,
+        58.46,
+        59.83,
+        59.15,
+        60.02
+      ],
+      "tstr_mean": 59.39,
+      "coverage_dinov2_224": 0.4845,
+      "coverage_guide_112": 0.8557,
+      "precision_dinov2_224": 0.787,
+      "nfe": {
+        "images": 50000,
+        "diffusion_fwd_per_img": 50,
+        "guided_steps_per_img": 10,
+        "guidance_fwd_bwd_per_img": 30
+      },
+      "est_tflops": 21750.0,
+      "gen_seconds": 2690.7,
+      "tstr_minus_vanilla": 0.74,
+      "coverage224_minus_vanilla": -0.1577
+    },
+    {
+      "term": "chamfer",
+      "direction": "bidirectional",
+      "weight": 0.1,
+      "guide_every": 5,
+      "feature_space": "dinov2",
+      "tstr_reps": [
+        58.29,
+        59.3,
+        59.58,
+        59.59,
+        59.85
+      ],
+      "tstr_mean": 59.32,
+      "coverage_dinov2_224": 0.4889,
+      "coverage_guide_112": 0.8714,
+      "precision_dinov2_224": 0.7897,
+      "nfe": {
+        "images": 50000,
+        "diffusion_fwd_per_img": 50,
+        "guided_steps_per_img": 10,
+        "guidance_fwd_bwd_per_img": 30
+      },
+      "est_tflops": 21750.0,
+      "gen_seconds": 2620.0,
+      "tstr_minus_vanilla": 0.67,
+      "coverage224_minus_vanilla": -0.1534
+    },
+    {
+      "term": "chamfer",
+      "direction": "bidirectional",
+      "weight": 0.3,
+      "guide_every": 5,
+      "feature_space": "dinov2",
+      "tstr_reps": [
+        59.76,
+        61.24,
+        60.93,
+        60.95,
+        61.57
+      ],
+      "tstr_mean": 60.89,
+      "coverage_dinov2_224": 0.4876,
+      "coverage_guide_112": 0.8818,
+      "precision_dinov2_224": 0.7963,
+      "nfe": {
+        "images": 50000,
+        "diffusion_fwd_per_img": 50,
+        "guided_steps_per_img": 10,
+        "guidance_fwd_bwd_per_img": 30
+      },
+      "est_tflops": 21750.0,
+      "gen_seconds": 2639.1,
+      "tstr_minus_vanilla": 2.24,
+      "coverage224_minus_vanilla": -0.1546
+    },
+    {
+      "term": "chamfer",
+      "direction": "bidirectional",
+      "weight": 1.0,
+      "guide_every": 5,
+      "feature_space": "dinov2",
+      "tstr_reps": [
+        60.56,
+        62.83,
+        62.56,
+        61.58,
+        60.86
+      ],
+      "tstr_mean": 61.68,
+      "coverage_dinov2_224": 0.4595,
+      "coverage_guide_112": 0.8509,
+      "precision_dinov2_224": 0.7992,
+      "nfe": {
+        "images": 50000,
+        "diffusion_fwd_per_img": 50,
+        "guided_steps_per_img": 10,
+        "guidance_fwd_bwd_per_img": 30
+      },
+      "est_tflops": 21750.0,
+      "gen_seconds": 2706.7,
+      "tstr_minus_vanilla": 3.03,
+      "coverage224_minus_vanilla": -0.1827
+    },
+    {
+      "term": "coverage",
+      "direction": "unidirectional",
+      "weight": 1.0,
+      "guide_every": 5,
+      "feature_space": "dinov2",
+      "tstr_reps": [
+        61.53,
+        62.16,
+        60.6,
+        61.54,
+        60.78
+      ],
+      "tstr_mean": 61.32,
+      "coverage_dinov2_224": 0.4625,
+      "coverage_guide_112": 0.8323,
+      "precision_dinov2_224": 0.7784,
+      "nfe": {
+        "images": 50000,
+        "diffusion_fwd_per_img": 50,
+        "guided_steps_per_img": 10,
+        "guidance_fwd_bwd_per_img": 30
+      },
+      "est_tflops": 21750.0,
+      "gen_seconds": 2647.1,
+      "tstr_minus_vanilla": 2.67,
+      "coverage224_minus_vanilla": -0.1797
+    }
+  ],
+  "verdict": {
+    "bidirectional_coverage224_rises_vs_vanilla": false,
+    "note": "若雙向 coverage224 上升（同官方 0.603→0.912 方向），則 v1 之「增益不見於 coverage」為單向簡化假影，須撤回 §5.6 攻擊句；若仍下降，則攻擊句在雙向、G_freq 對齊下仍成立。",
+    "matched_budget_caliber": "張數相等（各 5 萬）；FLOPs 不等——Chamfer 臂另加導引反傳（見 est_tflops）。"
+  },
+  "metadata": {
+    "guide_every": 5,
+    "reps": 5,
+    "per_class": 500,
+    "num_classes": 100,
+    "steps": 50,
+    "eta": 0.0,
+    "nearest_k": 5,
+    "tstr_epochs": 15,
+    "exemplars_per_class": 16,
+    "guide_image_size": 112,
+    "gflops_assumptions": {
+      "diff_fwd": 6.0,
+      "dino_fwd": {
+        "224": 17.5,
+        "112": 4.5
+      },
+      "note": "order-of-magnitude 估計，backward≈2×forward；僅供口徑討論"
+    },
+    "note": "exploratory、禁因果；v1 driver 與輸出凍結不動，本檔為新檔。",
+    "start_timestamp": "2026-07-22 20:15:21",
+    "argv": "run_cifar100_h3_duel_v2.py --weights 0.05 0.1 0.3 1.0 --reps 5 --output results/cifar100_h3_duel_v2_dinov2_sweep.json",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900,
+      "device_name": "NVIDIA GeForce RTX 5070"
+    }
+  }
+}

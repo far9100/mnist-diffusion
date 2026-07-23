@@ -303,6 +303,11 @@ def verify_table_5_3(tables):
         scc = {c["name"]: c for c in next(s for s in sc["per_seed"] if s["seed"] == 10)["configs"]}
         check("§6.3 T5b w0.5 TSTR", "42.74", scc["w0.5"]["tstr"])
         check("§6.3 T5b w0.75 TSTR", "55.80", scc["w0.75"]["tstr"])
+        by_seed = {s["seed"]: {c["name"]: c["tstr"] for c in s["configs"]} for s in sc["per_seed"]}
+        if 11 in by_seed:
+            check("§6.3 T5b w0.75 seed11", "56.36", by_seed[11]["w0.75"])
+        if 12 in by_seed:
+            check("§6.3 T5b w0.75 seed12", "56.35", by_seed[12]["w0.75"])
     if os.path.exists(os.path.join(RES, "tstr_real_ceiling.json")):
         cl = load("tstr_real_ceiling.json")["by_dataset"]
         cat = lambda ds, ep: next(b["mean"] for b in cl[ds]["by_epochs"] if b["epochs"] == ep)
@@ -317,6 +322,11 @@ def verify_table_5_3(tables):
         mi = load("cifar100_margin_intervention.json")["levels"]
         check("§5.5 T10 margin diff n13606", "-1.03", mi["13606"]["diff_rand_minus_margin"])
         check("§5.5 T10 margin diff n6803", "-0.87", mi["6803"]["diff_rand_minus_margin"])
+    if os.path.exists(os.path.join(RES, "cifar100_h3_duel_v2_dinov2_sweep.json")):
+        sw = load("cifar100_h3_duel_v2_dinov2_sweep.json")["arms"]
+        sw3 = next(a for a in sw if a["term"] == "chamfer" and abs(a["weight"] - 0.3) < 1e-9)
+        check("§5.6.1 sweep bidir w0.3 TSTR", "60.89", sw3["tstr_mean"])
+        check("§5.6.1 sweep bidir w0.3 cov224", "0.488", sw3["coverage_dinov2_224"])
 
 
 def verify_table_5_5(tables):
