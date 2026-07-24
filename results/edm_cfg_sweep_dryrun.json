@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "analysis": "edm_cfg_sweep",
+    "backbone": "NVlabs EDM CIFAR-10 (cond+uncond, CFG at sampler)",
+    "cfg_formula": "D_uncond + w*(D_cond - D_uncond)",
+    "grid": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0
+    ],
+    "seeds": [
+      10,
+      11,
+      12
+    ],
+    "per_class": 1000,
+    "reps": 5,
+    "tstr_epochs": 15,
+    "nearest_k": 5,
+    "seed_formula": "sha256[:15] hash (§0.5)",
+    "prereg_amendment": "docs/amendment_edm_backbone.md",
+    "status": "exploratory",
+    "start_timestamp": "2026-07-24 12:02:13",
+    "argv": "run_edm_cfg_sweep.py --dry-run",
+    "env": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "cudnn": 91900
+    },
+    "mode": "dry_run"
+  },
+  "dry_run": {
+    "cells": 30,
+    "cfg_check": {
+      "w1_eq_cond": true,
+      "w0_eq_uncond": true,
+      "w3_ne_cond": true
+    },
+    "probe_gen_imgs": 20,
+    "probe_seconds": 15.57385540008545,
+    "ms_per_image": 778.6927700042725,
+    "eta_gen_hours": 64.8910641670227,
+    "total_images": 300000
+  }
+}

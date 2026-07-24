@@ -11,6 +11,27 @@ git 歷史，可以 `git log -- records/` 查閱。
 
 CIFAR-100 的預註冊全文另存於 `docs/prereg_cifar100.md`，該文件於揭盲前凍結、隨 repo 發布。
 
+## 2026-07-24
+
+- `2026-07-24-01` test — 任務書 fix_tasks T12.4 選配（EDM 同口徑數字）真跑＋整合：三次 50k 評估
+  （seed-start 0/50000/100000）→ `results/edm_cifar_fid_min3.json`。FID 1.848/1.823/1.847、
+  **min-of-3＝1.823**，對官方 1.79（NVlabs README 同 min-of-3 口徑）之差由單次評估的 0.058 收斂為
+  0.033。thesis §附錄 E 量測錨點與 results_analysis EDM 段補同口徑數字；verifier 增 1 條，重跑 OK 391／
+  MISMATCH 0。凍結單次評估 `edm_cifar_fid.json` 未覆寫。T12.4 全項（口徑差註記於 2026-07-21-02、
+  同口徑數字本次）完成。
+- `2026-07-24-02` plan — 任務書 fix_tasks P1-1（EDM 第二 backbone，方案 A）程式＋dry-run＋ETA＋
+  amendment：新增 `docs/amendment_edm_backbone.md`（唯一實質改動＝backbone 換官方 EDM cond+uncond
+  於取樣器組 CFG `D_uncond+w(D_cond-D_uncond)`，grid/seeds/per_class/TSTR 協定沿 CIFAR-10 confirmatory
+  不動）與 `src/experiments/run_edm_cfg_sweep.py`（CFGWrapper＋generate_cell，hash 種子，預設 dry-run、
+  真跑需 --run）。dry-run 已跑：CFG 正確性全通過（w=1==cond、w=0==uncond、w=3≠cond、shape/finite），
+  計時探針 779 ms/張（torch-fallback）、生成 ETA ≈ 65 GPU 小時 → `results/edm_cfg_sweep_dryrun.json`。
+  真跑（GPU 高）待 amendment commit 後作者授權，凍結未動。
+- `2026-07-24-03` plan — 任務書 fix_tasks P1-2（STL-10 96×96 規模門檻）prereg 草稿＋管線骨架：新增
+  `docs/prereg_stl10.md`（D 包同構草稿，DRAFT 待定稿）與 `src/experiments/run_stl10_pipeline.py`
+  （dry-run 規劃器：資料/相依檢查、枚舉 80 cell、四階段 ETA〔backbone 數日級、judge/base_gate/
+  confirmatory〕，不訓練/不取樣）。dry-run 輸出 `results/stl10_pipeline_dryrun.json`（torchvision
+  0.26.0 可用、STL-10 未快取）。backbone 訓練與真跑待 prereg 定稿＋授權，凍結未動。
+
 ## 2026-07-23
 
 - `2026-07-23-01` test — 完整版 fix_tasks T8 全 weight 掃描（seed10、weights {0.05,0.1,0.3,1.0}、雙向＋單向

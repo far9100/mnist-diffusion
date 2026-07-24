@@ -314,6 +314,9 @@ def verify_table_5_3(tables):
         check("§6.3 T5b-MNIST g0.5 TSTR", "92.63", mpc["g0.5"])
         check("§6.3 T5b-MNIST g0.75 TSTR", "95.21", mpc["g0.75"])
         check("§6.3 T5b-MNIST g1 ref", "97.30", mpc["g1"])
+    if os.path.exists(os.path.join(RES, "edm_cifar_fid_min3.json")):
+        em = load("edm_cifar_fid_min3.json")
+        check("附錄E T12.4 EDM min-of-3 FID", "1.823", em["fid_min_of_3"])
     if os.path.exists(os.path.join(RES, "tstr_real_ceiling.json")):
         cl = load("tstr_real_ceiling.json")["by_dataset"]
         cat = lambda ds, ep: next(b["mean"] for b in cl[ds]["by_epochs"] if b["epochs"] == ep)

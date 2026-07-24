@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "analysis": "stl10_pipeline",
+    "mode": "dry_run",
+    "status": "skeleton",
+    "resolution": 96,
+    "num_classes": 10,
+    "grid": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0
+    ],
+    "seeds": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "per_class": 500,
+    "confirmatory_cells": 80,
+    "prereg": "docs/prereg_stl10.md",
+    "start_timestamp": "2026-07-24 12:02:44",
+    "argv": "run_stl10_pipeline.py"
+  },
+  "data_check": {
+    "torchvision": "0.26.0+cu128",
+    "stl10_cached": false,
+    "note": "未下載；真跑以 STL10(download=True) 取得"
+  },
+  "stage_eta": {
+    "backbone": "96×96 CFG UNet 自訓（unlabeled 100k＋labeled），數日級 ~48–96h",
+    "judge": "ResNet judge 於 labeled 5000 訓練，~1–2h",
+    "base_gate": "50k 生成 + clean-fid（需自建 STL-10 參考 stats），~3–6h",
+    "confirmatory": "sweep + reps×TSTR + coverage + 介入，數十 h"
+  }
+}

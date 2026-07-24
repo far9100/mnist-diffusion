@@ -1503,7 +1503,9 @@ CaF-v2 與 FID-min 逐 seed regret 完全相同、逐 seed 同選 w1.5、oracle 
 **量測正確性錨點**：EDM CIFAR-10 FID 1.848（參考 1.79）、CIFAR-10 base clean-fid 8.95@50k、CIFAR-100
 base clean-fid 11.226@50k、CIFAR-100 judge 測試準確率 74.25%、near-boundary 門檻 0.3622（margin p20）。
 （口徑註：本專案 1.848 為單次評估之 FID；官方 1.79 為 min-of-3〔NVlabs EDM README 取三次評估之最小值〕，
-兩者評估口徑不同，此處僅作 backbone 正確性錨點、非同口徑比較。）
+兩者評估口徑不同，此處僅作 backbone 正確性錨點、非同口徑比較。補同口徑數字：本專案三次 50k 評估
+〔seed-start 0/50000/100000〕FID 1.848/1.823/1.847、**min-of-3＝1.823**，對官方 1.79 之差收斂為 0.033
+〔`results/edm_cifar_fid_min3.json`〕。）
 
 ---
 

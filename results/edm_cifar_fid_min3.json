@@ -1,0 +1,29 @@
+{
+  "analysis": "edm_cifar_fid_min3",
+  "status": "derived",
+  "network": "checkpoints/edm-cifar10-32x32-cond-vp.pkl",
+  "ref": "checkpoints/cifar10-32x32.npz",
+  "num_images": 50000,
+  "evaluations": 3,
+  "seed_starts": [
+    0,
+    50000,
+    100000
+  ],
+  "fid_per_eval": {
+    "0": 1.848395467459942,
+    "50000": 1.8232735159421525,
+    "100000": 1.8468976266416186
+  },
+  "fid_values": [
+    1.848395467459942,
+    1.8232735159421525,
+    1.8468976266416186
+  ],
+  "fid_min_of_3": 1.8232735159421525,
+  "paper_reference_min_of_3": 1.79,
+  "caliber_note": "本專案三次 50k 評估取最小（min-of-3），與官方 NVlabs EDM README 之 1.79 同口徑；單次評估為 1.848（凍結 edm_cifar_fid.json，不覆寫）。",
+  "diff_vs_paper": 0.0333,
+  "argv": "phase1_edm_repro.py x3 --seed-start 0/50000/100000 --num 50000",
+  "start_timestamp": "2026-07-24 12:02:20"
+}

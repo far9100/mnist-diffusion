@@ -15,7 +15,8 @@ E3 段）。
 
 在做任何 CIFAR 組態掃描前，先證明本專案的 EDM 生成到 FID 的量測路徑能重現論文數字。EDM CIFAR-10
 （條件、VP）在 50000 張下 FID 為 1.848，論文參考值 1.79，差 0.058，通過正確性 gate。口徑註：本專案 1.848 為單次評估，
-官方 1.79 為 min-of-3（NVlabs EDM README），兩者評估口徑不同、非同口徑比較。略高於 1.79
+官方 1.79 為 min-of-3（NVlabs EDM README），兩者評估口徑不同、非同口徑比較；補同口徑數字——三次 50k
+評估 1.848/1.823/1.847、min-of-3＝1.823，對官方 1.79 之差收斂為 0.033（`results/edm_cifar_fid_min3.json`）。略高於 1.79
 最可能來自 Windows 上以純 PyTorch 參考實作取代 custom CUDA ops 的良性數值差異，對組態之間的相對
 比較不構成問題。詳見 [CHANGELOG 2026-07-03-03](../CHANGELOG.md#2026-07-03)。
 
